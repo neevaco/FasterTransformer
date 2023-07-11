@@ -51,6 +51,7 @@ private:
     size_t size_per_head_;
     size_t inter_size_;
     size_t num_layer_;
+    size_t vocab_size_;
     size_t tensor_para_size_;
     size_t pipeline_para_size_;
 

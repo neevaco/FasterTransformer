@@ -54,6 +54,7 @@ DebertaTritonModel<T>::DebertaTritonModel(size_t      tensor_para_size,
     size_per_head = 64
     activation_type = gelu
     inter_size = 4096
+    vocab_size = 128100
     max_position_embeddings = 512
     relative_position_buckets = 256
     */
@@ -62,6 +63,7 @@ DebertaTritonModel<T>::DebertaTritonModel(size_t      tensor_para_size,
     head_num_                   = reader.GetInteger("deberta", "head_num");
     size_per_head_              = reader.GetInteger("deberta", "size_per_head");
     inter_size_                 = reader.GetInteger("deberta", "inter_size");
+    vocab_size_                 = reader.GetInteger("deberta", "vocab_size");
     num_layer_                  = reader.GetInteger("deberta", "num_layer");
     max_relative_positions_     = reader.GetInteger("deberta", "max_relative_positions");
     relative_position_buckets_  = reader.GetInteger("deberta", "relative_position_buckets");
@@ -118,10 +120,6 @@ DebertaTritonModel<T>::createModelInstance(int                                  
     ft::NcclParam tensor_para   = nccl_params.first[comms_rank];
     ft::NcclParam pipeline_para = nccl_params.second[comms_rank];
 
-    const int         max_seq_len = 384;
-    ft::AttentionType attention_type =
-        ft::getAttentionType<T>(size_per_head_, ft::getSMVersion(), is_remove_padding_, max_seq_len);
-
     auto deberta =
         std::make_unique<ft::Deberta<T>>(ft::Deberta<T>(0,  // max_batch_size, FT will adjust the buffer automatically.
                                                   0,  //  max_seq_len, FT will adjust the buffer automatically.
@@ -147,7 +145,7 @@ DebertaTritonModel<T>::createModelInstance(int                                  
 #ifdef SPARSITY_ENABLED
     if (is_sparse_) {
         for (int i = 0; i < num_layer_; ++i) {
-            shared_weights_[device_id]->bert_layer_weights[i].compress_weights(*(cublas_wrapper.get()),
+            shared_weights_[device_id]->deberta_layer_weights[i].compress_weights(*(cublas_wrapper.get()),
                                                                                head_num_ * size_per_head_);
         }
     }
@@ -170,6 +168,9 @@ void DebertaTritonModel<T>::createSharedWeights(int device_id, int rank)
     const int pipeline_para_rank = rank / tensor_para_size_;
     shared_weights_[device_id]   = std::make_shared<ft::DebertaWeight<T>>(head_num_ * size_per_head_,
                                                                      inter_size_,
+                                                                     max_relative_positions_,
+                                                                     relative_position_buckets_,
+                                                                     vocab_size_,
                                                                      num_layer_,
                                                                      tensor_para_size_,
                                                                      tensor_para_rank,
