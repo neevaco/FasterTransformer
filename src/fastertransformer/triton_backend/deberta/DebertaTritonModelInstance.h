@@ -53,11 +53,11 @@ private:
 
     ft::TensorMap convert_inputs(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors);
 
-    void allocateBuffer(const size_t batch_size, const size_t seq_len, const size_t hidden_units);
+    void allocateBuffer(const size_t batch_size, const size_t max_seq_len, const size_t hidden_units);
     void freeBuffer();
 
-    T*   d_input_hidden_state_  = nullptr;
-    int* d_sequence_lengths_    = nullptr;
+    int* d_input_ids_           = nullptr;
+    int* d_input_lengths_       = nullptr;
     T*   d_output_hidden_state_ = nullptr;
 
     std::exception_ptr h_exception_ = nullptr;

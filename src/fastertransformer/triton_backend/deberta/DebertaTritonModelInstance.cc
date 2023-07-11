@@ -58,12 +58,12 @@ template<typename T>
 ft::TensorMap DebertaTritonModelInstance<T>::convert_inputs(
     std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
 {
-    move_tensor_H2D(input_tensors->at("input_hidden_state"), d_input_hidden_state_, &allocator_);
-    move_tensor_H2D(input_tensors->at("sequence_lengths"), d_sequence_lengths_, &allocator_);
+    move_tensor_H2D(input_tensors->at("input_ids"), d_input_ids_, &allocator_);
+    move_tensor_H2D(input_tensors->at("sequence_length"), d_input_lengths_, &allocator_);
 
     ft::TensorMap ft_input_tensors(
-        {{"input_hidden_state", as_GPU_tensor(input_tensors->at("input_hidden_state"), d_input_hidden_state_)},
-         {"sequence_lengths", as_GPU_tensor(input_tensors->at("sequence_lengths"), d_sequence_lengths_)}});
+        {{"input_ids", as_GPU_tensor(input_tensors->at("input_ids"), d_input_ids_)},
+         {"sequence_length", as_GPU_tensor(input_tensors->at("sequence_length"), d_input_lengths_)}});
 
     return ft_input_tensors;
 }
@@ -86,18 +86,18 @@ template<typename T>
 std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
 DebertaTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
 {
-    const size_t batch_size   = input_tensors->at("input_hidden_state").shape[0];
-    const size_t seq_len      = input_tensors->at("input_hidden_state").shape[1];
-    const size_t hidden_units = input_tensors->at("input_hidden_state").shape[2];
+    const size_t batch_size     = input_tensors->at("input_ids").shape[0];
+    const size_t max_seq_len    = input_tensors->at("input_ids").shape[1];
+    const size_t hidden_units   = deberta_->getHiddenUnits();
 
-    allocateBuffer(batch_size, seq_len, hidden_units);
+    allocateBuffer(batch_size, max_seq_len, hidden_units);
 
     ft::TensorMap ft_input_tensors = convert_inputs(input_tensors);
 
     ft::TensorMap output_tensors = ft::TensorMap({{"output_hidden_state",
                                                    ft::Tensor{ft::MEMORY_GPU,
                                                               ft::getTensorType<T>(),
-                                                              std::vector<size_t>{batch_size, seq_len, hidden_units},
+                                                              std::vector<size_t>{batch_size, max_seq_len, hidden_units},
                                                               d_output_hidden_state_}}});
 
     try {
@@ -119,12 +119,12 @@ DebertaTritonModelInstance<T>::~DebertaTritonModelInstance()
 }
 
 template<typename T>
-void DebertaTritonModelInstance<T>::allocateBuffer(const size_t batch_size,
-                                                const size_t seq_len,
-                                                const size_t hidden_units)
+void DebertaTritonModelInstance<T>::allocateBuffer(const size_t batch_size, 
+                                            const size_t max_seq_len,
+                                            const size_t hidden_units)
 {
     d_output_hidden_state_ =
-        (T*)(allocator_->reMalloc(d_output_hidden_state_, sizeof(T) * batch_size * seq_len * hidden_units, false));
+        (T*)(allocator_->reMalloc(d_output_hidden_state_, sizeof(T) * batch_size * max_seq_len * hidden_units, false));
 }
 
 template<typename T>
@@ -133,11 +133,11 @@ void DebertaTritonModelInstance<T>::freeBuffer()
     if (d_output_hidden_state_ != nullptr) {
         allocator_->free((void**)(&d_output_hidden_state_));
     }
-    if (d_input_hidden_state_ != nullptr) {
-        allocator_->free((void**)(&d_input_hidden_state_));
+    if (d_input_ids_ != nullptr) {
+        allocator_->free((void**)(&d_input_ids_));
     }
-    if (d_sequence_lengths_ != nullptr) {
-        allocator_->free((void**)(&d_sequence_lengths_));
+    if (d_input_lengths_ != nullptr) {
+        allocator_->free((void**)(&d_input_lengths_));
     }
 }
 
