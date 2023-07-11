@@ -66,5 +66,5 @@ private:
     int                                             int8_mode_                = 0;
     bool                                            enable_custom_all_reduce_ = 0;
     bool                                            is_sparse                 = false;
-    std::vector<std::shared_ptr<ft::DebertaWeight<T>>> shared_weights_;
+    std::vector<std::shared_ptr<ft::BertWeight<T>>> shared_weights_;
 };
