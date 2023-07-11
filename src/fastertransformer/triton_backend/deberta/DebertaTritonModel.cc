@@ -72,11 +72,11 @@ DebertaTritonModel<T>::DebertaTritonModel(size_t      tensor_para_size,
 
 template<typename T>
 std::unique_ptr<AbstractTransformerModelInstance>
-DebertaTritonModel<T>::createModelInstance(int                                                               device_id,
+DebertaTritonModel<T>::createModelInstance(int                                                            device_id,
                                         int                                                               rank,
                                         cudaStream_t                                                      stream,
                                         std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>> nccl_params,
-                                        std::shared_ptr<ft::AbstractCustomComm> custom_all_reduce_comm)
+                                        std::shared_ptr<ft::AbstractCustomComm>                           custom_all_reduce_comm)
 {
     ft::check_cuda_error(cudaSetDevice(device_id));
     const int comms_rank         = device_id % (tensor_para_size_ * pipeline_para_size_);
