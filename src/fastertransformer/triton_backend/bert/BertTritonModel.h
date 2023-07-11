@@ -16,20 +16,20 @@
 
 #pragma once
 
-#include "src/fastertransformer/models/deberta/Deberta.h"
+#include "src/fastertransformer/models/bert/Bert.h"
 #include "src/fastertransformer/triton_backend/transformer_triton_backend.hpp"
 
 namespace ft = fastertransformer;
 
 template<typename T>
-struct DebertaTritonModel: public AbstractTransformerModel {
-    DebertaTritonModel(size_t      tensor_para_size,
-                       size_t      pipeline_para_size,
-                       bool        enable_custom_all_reduce,
-                       std::string model_dir,
-                       int         int8_mode,
-                       bool        is_sparse,
-                       bool        is_remove_padding);
+struct BertTritonModel: public AbstractTransformerModel {
+    BertTritonModel(size_t      tensor_para_size,
+                    size_t      pipeline_para_size,
+                    bool        enable_custom_all_reduce,
+                    std::string model_dir,
+                    int         int8_mode,
+                    bool        is_sparse,
+                    bool        is_remove_padding);
 
     virtual std::unique_ptr<AbstractTransformerModelInstance>
     createModelInstance(int                                                               deviceId,
