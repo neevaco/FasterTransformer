@@ -61,6 +61,7 @@ FasterTransformer is built on top of CUDA, cuBLAS, cuBLASLt and C++. We provide 
 | Swin Transformer | TensorRT       | Yes  | Yes                 | -                       | -               | -                 | -                  |
 | ViT              | PyTorch        | Yes  | Yes                 | -                       | -               | -                 | -                  |
 | ViT              | TensorRT       | Yes  | Yes                 | -                       | -               | -                 | -                  |
+| GPT-NeoX         | PyTorch        | Yes  | -                   | -                       | Yes             | Yes               | -                  |
 | GPT-NeoX         | Triton backend | Yes  | -                   | -                       | Yes             | Yes               | -                  |
 | BART/mBART       | PyTorch        | Yes  | -                   | -                       | Yes             | Yes               | -                  |
 | WeNet            | C++            | Yes  | -                   | -                       | -               | -                 | -                  |
@@ -211,6 +212,9 @@ In the experiments of decoding, we updated the following parameters:
 ## Release notes
 
 ### Changelog
+
+May 2023
+- Fix bugs of generation early stopping
 
 January 2023
 - Support GPT MoE

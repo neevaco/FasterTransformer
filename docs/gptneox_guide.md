@@ -36,6 +36,7 @@ We provide the environment variables to tune for specific usage.
 
 * Checkpoint converter
   * EleutherAI
+  * HuggingFace
 * Data type
   * FP32
   * FP16
@@ -46,7 +47,7 @@ We provide the environment variables to tune for specific usage.
   * Bad words list
   * Beam search and sampling are both supported
 
-## Setup
+## Setup from EleutherAI checkpoint
 
 ### Requirements
 
@@ -72,6 +73,22 @@ You may download the tokenizer config [here](https://mystic.the-eye.eu/public/AI
 
 To tokenize/detokenize files, use the script found in `examples/pytorch/gptneox/utils/hftokenizer.py`. You may need to pass the path to the tokenizer config with the `--tokenizer` flag.
 
+## Setup from HuggingFace checkpoint
+
+> Please checkout https://huggingface.co/docs to learn more about the usage of the huggingface models and tokenizers.
+
+First download a huggingface checkpoint:
+
+```bash
+git lfs clone https://huggingface.co/<MODEL_GROUP>/<MODEL_NAME>
+```
+
+Then use the script provided by FasterTransformer to convert the checkpoint to raw weights, understood by FT. You can change `-i_g` to specify the tensor parallelism size.
+
+```bash
+python ../examples/pytorch/gptneox/utils/huggingface_gptneox_convert.py -i ../path/to/your/model -o ../../path/to/fastertransformer/model -i_g 1 -m_n gptneox
+```
+
 ### Run GPT-NeoX
 
 * Generate the `gemm_config.in` file.\
@@ -89,14 +106,39 @@ To tokenize/detokenize files, use the script found in `examples/pytorch/gptneox/
     mpirun -n 2 --allow-run-as-root ./bin/gptneox_example
     ```
 
-E.g. by setting the `data_type` of `gptneox_config.ini` to `fp16`, users can run gpt model under fp16.
+    E.g. by setting the `data_type` of `gptneox_config.ini` to `fp16`, users can run gpt model under fp16.
 
-You can then decode the `out` file with the tokenizer:
+    You can then decode the `out` file with the tokenizer:
 
-  ```bash
-  wget https://mystic.the-eye.eu/public/AI/models/GPT-NeoX-20B/slim_weights/20B_tokenizer.json
-  ../examples/pytorch/gptneox/utils/hftokenizer.py out --tokenizer 20B_tokenizer.json
-  ```
+      ```bash
+      wget https://mystic.the-eye.eu/public/AI/models/GPT-NeoX-20B/slim_weights/20B_tokenizer.json
+      ../examples/pytorch/gptneox/utils/hftokenizer.py out --tokenizer 20B_tokenizer.json
+      ```
+
+* Run GPT on PyTorch
+
+    Basically, `gptneox_example.py` includes the example how to declare a model, load a checkpoint, and forward context inputs and get generated outputs in Pytorch.
+
+    For generating outputs based on context inputs, create a text file including the context inputs (line by line) and set `--sample_input_file` to the text file path. (By default, the script will generate outputs without context inputs.)
+
+    Run with `-h` to see more settings.
+
+    Run GPT with TP and PP on single node. Note that the number of processes must equal to `tensor_para_size * pipeline_para_size`.
+
+    ```bash
+    # No parallelism (tensor_para_size=1, pipeline_para_size=1)
+    python ../examples/pytorch/gptneox/gptneox_example.py
+
+    # TP (tensor_para_size=2, pipeline_para_size=1)
+    mpirun -n 2 --allow-run-as-root python ../examples/pytorch/gptneox/gptneox_example.py --tensor_para_size=2 --pipeline_para_size=1 --ckpt_path="/path/to/your/model/2-gpu"
+
+    # LP (tensor_para_size=1, pipeline_para_size=2)
+    mpirun -n 2 --allow-run-as-root python ../examples/pytorch/gptneox/gptneox_example.py --tensor_para_size=1 --pipeline_para_size=2 --ckpt_path="/path/to/your/model/1-gpu"
+
+    # TP and LP (tensor_para_size=2, pipeline_para_size=2)
+    mpirun -n 4 --allow-run-as-root python ../examples/pytorch/gptneox/gptneox_example.py --tensor_para_size=2 --pipeline_para_size=2 --ckpt_path="/path/to/your/model/2-gpu"
+    ```
+
 <!-- This converter only works for customed checkpoint -->
 <!-- ### Run GPT-NeoX with prompts
 
