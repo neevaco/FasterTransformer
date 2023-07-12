@@ -191,7 +191,7 @@ std::string DebertaTritonModel<T>::toString()
        << "\nmax_relative_positions: " << max_relative_positions_ << "\nrelative_position_buckets: " << relative_position_buckets_
        << "\nq_scaling: " << q_scaling_ << "\nis_remove_padding: " << is_remove_padding_
        << "\nis_sparse: " << is_sparse_ << "\nactivation_type: " << static_cast<int>(activation_type_)
-       << "\nlayernorm_type: " << static_cast<int>(layernorm_type_)
+       << "\nlayernorm_type: " << static_cast<int>(layernorm_type_) << "\nvocab_size: " << vocab_size_
        << "\nenable_custom_all_reduce:" << enable_custom_all_reduce_ << std::endl;
 
     return ss.str();
