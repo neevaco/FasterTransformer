@@ -151,7 +151,7 @@ DebertaTritonModel<T>::createModelInstance(int                                  
     }
 #endif
 
-    return std::unique_ptr<DebertaTritonModelInstance<T>>(new DebertaTritonModelInstance<T>(std::move(bert),
+    return std::unique_ptr<DebertaTritonModelInstance<T>>(new DebertaTritonModelInstance<T>(std::move(deberta),
                                                                                       shared_weights_[device_id],
                                                                                       std::move(allocator),
                                                                                       std::move(cublas_algo_map),
