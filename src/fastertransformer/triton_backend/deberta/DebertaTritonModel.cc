@@ -48,7 +48,7 @@ DebertaTritonModel<T>::DebertaTritonModel(size_t      tensor_para_size,
     /* Deberta base Configuration File Example
     [deberta]
     model_name = deberta
-    kidden_size = 1024
+    hidden_size = 1024
     num_layer = 24
     head_num = 16
     size_per_head = 64
