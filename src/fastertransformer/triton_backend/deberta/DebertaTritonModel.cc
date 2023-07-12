@@ -188,10 +188,11 @@ std::string DebertaTritonModel<T>::toString()
     ss << "Model: " << model_name_ << "\nmodel_dir: " << model_dir_ << "\nhead_num: " << head_num_
        << "\nsize_per_head: " << size_per_head_ << "\ninter_size: " << inter_size_ << "\nnum_layer: " << num_layer_
        << "\ntensor_para_size: " << tensor_para_size_ << "\npipeline_para_size: " << pipeline_para_size_
+       << "\nmax_relative_positions: " << max_relative_positions_ << "\nrelative_position_buckets: " << relative_position_buckets_
        << "\nq_scaling: " << q_scaling_ << "\nis_remove_padding: " << is_remove_padding_
        << "\nis_sparse: " << is_sparse_ << "\nactivation_type: " << static_cast<int>(activation_type_)
-       << "\nlayernorm_type: " << static_cast<int>(layernorm_type_) << "\nint8_mode:" << int8_mode_
-       << "\nenable_custom_all_reduce:" << enable_custom_all_reduce_ << "\nis_sparse: " << is_sparse << std::endl;
+       << "\nlayernorm_type: " << static_cast<int>(layernorm_type_)
+       << "\nenable_custom_all_reduce:" << enable_custom_all_reduce_ << std::endl;
 
     return ss.str();
 }

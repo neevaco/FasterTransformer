@@ -54,6 +54,8 @@ private:
     size_t vocab_size_;
     size_t tensor_para_size_;
     size_t pipeline_para_size_;
+    size_t max_relative_positions_;
+    size_t relative_position_buckets_;
 
     float              q_scaling_;
     bool               is_remove_padding_;
