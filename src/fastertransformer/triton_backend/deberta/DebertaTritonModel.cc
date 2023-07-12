@@ -55,7 +55,7 @@ DebertaTritonModel<T>::DebertaTritonModel(size_t      tensor_para_size,
     activation_type = gelu
     inter_size = 4096
     vocab_size = 128100
-    max_position_embeddings = 512
+    max_relative_positions = 512
     relative_position_buckets = 256
     */
 
