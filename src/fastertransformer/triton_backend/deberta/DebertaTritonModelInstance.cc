@@ -59,11 +59,11 @@ ft::TensorMap DebertaTritonModelInstance<T>::convert_inputs(
     std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
 {
     move_tensor_H2D(input_tensors->at("input_ids"), d_input_ids_, &allocator_);
-    move_tensor_H2D(input_tensors->at("sequence_length"), d_input_lengths_, &allocator_);
+    move_tensor_H2D(input_tensors->at("sequence_lengths"), d_input_lengths_, &allocator_);
 
     ft::TensorMap ft_input_tensors(
         {{"input_ids", as_GPU_tensor(input_tensors->at("input_ids"), d_input_ids_)},
-         {"sequence_length", as_GPU_tensor(input_tensors->at("sequence_length"), d_input_lengths_)}});
+         {"sequence_lengths", as_GPU_tensor(input_tensors->at("sequence_lengths"), d_input_lengths_)}});
 
     return ft_input_tensors;
 }
