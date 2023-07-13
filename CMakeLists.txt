@@ -390,6 +390,7 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:cutlass_preprocessors>
   $<TARGET_OBJECTS:decoder_masked_multihead_attention>
   $<TARGET_OBJECTS:decoding_kernels>
+  $<TARGET_OBJECTS:disentangled_attention_kernels>
   $<TARGET_OBJECTS:fpA_intB_gemm>
   $<TARGET_OBJECTS:gen_relative_pos_bias>
   $<TARGET_OBJECTS:gpt_kernels>
