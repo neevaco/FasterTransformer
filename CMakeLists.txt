@@ -322,6 +322,10 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:BertLayerWeight>
   $<TARGET_OBJECTS:BertTritonBackend>
   $<TARGET_OBJECTS:BertWeight>
+  $<TARGET_OBJECTS:Deberta>
+  $<TARGET_OBJECTS:DebertaLayerWeight>
+  $<TARGET_OBJECTS:DebertaTritonBackend>
+  $<TARGET_OBJECTS:DebertaWeight>
   $<TARGET_OBJECTS:DecoderCrossAttentionLayer>
   $<TARGET_OBJECTS:DecoderSelfAttentionLayer>
   $<TARGET_OBJECTS:DynamicDecodeLayer>
