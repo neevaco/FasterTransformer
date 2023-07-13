@@ -328,6 +328,7 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:DebertaWeight>
   $<TARGET_OBJECTS:DecoderCrossAttentionLayer>
   $<TARGET_OBJECTS:DecoderSelfAttentionLayer>
+  $<TARGET_OBJECTS:DisentangledAttentionLayer>
   $<TARGET_OBJECTS:DynamicDecodeLayer>
   $<TARGET_OBJECTS:FfnLayer>
   $<TARGET_OBJECTS:FusedAttentionLayer>
@@ -360,6 +361,7 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:T5EncoderTritonBackend>
   $<TARGET_OBJECTS:TensorParallelDecoderCrossAttentionLayer>
   $<TARGET_OBJECTS:TensorParallelDecoderSelfAttentionLayer>
+  $<TARGET_OBJECTS:TensorParallelDisentangledAttentionLayer>
   $<TARGET_OBJECTS:TensorParallelGeluFfnLayer>
   $<TARGET_OBJECTS:TensorParallelSiluFfnLayer>
   $<TARGET_OBJECTS:TensorParallelGptContextAttentionLayer>
