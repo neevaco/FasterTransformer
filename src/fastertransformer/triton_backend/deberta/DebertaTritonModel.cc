@@ -57,6 +57,7 @@ DebertaTritonModel<T>::DebertaTritonModel(size_t      tensor_para_size,
     vocab_size = 128100
     max_relative_positions = 512
     relative_position_buckets = 256
+    weight_data_type = fp32
     */
 
     model_name_                 = reader.Get("deberta", "model_name");
