@@ -16,19 +16,19 @@
  */
 
 // Modified from
-// https://github.com/NVIDIA/FasterTransformer/blob/main/src/turbomind/layers/attention_layers/DecoderSelfAttentionLayer.cc
-#include "src/turbomind/models/llama/LlamaDecoderSelfAttentionLayer.h"
-#include "src/turbomind/kernels/decoder_masked_multihead_attention.h"
-#include "src/turbomind/models/llama/LlamaNcclGuard.h"
-#include "src/turbomind/models/llama/llama_kernels.h"
-#include "src/turbomind/models/llama/llama_utils.h"
-#include "src/turbomind/utils/cuda_utils.h"
-#include "src/turbomind/utils/logger.h"
-#include "src/turbomind/utils/nvtx_utils.h"
+// https://github.com/NVIDIA/FasterTransformer/blob/main/src/fastertransformer/layers/attention_layers/DecoderSelfAttentionLayer.cc
+#include "src/fastertransformer/models/llama/LlamaDecoderSelfAttentionLayer.h"
+#include "src/fastertransformer/kernels/decoder_masked_multihead_attention.h"
+#include "src/fastertransformer/models/llama/LlamaNcclGuard.h"
+#include "src/fastertransformer/models/llama/llama_kernels.h"
+#include "src/fastertransformer/models/llama/llama_utils.h"
+#include "src/fastertransformer/utils/cuda_utils.h"
+#include "src/fastertransformer/utils/logger.h"
+#include "src/fastertransformer/utils/nvtx_utils.h"
 #include <string>
 // #include <glog/logging.h>
 
-namespace turbomind {
+namespace fastertransformer {
 
 template<typename T>
 struct SATypeConverter {
@@ -300,4 +300,4 @@ void LlamaDecoderSelfAttentionLayer<T>::forward(TensorMap*                     o
 template class LlamaDecoderSelfAttentionLayer<float>;
 template class LlamaDecoderSelfAttentionLayer<half>;
 
-}  // namespace turbomind
+}  // namespace fastertransformer

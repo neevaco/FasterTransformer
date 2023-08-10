@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-// Modified from https://github.com/NVIDIA/FasterTransformer/blob/main/src/turbomind/layers/DenseWeight.h
+// Modified from https://github.com/NVIDIA/FasterTransformer/blob/main/src/fastertransformer/layers/DenseWeight.h
 
 #pragma once
 
-#include "src/turbomind/layers/FfnWeight.h"
-#include "src/turbomind/layers/attention_layers/AttentionWeight.h"
-#include "src/turbomind/utils/cuda_utils.h"
+#include "src/fastertransformer/layers/FfnWeight.h"
+#include "src/fastertransformer/layers/attention_layers/AttentionWeight.h"
+#include "src/fastertransformer/utils/cuda_utils.h"
 
-namespace turbomind {
+namespace fastertransformer {
 
 enum class WeightType : int
 {
@@ -76,4 +76,4 @@ struct LlamaFfnWeight {
     LlamaDenseWeight<T> output;
 };
 
-}  // namespace turbomind
+}  // namespace fastertransformer

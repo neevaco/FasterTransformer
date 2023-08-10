@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-// Modified from https://github.com/NVIDIA/FasterTransformer/blob/main/src/turbomind/layers/FfnLayer.h
+// Modified from https://github.com/NVIDIA/FasterTransformer/blob/main/src/fastertransformer/layers/FfnLayer.h
 
-#include "src/turbomind/models/llama/LlamaFfnLayer.h"
-#include "src/turbomind/kernels/activation_kernels.h"
-#include "src/turbomind/models/llama/LlamaNcclGuard.h"
-#include "src/turbomind/utils/nvtx_utils.h"
+#include "src/fastertransformer/models/llama/LlamaFfnLayer.h"
+#include "src/fastertransformer/kernels/activation_kernels.h"
+#include "src/fastertransformer/models/llama/LlamaNcclGuard.h"
+#include "src/fastertransformer/utils/nvtx_utils.h"
 // #include <glog/logging.h>
 
-namespace turbomind {
+namespace fastertransformer {
 
 template<typename T>
 void LlamaFfnLayer<T>::allocateBuffer(size_t token_num)
@@ -110,4 +110,4 @@ void LlamaFfnLayer<T>::forward(TensorMap*               output_tensors,
 template class LlamaFfnLayer<float>;
 template class LlamaFfnLayer<half>;
 
-}  // namespace turbomind
+}  // namespace fastertransformer

@@ -15,18 +15,18 @@
  * limitations under the License.
  */
 
-// Modified from https://github.com/NVIDIA/FasterTransformer/blob/main/src/turbomind/layers/FfnLayer.cc
+// Modified from https://github.com/NVIDIA/FasterTransformer/blob/main/src/fastertransformer/layers/FfnLayer.cc
 
 #pragma once
 
-// #include "src/turbomind/layers/FfnLayer.h"
-#include "src/turbomind/models/llama/LlamaDecoderLayerWeight.h"
-#include "src/turbomind/models/llama/LlamaLinear.h"
-#include "src/turbomind/utils/custom_ar_comm.h"
-#include "src/turbomind/utils/nccl_utils.h"
+// #include "src/fastertransformer/layers/FfnLayer.h"
+#include "src/fastertransformer/models/llama/LlamaDecoderLayerWeight.h"
+#include "src/fastertransformer/models/llama/LlamaLinear.h"
+#include "src/fastertransformer/utils/custom_ar_comm.h"
+#include "src/fastertransformer/utils/nccl_utils.h"
 #include <functional>
 
-namespace turbomind {
+namespace fastertransformer {
 
 template<typename T>
 class LlamaFfnLayer {
@@ -82,4 +82,4 @@ private:
     bool is_allocate_buffer_{};
 };
 
-}  // namespace turbomind
+}  // namespace fastertransformer

@@ -16,11 +16,11 @@
  */
 
 // Modified from
-// https://github.com/NVIDIA/FasterTransformer/blob/main/src/turbomind/models/multi_gpu_gpt/ParallelGptWeight.cc
+// https://github.com/NVIDIA/FasterTransformer/blob/main/src/fastertransformer/models/multi_gpu_gpt/ParallelGptWeight.cc
 
-#include "src/turbomind/models/llama/LlamaWeight.h"
+#include "src/fastertransformer/models/llama/LlamaWeight.h"
 
-namespace turbomind {
+namespace fastertransformer {
 
 template<typename T>
 LlamaWeight<T>::LlamaWeight(size_t     head_num,
@@ -129,4 +129,4 @@ void LlamaWeight<T>::loadModel(std::string dir_path)
 template struct LlamaWeight<float>;
 template struct LlamaWeight<half>;
 
-}  // namespace turbomind
+}  // namespace fastertransformer
