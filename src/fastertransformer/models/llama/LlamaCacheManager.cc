@@ -1,10 +1,10 @@
 // Copyright (c) OpenMMLab. All rights reserved.
 
-#include "src/turbomind/models/llama/LlamaCacheManager.h"
-#include "src/turbomind/utils/cuda_utils.h"
-#include "src/turbomind/utils/logger.h"
+#include "src/fastertransformer/models/llama/LlamaCacheManager.h"
+#include "src/fastertransformer/utils/cuda_utils.h"
+#include "src/fastertransformer/utils/logger.h"
 
-namespace turbomind {
+namespace fastertransformer {
 
 LlamaCacheManager::~LlamaCacheManager()
 {
@@ -189,4 +189,4 @@ bool LlamaCacheManager::contains(uint64_t id) const noexcept
     return it != device_cache_.end();
 }
 
-}  // namespace turbomind
+}  // namespace fastertransformer

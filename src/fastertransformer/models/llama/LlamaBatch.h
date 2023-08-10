@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "src/turbomind/models/llama/LlamaCacheManager.h"
-#include "src/turbomind/models/llama/LlamaNcclGuard.h"
-#include "src/turbomind/models/llama/Request.h"
-#include "src/turbomind/utils/allocator.h"
-#include "src/turbomind/utils/cublasMMWrapper.h"
+#include "src/fastertransformer/models/llama/LlamaCacheManager.h"
+#include "src/fastertransformer/models/llama/LlamaNcclGuard.h"
+#include "src/fastertransformer/models/llama/Request.h"
+#include "src/fastertransformer/utils/allocator.h"
+#include "src/fastertransformer/utils/cublasMMWrapper.h"
 
-namespace turbomind {
+namespace fastertransformer {
 
 template<typename T>
 class LlamaV2;
@@ -156,4 +156,4 @@ private:
     IAllocator*      allocator_{};
 };
 
-}  // namespace turbomind
+}  // namespace fastertransformer
