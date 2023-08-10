@@ -1,14 +1,14 @@
 // Copyright (c) OpenMMLab. All rights reserved.
 
-#include "src/turbomind/utils/allocator.h"
-#include "src/turbomind/utils/logger.h"
+#include "src/fastertransformer/utils/allocator.h"
+#include "src/fastertransformer/utils/logger.h"
 #include <cstdint>
 #include <cuda_runtime.h>
 #include <queue>
 #include <unordered_map>
 #include <vector>
 
-namespace turbomind {
+namespace fastertransformer {
 
 // k-cache layout [L, H, D/x, S[s:], x]
 // v-cache layout [L, H, S[s:], D/x, x]
@@ -99,4 +99,4 @@ private:
     std::vector<Sequence> device_cache_;
 };
 
-}  // namespace turbomind
+}  // namespace fastertransformer
