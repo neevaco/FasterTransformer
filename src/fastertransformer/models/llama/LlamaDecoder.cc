@@ -17,14 +17,14 @@
  */
 
 // Modified from
-// https://github.com/NVIDIA/FasterTransformer/blob/main/src/turbomind/models/multi_gpu_gpt/ParallelGptDecoder.cc
+// https://github.com/NVIDIA/FasterTransformer/blob/main/src/fastertransformer/models/multi_gpu_gpt/ParallelGptDecoder.cc
 
-#include "src/turbomind/models/llama/LlamaDecoder.h"
-#include "src/turbomind/models/llama/llama_decoder_kernels.h"
-#include "src/turbomind/models/llama/llama_kernels.h"
-#include "src/turbomind/models/llama/llama_utils.h"
+#include "src/fastertransformer/models/llama/LlamaDecoder.h"
+#include "src/fastertransformer/models/llama/llama_decoder_kernels.h"
+#include "src/fastertransformer/models/llama/llama_kernels.h"
+#include "src/fastertransformer/models/llama/llama_utils.h"
 
-namespace turbomind {
+namespace fastertransformer {
 
 template<typename T>
 LlamaDecoder<T>::LlamaDecoder(size_t           head_num,
@@ -244,4 +244,4 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*        ou
 template class LlamaDecoder<half>;
 template class LlamaDecoder<float>;
 
-}  // namespace turbomind
+}  // namespace fastertransformer
