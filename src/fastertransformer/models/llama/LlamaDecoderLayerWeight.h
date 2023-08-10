@@ -16,13 +16,13 @@
  */
 
 // Modified from
-// https://github.com/NVIDIA/FasterTransformer/blob/main/src/turbomind/models/multi_gpu_gpt/ParallelGptDecoderLayerWeight.h
+// https://github.com/NVIDIA/FasterTransformer/blob/main/src/fastertransformer/models/multi_gpu_gpt/ParallelGptDecoderLayerWeight.h
 
 #pragma once
 
-#include "src/turbomind/models/llama/LlamaDenseWeight.h"
+#include "src/fastertransformer/models/llama/LlamaDenseWeight.h"
 
-namespace turbomind {
+namespace fastertransformer {
 
 template<typename T>
 struct LlamaDecoderLayerWeight {
@@ -63,4 +63,4 @@ private:
     void mallocWeights();
 };
 
-}  // namespace turbomind
+}  // namespace fastertransformer
