@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "src/turbomind/utils/logger.h"
+#include "src/fastertransformer/utils/logger.h"
 #include <pthread.h>
 
-namespace turbomind {
+namespace fastertransformer {
 
 class Barrier {
 public:
@@ -34,4 +34,4 @@ private:
     pthread_barrier_t barrier_{};
 };
 
-}  // namespace turbomind
+}  // namespace fastertransformer

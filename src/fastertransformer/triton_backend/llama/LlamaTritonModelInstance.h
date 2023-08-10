@@ -20,12 +20,12 @@
 
 #pragma once
 
-#include "src/turbomind/models/llama/LlamaV2.h"
-#include "src/turbomind/triton_backend/llama/LlamaTritonModel.h"
-#include "src/turbomind/triton_backend/transformer_triton_backend.hpp"
+#include "src/fastertransformer/models/llama/LlamaV2.h"
+#include "src/fastertransformer/triton_backend/llama/LlamaTritonModel.h"
+#include "src/fastertransformer/triton_backend/transformer_triton_backend.hpp"
 #include <memory>
 
-namespace ft = turbomind;
+namespace ft = fastertransformer;
 
 template<typename T>
 struct LlamaTritonSharedModelInstance {
