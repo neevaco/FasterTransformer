@@ -164,7 +164,7 @@ static inline void fusedQKV_masked_attention_dispatch(const T*     qkv_buf,
 template<typename T>
 void LlamaDecoderSelfAttentionLayer<T>::allocateBuffer(size_t batch_size, int key_len, int max_memory_len)
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
 
     const size_t local_q_kv_head_num = local_head_num_ + 2 * local_kv_head_num_;
 

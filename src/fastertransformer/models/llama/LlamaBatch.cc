@@ -28,7 +28,7 @@ void LlamaBatch<T>::verifyRequests(std::vector<std::shared_ptr<Request>>& stop_r
     };
 
     auto invalidate = [](const char* type, std::shared_ptr<Request>& req, int ec) {
-        TM_LOG_WARNING("[verifyRequests] Skipping invalid %s request for id %ld, code = %d", type, (long)req->id, ec);
+        FT_LOG_WARNING("[verifyRequests] Skipping invalid %s request for id %ld, code = %d", type, (long)req->id, ec);
         req->signal.set_value(ec);
         req.reset();
     };
@@ -147,7 +147,7 @@ void LlamaBatch<T>::handleStopRequests(const std::vector<std::shared_ptr<Request
 template<typename T>
 void LlamaBatch<T>::allocateBuffer(size_t batch_size, size_t session_len)
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     const size_t batchxbeam = batch_size;
 
     const size_t hidden_units = llama_->hidden_units_;
@@ -241,7 +241,7 @@ void LlamaBatch<T>::allocatePersistantBuffer(size_t max_batch_size)
 template<typename T>
 void LlamaBatch<T>::freeBuffer()
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     if (is_allocate_buffer_) {
         allocator_->free((void**)&context_decoder_input_buf_);
         allocator_->free((void**)&context_decoder_output_buf_);
@@ -590,7 +590,7 @@ void LlamaBatch<T>::initialize(const std::vector<std::shared_ptr<Request>>& infe
                 seq.cache_len = std::min(seq.cache_len, (size_t)step);
             }
             else if (rank_ == 0) {
-                TM_LOG_WARNING("[initialize] Skipping invalid step (%d) setting for ID %ld", step, (long)seq.id);
+                FT_LOG_WARNING("[initialize] Skipping invalid step (%d) setting for ID %ld", step, (long)seq.id);
             }
         }
 
@@ -707,7 +707,7 @@ void LlamaBatch<T>::initialize(const std::vector<std::shared_ptr<Request>>& infe
             request_seq_len_limit_[i] = session_len_ - 1;
             if (rank_ == 0) {
                 const int trunc_output_len = request_seq_len_limit_[i] - h_context_length_buf_[i];
-                TM_LOG_WARNING(
+                FT_LOG_WARNING(
                     "[initialize] [%ld] total sequence length (%d + %d) exceeds session_len (%d), request_output_len is truncated to %d",
                     (long)seq.id,
                     h_context_length_buf_[i],

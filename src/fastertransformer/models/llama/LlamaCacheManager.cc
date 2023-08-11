@@ -74,7 +74,7 @@ auto LlamaCacheManager::create(uint64_t id, cudaStream_t stream) -> Sequence
     for (const auto& e : device_cache_) {
         if (e.id == id) {
             if (rank_ == 0) {
-                TM_LOG_WARNING("[LlamaCacheManager][create] Removing conflicting id %ld", (long)id);
+                FT_LOG_WARNING("[LlamaCacheManager][create] Removing conflicting id %ld", (long)id);
             }
             erase(id);
         }
@@ -102,7 +102,7 @@ auto LlamaCacheManager::getEntryOrThrow(uint64_t id) -> std::vector<Sequence>::i
     auto pred = [&](const Sequence& s) { return s.id == id; };
     auto it   = std::find_if(device_cache_.begin(), device_cache_.end(), pred);
     if (it == device_cache_.end()) {
-        TM_LOG_ERROR("[LlamaCacheManager] %ld not found.\n", (long)id);
+        FT_LOG_ERROR("[LlamaCacheManager] %ld not found.\n", (long)id);
         FT_CHECK(0);
     }
     return it;

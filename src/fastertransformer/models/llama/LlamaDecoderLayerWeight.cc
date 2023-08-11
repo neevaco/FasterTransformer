@@ -119,7 +119,7 @@ void loadWeights(LlamaDenseWeight<T>& w,
     else {
         // Disable slice if weight has already been sliced
         if (std::filesystem::exists(max_prefix + ".weight") || std::filesystem::exists(max_prefix + ".qweight")) {
-            TM_LOG_DEBUG("TP weight exists. Disable runtime TP.");
+            FT_LOG_DEBUG("TP weight exists. Disable runtime TP.");
             enable_slice = false;
         }
     }

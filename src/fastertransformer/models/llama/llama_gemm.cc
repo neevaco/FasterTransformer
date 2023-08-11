@@ -25,7 +25,7 @@ namespace ft = fastertransformer;
 int main(int argc, char* argv[])
 {
     if (argc < 9 || argc > 11) {
-        TM_LOG_ERROR("./bin/llama_gemm batch_size \\ \n"
+        FT_LOG_ERROR("./bin/llama_gemm batch_size \\ \n"
                      "                 beam_width \\ \n"
                      "                 max_input_len \\ \n"
                      "                 head_number \\ \n"
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
                      "                 data_type \\ \n"
                      "                 tensor_para_size \\\n"
                      "                 is_append (append new config into exist gemm_config.ini or not)");
-        TM_LOG_ERROR("e.g. ./bin/llama_gemm 8 4 32 96 128 49152 51200 1 8 1");
+        FT_LOG_ERROR("e.g. ./bin/llama_gemm 8 4 32 96 128 49152 51200 1 8 1");
         return 0;
     }
 

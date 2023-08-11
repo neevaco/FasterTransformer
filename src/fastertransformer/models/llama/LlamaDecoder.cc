@@ -51,14 +51,14 @@ LlamaDecoder<T>::LlamaDecoder(size_t           head_num,
     tensor_para_(tensor_para),
     data_type_(getTensorType<T>())
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     initialize(kv_head_num, quant_policy);
 }
 
 template<typename T>
 LlamaDecoder<T>::~LlamaDecoder()
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     delete self_attention_layer_;
     delete silu_ffn_layer_;
 }
@@ -66,7 +66,7 @@ LlamaDecoder<T>::~LlamaDecoder()
 template<typename T>
 void LlamaDecoder<T>::initialize(size_t kv_head_num, int quant_policy)
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
 
     self_attention_layer_ = new LlamaDecoderSelfAttentionLayer<T>(head_num_,
                                                                   kv_head_num,
@@ -99,14 +99,14 @@ void LlamaDecoder<T>::allocateBuffer()
 template<typename T>
 void LlamaDecoder<T>::allocateBuffer(size_t batch_size)
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     is_allocate_buffer_ = true;
 }
 
 template<typename T>
 void LlamaDecoder<T>::freeBuffer()
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     if (is_allocate_buffer_) {
         is_allocate_buffer_ = false;
     }
@@ -118,7 +118,7 @@ void LlamaDecoder<T>::forwardSelfAttn(const LlamaDecoder::Session&              
                                       const std::unordered_map<std::string, Tensor>* input_tensors,
                                       size_t                                         layer)
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     TensorMap self_attention_input_tensors(*input_tensors);
     self_attention_input_tensors.insert("input_query",
                                         {MEMORY_GPU, data_type_, {sess.batch_size, hidden_units_}, attn_io});
@@ -159,7 +159,7 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*        ou
                               const std::unordered_map<std::string, Tensor>*  input_tensors,
                               const std::vector<LlamaDecoderLayerWeight<T>*>* decoder_layer_weights)
 {
-    TM_LOG_DEBUG(__PRETTY_FUNCTION__);
+    FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     /**
      * input_tensors:
      *   \param decoder_input [batch_size, hidden_dims]
