@@ -15,6 +15,7 @@
  */
 
 #include "src/fastertransformer/utils/nccl_utils.h"
+#include <atomic>
 
 namespace fastertransformer {
 
