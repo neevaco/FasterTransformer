@@ -90,7 +90,7 @@ LlamaV2<T>::LlamaV2(size_t                       head_num,
 {
     TM_LOG_DEBUG(__PRETTY_FUNCTION__);
     FT_CHECK(vocab_size_ % tensor_para_.world_size_ == 0);
-    TM_LOG_INFO("NCCL group_id = %d", tensor_para_.group_id_);
+    FT_LOG_INFO("NCCL group_id = %d", tensor_para_.group_id_);
 
     size_t elem_bits = 0;
     if (quant_policy & QuantPolicy::kCacheKVInt8) {
@@ -212,7 +212,7 @@ void LlamaV2<T>::contextDecode(T*         deocder_output,
     TM_LOG_DEBUG(__PRETTY_FUNCTION__);
 
     if (tensor_para_.rank_ == 0) {
-        TM_LOG_INFO("context decoding start");
+        FT_LOG_INFO("context decoding start");
     }
 
     invokeInputIdsEmbeddingLookupPosEncoding(context_decoder_input_buf,
@@ -256,7 +256,7 @@ void LlamaV2<T>::contextDecode(T*         deocder_output,
     context_decoder_->forward(&decoder_output_tensors, &decoder_input_tensors, &weights_->decoder_layer_weights);
 
     if (tensor_para_.rank_ == 0) {
-        TM_LOG_INFO("context decoding end");
+        FT_LOG_INFO("context decoding end");
     }
 }
 
@@ -427,7 +427,7 @@ void LlamaV2<T>::dynamicDecode(int*            token_ids,
 template<typename T>
 void LlamaV2<T>::internalThreadEntry(int device_id)
 {
-    TM_LOG_INFO("[internalThreadEntry] %d", (int)tensor_para_.rank_);
+    FT_LOG_INFO("[internalThreadEntry] %d", (int)tensor_para_.rank_);
     check_cuda_error(cudaSetDevice(device_id));
 
     auto& request_queue  = shared_state_->request_queue;
@@ -520,10 +520,10 @@ void LlamaV2<T>::forward(std::unordered_map<std::string, Tensor>*       outputs,
     if (debug_) {
         if (tensor_para_.rank_ == 0) {
             for (const auto& kv : *inputs) {
-                TM_LOG_INFO("[forward][rank=%d] INPUT: %s", (int)tensor_para_.rank_, format(kv).c_str());
+                FT_LOG_INFO("[forward][rank=%d] INPUT: %s", (int)tensor_para_.rank_, format(kv).c_str());
             }
             for (const auto& kv : *outputs) {
-                TM_LOG_INFO("[forward][rank=%d] OUTPUT: %s", (int)tensor_para_.rank_, format(kv).c_str());
+                FT_LOG_INFO("[forward][rank=%d] OUTPUT: %s", (int)tensor_para_.rank_, format(kv).c_str());
             }
         }
     }
@@ -572,10 +572,10 @@ void LlamaV2<T>::forward(std::unordered_map<std::string, Tensor>*       outputs,
     std::vector<int> error_codes;
     bool             has_error = 0;
     if (rank == 0) {
-        TM_LOG_INFO("[forward] Enqueue requests");
+        FT_LOG_INFO("[forward] Enqueue requests");
         auto futures = shared_state_->request_queue.enqueue(std::move(requests));
 
-        TM_LOG_INFO("[forward] Wait for requests to complete ...");
+        FT_LOG_INFO("[forward] Wait for requests to complete ...");
         for (auto& f : futures) {
             auto ec = f.get();
             error_codes.push_back(ec);

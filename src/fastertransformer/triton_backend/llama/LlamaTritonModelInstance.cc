@@ -174,7 +174,7 @@ LlamaTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::str
 {
     TM_LOG_DEBUG(__PRETTY_FUNCTION__);
     // for (const auto& kv : *input_tensors) {
-    //     TM_LOG_INFO("%s: %s", kv.first.c_str(), format_vector(kv.second.shape).c_str());
+    //     FT_LOG_INFO("%s: %s", kv.first.c_str(), format_vector(kv.second.shape).c_str());
     // }
 
     FT_CHECK_WITH_INFO(input_tensors->at("input_ids").shape.size() == 2,

@@ -350,7 +350,7 @@ void LlamaBatch<T>::initializeSampling(int infer_request_count)
             }
             inputs.insert({param.first, {ref.where, ref.type, shape, param.second}});
             if (debug_ && rank_ == 0) {
-                TM_LOG_INFO("[initializeSampling] %s", format({param.first, inputs.at(param.first)}).c_str());
+                FT_LOG_INFO("[initializeSampling] %s", format({param.first, inputs.at(param.first)}).c_str());
             }
         }
     }
@@ -451,12 +451,12 @@ void LlamaBatch<T>::initializeGeneration()
     step_ = max_context_len_;
 
     if (rank_ == 0) {
-        TM_LOG_INFO("[initGen] batch_size = %d", (int)batch_size_);
-        TM_LOG_INFO("[initGen] max_context_len = %d", (int)max_context_len_);
+        FT_LOG_INFO("[initGen] batch_size = %d", (int)batch_size_);
+        FT_LOG_INFO("[initGen] max_context_len = %d", (int)max_context_len_);
 
-        TM_LOG_INFO("[initGen] slot  sequence_id  context_len  seq_limit_len  finished");
+        FT_LOG_INFO("[initGen] slot  sequence_id  context_len  seq_limit_len  finished");
         for (int i = 0; i < batch_size_; ++i) {
-            TM_LOG_INFO("[initGen] %4d  %11ld  %11d  %13d  %8d",
+            FT_LOG_INFO("[initGen] %4d  %11ld  %11d  %13d  %8d",
                         i,
                         (long)cached_seq_[i].id,
                         h_context_length_buf_[i],
@@ -471,7 +471,7 @@ bool LlamaBatch<T>::generate()
 {
     constexpr int kLogInterval = 10;
     if (rank_ == 0 && (step_ - 1) % kLogInterval == 0) {
-        TM_LOG_INFO("------------------------- step = %d -------------------------", step_ - 1);
+        FT_LOG_INFO("------------------------- step = %d -------------------------", step_ - 1);
     }
 
     const bool is_first_step = step_ == max_context_len_;
@@ -540,14 +540,14 @@ bool LlamaBatch<T>::generate()
             for (int k = 0; k < prev.size(); ++k) {
                 sprev << std::setw(6) << prev[k];
             }
-            TM_LOG_INFO("[ lookup ] step = %d, [%s]", step_ - 1, sprev.str().c_str());
+            FT_LOG_INFO("[ lookup ] step = %d, [%s]", step_ - 1, sprev.str().c_str());
         }
 
         std::stringstream scurr;
         for (int k = 0; k < curr.size(); ++k) {
             scurr << std::setw(6) << curr[k];
         }
-        TM_LOG_INFO("[generate] step = %d, [%s]", step_ - 1, scurr.str().c_str());
+        FT_LOG_INFO("[generate] step = %d, [%s]", step_ - 1, scurr.str().c_str());
     }
 
     ////////////////////////////////////////////////
@@ -739,15 +739,15 @@ void LlamaBatch<T>::initialize(const std::vector<std::shared_ptr<Request>>& infe
         v_cache_ptr_buf_, h_v_cache_ptr_buf_, sizeof(uintptr_t) * batch_size_, cudaMemcpyDefault, stream_));
 
     if (llama_->tensor_para_.rank_ == 0) {
-        TM_LOG_INFO("[init] infer_request_count = %d", (int)infer_request_count);
-        TM_LOG_INFO("[init] batch_size = %d", (int)batch_size_);
-        TM_LOG_INFO("[init] session_len = %d", (int)session_len_);
-        TM_LOG_INFO("[init] max_input_length = %d", (int)max_input_length);
-        TM_LOG_INFO("[init] max_context_len = %d", (int)max_context_len);
-        TM_LOG_INFO(
+        FT_LOG_INFO("[init] infer_request_count = %d", (int)infer_request_count);
+        FT_LOG_INFO("[init] batch_size = %d", (int)batch_size_);
+        FT_LOG_INFO("[init] session_len = %d", (int)session_len_);
+        FT_LOG_INFO("[init] max_input_length = %d", (int)max_input_length);
+        FT_LOG_INFO("[init] max_context_len = %d", (int)max_context_len);
+        FT_LOG_INFO(
             "[init] slot  sequence_id  history_len  input_len  context_len  tmp_input_len  token_ids.size  cache_len");
         for (int i = batch_size_ - infer_request_count; i < batch_size_; ++i) {
-            TM_LOG_INFO("[init] %4d  %11ld  %11d  %9d  %11d  %13d  %14d  %9d",
+            FT_LOG_INFO("[init] %4d  %11ld  %11d  %9d  %11d  %13d  %14d  %9d",
                         i,
                         (int)cached_seq_[i].id,
                         h_history_length_buf_[i],
@@ -776,7 +776,7 @@ void LlamaBatch<T>::contextDecode()
 
         const int context_decode_count = batch_size_ - base;
         if (rank_ == 0) {
-            TM_LOG_INFO("[decodeContext] base = %d, count = %d", base, context_decode_count);
+            FT_LOG_INFO("[decodeContext] base = %d, count = %d", base, context_decode_count);
         }
         invokePlusScalar(input_length_buf_ + base, -1, context_decode_count, stream_);
         invokePlusScalar(context_length_buf_ + base, -1, context_decode_count, stream_);
@@ -795,7 +795,7 @@ void LlamaBatch<T>::contextDecode()
             if (i == batch_size_ || token_num + h_context_length_buf_[i] > max_context_token_num_) {
                 const int context_decode_batch_size = i - offset;
                 if (rank_ == 0) {
-                    TM_LOG_INFO(
+                    FT_LOG_INFO(
                         "[decodeContext] offset = %d, batch_size = %d, token_num = %d, max_input_len = %d, max_context_len = %d",
                         base,
                         context_decode_batch_size,
@@ -866,11 +866,11 @@ void LlamaBatch<T>::contextDecode()
         check_cuda_error(cudaStreamSynchronize(stream_));
         const auto tock = std::chrono::high_resolution_clock::now();
         if (rank_ == 0) {
-            TM_LOG_INFO("[decodeContext] %.2f ms", std::chrono::duration<float, std::milli>(tock - tick).count());
+            FT_LOG_INFO("[decodeContext] %.2f ms", std::chrono::duration<float, std::milli>(tock - tick).count());
         }
     }
     else if (rank_ == 0) {
-        TM_LOG_INFO("[decodeContext] Context decoding is not needed.");
+        FT_LOG_INFO("[decodeContext] Context decoding is not needed.");
     }
 }
 
@@ -949,7 +949,7 @@ void LlamaBatch<T>::finish()
         for (int i = 0; i < batch_size_; ++i) {
             ss << (i ? ", " : "") << "(" << h_sequence_lengths_[i] << "," << h_finished_buf_[i] << ")";
         }
-        TM_LOG_INFO("[finish] [%s]", ss.str().c_str());
+        FT_LOG_INFO("[finish] [%s]", ss.str().c_str());
     }
 
     for (int i = 0; i < batch_size_; ++i) {
@@ -1005,7 +1005,7 @@ void LlamaBatch<T>::synchronize()
     batch_size_ = idx;
 
     if (rank_ == 0) {
-        TM_LOG_INFO("[synchronize] batch_size = %d", (int)batch_size_);
+        FT_LOG_INFO("[synchronize] batch_size = %d", (int)batch_size_);
     }
 
     finished_count_ = 0;
@@ -1048,7 +1048,7 @@ template<typename T>
 void LlamaBatch<T>::finishRequest(int index, bool force_end)
 {
     if (rank_ == 0) {
-        TM_LOG_INFO("[finishRequest] slot = %d, id = %lu", index, (long)requests_[index]->id);
+        FT_LOG_INFO("[finishRequest] slot = %d, id = %lu", index, (long)requests_[index]->id);
     }
 
     if (debug_ && rank_ == 0) {
@@ -1063,7 +1063,7 @@ void LlamaBatch<T>::finishRequest(int index, bool force_end)
         for (const auto& t : tokens) {
             ss << " " << t;
         }
-        TM_LOG_INFO("[finishRequest] slot %d, tokens [%s]", index, ss.str().c_str());
+        FT_LOG_INFO("[finishRequest] slot %d, tokens [%s]", index, ss.str().c_str());
     }
 
     auto&      output_ids_tensor = requests_[index]->outputs[rank_].at("output_ids");

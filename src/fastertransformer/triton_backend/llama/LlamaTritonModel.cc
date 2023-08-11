@@ -350,7 +350,7 @@ LlamaTritonModel<T>::createNcclParams(const int node_id, const int device_id_sta
         return AbstractTransformerModel::createNcclParams(node_id, device_id_start, multi_node);
     }
     else {
-        TM_LOG_INFO("Skipping NCCL param creation.");
+        FT_LOG_INFO("Skipping NCCL param creation.");
 
         const int tensor_para_size   = getTensorParaSize();
         const int pipeline_para_size = getPipelineParaSize();
