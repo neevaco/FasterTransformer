@@ -417,6 +417,12 @@ void ftNcclInitialize(NcclParam& tensor_para,
     FT_LOG_DEBUG("%s stop", __PRETTY_FUNCTION__);
 }
 
+static std::atomic<int>& ncclGroupCount()
+{
+    static std::atomic<int> value{};
+    return value;
+}
+
 int ftNcclNextGroupId()
 {
     return ncclGroupCount()++;
