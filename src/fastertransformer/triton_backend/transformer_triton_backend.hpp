@@ -294,7 +294,7 @@ struct AbstractTransformerModel {
     static std::shared_ptr<AbstractTransformerModel> createT5Model(std::string model_dir);
     static std::shared_ptr<AbstractTransformerModel> createT5EncoderModel(std::string model_dir);
 
-    std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>>
+    virtual std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>>
     createNcclParams(const int node_id, const int device_id_start = 0, const bool multi_node = false);
 
     virtual void createCustomComms(std::vector<std::shared_ptr<ft::AbstractCustomComm>>* custom_all_reduce_comms,

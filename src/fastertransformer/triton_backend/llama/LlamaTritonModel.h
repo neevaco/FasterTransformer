@@ -58,7 +58,7 @@ struct LlamaTritonModel: public AbstractTransformerModel {
     std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>>
     createNcclParams(const int node_id, const int device_id_start, const bool multi_node) override;
 
-    std::unique_ptr<ft::AbstractInstanceComm> createInstanceComm(int size) override;
+    // std::unique_ptr<ft::AbstractInstanceComm> createInstanceComm(int size) override;
 
     void handleMissingParams();
 
