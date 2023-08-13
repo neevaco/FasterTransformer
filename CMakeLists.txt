@@ -346,6 +346,9 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:GptNeoXTritonBackend>
   $<TARGET_OBJECTS:GptNeoXWeight>
   $<TARGET_OBJECTS:LinearAdapterLayer>
+  $<TARGET_OBJECTS:llama_fmha>
+  $<TARGET_OBJECTS:Llama>
+  $<TARGET_OBJECTS:LlamaTritonBackend>
   $<TARGET_OBJECTS:OnlineBeamSearchLayer>
   $<TARGET_OBJECTS:ParallelGpt>
   $<TARGET_OBJECTS:ParallelGptContextDecoder>
