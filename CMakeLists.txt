@@ -16,6 +16,14 @@ project(FasterTransformer LANGUAGES CXX CUDA)
 
 find_package(CUDA 10.2 REQUIRED)
 
+include(FetchContent)
+
+FetchContent_Declare(
+  repo-cutlass
+  GIT_REPOSITORY https://github.com/NVIDIA/cutlass.git
+  GIT_TAG        cc85b64cf676c45f98a17e3a47c0aafcf817f088
+)
+
 if(${CUDA_VERSION_MAJOR} VERSION_GREATER_EQUAL "11")
   add_definitions("-DENABLE_BF16")
   message("CUDA_VERSION ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} is greater or equal than 11.0, enable -DENABLE_BF16 flag")
