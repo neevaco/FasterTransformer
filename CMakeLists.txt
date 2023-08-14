@@ -24,6 +24,13 @@ FetchContent_Declare(
   GIT_TAG        cc85b64cf676c45f98a17e3a47c0aafcf817f088
 )
 
+set(CUTLASS_ENABLE_HEADERS_ONLY ON CACHE BOOL "Enable only the header library")
+
+FetchContent_MakeAvailable(repo-cutlass)
+
+set(CUTLASS_HEADER_DIR ${PROJECT_SOURCE_DIR}/3rdparty/cutlass/include)
+set(CUTLASS_EXTENSIONS_DIR ${PROJECT_SOURCE_DIR}/src/turbomind/cutlass_extensions/include)
+
 if(${CUDA_VERSION_MAJOR} VERSION_GREATER_EQUAL "11")
   add_definitions("-DENABLE_BF16")
   message("CUDA_VERSION ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} is greater or equal than 11.0, enable -DENABLE_BF16 flag")
