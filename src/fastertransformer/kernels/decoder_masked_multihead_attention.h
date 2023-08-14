@@ -135,6 +135,12 @@ struct Multihead_attention_params: public Multihead_attention_params_base<T> {
 
     // required in case of masked attention with different length
     const int* length_per_sample = nullptr;
+
+    T**    k_cache_per_sample         = nullptr;
+    T**    v_cache_per_sample         = nullptr;
+    size_t kv_cache_per_sample_offset = 0;
+    bool   k_cache_interleaved        = true;
+    int    num_kv_heads               = 0;
 };
 
 template<typename T>
@@ -152,6 +158,12 @@ struct Multihead_attention_params<T, true>: public Multihead_attention_params_ba
 
     // required in case of masked attention with different length
     const int* length_per_sample = nullptr;
+
+    T**    k_cache_per_sample         = nullptr;
+    T**    v_cache_per_sample         = nullptr;
+    size_t kv_cache_per_sample_offset = 0;
+    bool   k_cache_interleaved        = true;
+    int    num_kv_heads               = 0;
 };
 
 template<class T>

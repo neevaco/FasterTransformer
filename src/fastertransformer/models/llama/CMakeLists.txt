@@ -2,6 +2,21 @@
 
 cmake_minimum_required(VERSION 3.8)
 
+include(FetchContent)
+
+FetchContent_Declare(
+  repo-cutlass
+  GIT_REPOSITORY https://github.com/NVIDIA/cutlass.git
+  GIT_TAG        cc85b64cf676c45f98a17e3a47c0aafcf817f088
+)
+
+set(CUTLASS_ENABLE_HEADERS_ONLY ON CACHE BOOL "Enable only the header library")
+
+FetchContent_MakeAvailable(repo-cutlass)
+
+set(CUTLASS_HEADER_DIR ${PROJECT_SOURCE_DIR}/3rdparty/cutlass/include)
+set(CUTLASS_EXTENSIONS_DIR ${PROJECT_SOURCE_DIR}/src/turbomind/cutlass_extensions/include)
+
 add_subdirectory(fused_multi_head_attention)
 
 add_library(Llama STATIC
