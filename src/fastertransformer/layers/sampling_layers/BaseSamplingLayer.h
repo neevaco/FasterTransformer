@@ -59,6 +59,11 @@ protected:
     virtual void allocateBuffer(size_t batch_size, Tensor top_k, Tensor top_p);
 
 public:
+    curandState_t* curandstate_buf()
+    {
+        return curandstate_buf_;
+    }
+
     BaseSamplingLayer(size_t             max_batch_size,
                       size_t             vocab_size,
                       size_t             vocab_size_padded,
