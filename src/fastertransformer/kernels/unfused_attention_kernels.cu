@@ -1556,6 +1556,42 @@ void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
     }
 }
 
+template<typename T>
+void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
+                                    T*                               k_buf,
+                                    T*                               v_buf,
+                                    PrefixPromptBatchWeightsParam<T> param,
+                                    T*                               QKV,
+                                    const T*                         qkv_bias,
+                                    const int*                       padding_offset,
+                                    const int*                       history_length,
+                                    const int                        batch_size,
+                                    const int                        seq_len,
+                                    const int                        token_num,
+                                    const int                        head_num,
+                                    const int                        kv_head_num,
+                                    const int                        size_per_head,
+                                    const int                        rotary_embedding_dim,
+                                    const int                        neox_rotary_style,
+                                    const float*                     scale,
+                                    const int                        int8_mode,
+                                    cudaStream_t                     stream)
+{
+    FT_CHECK(rotary_embedding_dim);
+    FT_CHECK_WITH_INFO(int8_mode != 2, "w8a8 not yet implemented with prefix prompt");  // TODO(mseznec)
+    // To implement rotary embeddings, each thread processes two QKV elems:
+    dim3   block((size_per_head / Vec_t<T>::size + 31) / 32 * 32);
+    dim3   grid(token_num + batch_size * param.max_prefix_prompt_length, head_num);
+    size_t smem_size = neox_rotary_style ? 2 * rotary_embedding_dim * sizeof(T) : 0;
+    // NOTE: add offset for rotary embedding
+    if (param.max_prefix_prompt_length == 0) {
+        FUSED_QKV_BIAS_TRANSPOSE_LAUNCH(T, false);
+    }
+    else {
+        FUSED_QKV_BIAS_TRANSPOSE_LAUNCH(T, true);
+    }
+}
+
 #define INSTANTIATEADDFUSEDQKVBIASTRANSPOSE(T)                                                                         \
     template void invokeAddFusedQKVBiasTranspose(T*                               q_buf,                               \
                                                  T*                               k_buf,                               \
