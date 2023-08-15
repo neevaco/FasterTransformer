@@ -52,9 +52,9 @@ struct LlamaTritonModelInstance: AbstractTransformerModelInstance {
     std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
     forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors) override;
 
-    std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
-    forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors,
-            ft::AbstractInstanceComm*) override;
+    // std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
+    // forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors,
+    //         ft::AbstractInstanceComm*) override;
 
     static std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
     convert_outputs(const std::unordered_map<std::string, ft::Tensor>& output_tensors);
