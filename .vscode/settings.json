@@ -91,6 +91,7 @@
         "__nullptr": "cpp",
         "__string": "cpp",
         "compare": "cpp",
-        "concepts": "cpp"
+        "concepts": "cpp",
+        "filesystem": "cpp"
     }
 }
