@@ -116,7 +116,7 @@ if(USE_TRITONSERVER_DATATYPE)
   add_definitions("-DUSE_TRITONSERVER_DATATYPE")
 endif()
 
-set(CXX_STD "14" CACHE STRING "C++ standard")
+set(CXX_STD "17" CACHE STRING "C++ standard")
 
 set(CUDA_PATH ${CUDA_TOOLKIT_ROOT_DIR})
 
@@ -138,7 +138,7 @@ endif()
 
 # setting compiler flags
 set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS}")
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17 -lstdc++fs")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17")
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wall -ldl") # -Xptxas -v
 
 set(SM_SETS 52 60 61 70 75 80 86 89 90)
