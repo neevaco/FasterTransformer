@@ -36,7 +36,6 @@ target_link_libraries(Llama PUBLIC -lcudart
         nccl_utils
         cuda_utils
         logger
-        stdc++fs
         llama_fmha)
 
 add_executable(llama_gemm llama_gemm.cc)
