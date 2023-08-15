@@ -65,12 +65,6 @@ std::vector<float> loadArrayFromBin(std::vector<size_t>       shape,
                                     std::vector<ConcateSlice> slices = std::vector<ConcateSlice>());
 
 template<typename T>
-int loadWeightFromBin(T*                  ptr,
-                      std::vector<size_t> shape,
-                      std::string         filename,
-                      FtCudaDataType      model_file_type = FtCudaDataType::FP32);
-
-template<typename T>
 int loadWeightFromBinAndQuantizeForWeightOnly(int8_t*             quantized_weight_ptr,
                                               T*                  scale_ptr,
                                               std::vector<size_t> shape,
