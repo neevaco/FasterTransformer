@@ -1609,6 +1609,25 @@ void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
                                                  const int                        neox_rotary_style,                   \
                                                  const float*                     scale,                               \
                                                  const int                        int8_mode,                           \
+                                                 cudaStream_t                     stream);                             \
+    template void invokeAddFusedQKVBiasTranspose(T*                               q_buf,                               \
+                                                 T*                               k_buf,                               \
+                                                 T*                               v_buf,                               \
+                                                 PrefixPromptBatchWeightsParam<T> param,                               \
+                                                 T*                               QKV,                                 \
+                                                 const T*                         qkv_bias,                            \
+                                                 const int*                       padding_offset,                      \
+                                                 const int*                       history_length,                      \
+                                                 const int                        batch_size,                          \
+                                                 const int                        seq_len,                             \
+                                                 const int                        token_num,                           \
+                                                 const int                        head_num,                            \
+                                                 const int                        kv_head_num,                         \
+                                                 const int                        size_per_head,                       \
+                                                 const int                        rotary_embedding_dim,                \
+                                                 const int                        neox_rotary_style,                   \
+                                                 const float*                     scale,                               \
+                                                 const int                        int8_mode,                           \
                                                  cudaStream_t                     stream)
 INSTANTIATEADDFUSEDQKVBIASTRANSPOSE(float);
 INSTANTIATEADDFUSEDQKVBIASTRANSPOSE(half);
