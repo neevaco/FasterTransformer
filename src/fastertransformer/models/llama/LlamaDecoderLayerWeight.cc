@@ -21,8 +21,8 @@
 #include "src/fastertransformer/models/llama/LlamaDecoderLayerWeight.h"
 #include "src/fastertransformer/utils/logger.h"
 #include "src/fastertransformer/utils/memory_utils.h"
-// #include <filesystem>
-#include <experimental/filesystem>
+#include <filesystem>
+//#include <experimental/filesystem>
 
 namespace fastertransformer {
 
@@ -119,8 +119,8 @@ void loadWeights(LlamaDenseWeight<T>& w,
     }
     else {
         // Disable slice if weight has already been sliced
-        if (std::experimental::filesystem::exists(max_prefix + ".weight") || std::experimental::filesystem::exists(max_prefix + ".qweight")) {
-        // if (std::filesystem::exists(max_prefix + ".weight") || std::filesystem::exists(max_prefix + ".qweight")) {
+        // if (std::experimental::filesystem::exists(max_prefix + ".weight") || std::experimental::filesystem::exists(max_prefix + ".qweight")) {
+        if (std::filesystem::exists(max_prefix + ".weight") || std::filesystem::exists(max_prefix + ".qweight")) {
             FT_LOG_DEBUG("TP weight exists. Disable runtime TP.");
             enable_slice = false;
         }
