@@ -433,6 +433,7 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:sampling_topk_kernels>
   $<TARGET_OBJECTS:sampling_topp_kernels>
   $<TARGET_OBJECTS:softmax_int8_kernels>
+  $<TARGET_OBJECTS:stdc++fs>
   $<TARGET_OBJECTS:stop_criteria>
   $<TARGET_OBJECTS:tensor>
   $<TARGET_OBJECTS:transpose_int8_kernels>
