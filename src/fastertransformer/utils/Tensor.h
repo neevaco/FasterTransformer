@@ -498,6 +498,21 @@ public:
         return tensor_map_.end();
     }
 
+    inline std::unordered_map<std::string, Tensor>& get()
+    {
+        return tensor_map_;
+    }
+
+    inline std::unordered_map<std::string, Tensor>::const_iterator begin() const
+    {
+        return tensor_map_.begin();
+    }
+
+    inline std::unordered_map<std::string, Tensor>::const_iterator end() const
+    {
+        return tensor_map_.end();
+    }
+
     std::string      toString();
     static TensorMap fromNpyFolder(const std::string& base_folder);
     void             saveNpy(const std::string& base_folder);

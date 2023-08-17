@@ -60,6 +60,7 @@ struct NcclUid {
 struct NcclParam {
     int rank_{0};
     int world_size_{1};
+    int group_id_{0};
 #ifdef BUILD_MULTI_GPU
     ncclUniqueId nccl_uid_;
     ncclComm_t   nccl_comm_ = nullptr;
@@ -69,10 +70,15 @@ struct NcclParam {
     NcclParam(): rank_(0), world_size_(1), nccl_comm_(nullptr){};
     NcclParam(int rank, int world_size): rank_(rank), world_size_(world_size){};
     NcclParam(NcclParam const& param):
-        rank_(param.rank_), world_size_(param.world_size_), nccl_uid_(param.nccl_uid_), nccl_comm_(param.nccl_comm_){};
+        rank_(param.rank_),
+        world_size_(param.world_size_),
+        group_id_(param.group_id_),
+        nccl_uid_(param.nccl_uid_),
+        nccl_comm_(param.nccl_comm_){};
     std::string toString()
     {
-        return fmtstr("NcclParam[rank=%d, world_size=%d, nccl_comm=%p]", rank_, world_size_, nccl_comm_);
+        return fmtstr(
+            "NcclParam[rank=%d, world_size=%d, nccl_comm=%p, group_id=%d]", rank_, world_size_, nccl_comm_, group_id_);
     }
 #else
     NcclParam(): rank_(0), world_size_(1){};
@@ -110,6 +116,9 @@ void ftNcclGroupEnd();
 void ftNcclGetUniqueId(NcclUid& uid);
 void ftNcclCommInitRank(NcclParam& param, const int rank, const int world_size, const NcclUid uid);
 void ftNcclParamDestroy(NcclParam& param);
+
+int ftNcclNextGroupId();
+int ftNcclGroupCount();
 
 void ftNcclInitialize(NcclParam& tensor_para,
                       NcclParam& pipeline_para,

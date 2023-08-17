@@ -23,6 +23,7 @@
 
 #include "src/fastertransformer/utils/Tensor.h"
 #include "src/fastertransformer/utils/custom_ar_comm.h"
+#include "src/fastertransformer/utils/instance_comm.h"
 #include "src/fastertransformer/utils/mpi_utils.h"
 #include "src/fastertransformer/utils/nccl_utils.h"
 
@@ -270,6 +271,13 @@ struct AbstractTransformerModelInstance {
     virtual std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
     forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors) = 0;
 
+    virtual std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
+    forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors,
+            ft::AbstractInstanceComm*)
+    {
+        return forward(input_tensors);
+    }
+
     void registerCallback(triton_stream_cb_t* cb, void* ctx)
     {
         stream_cb_  = cb;
@@ -293,12 +301,18 @@ struct AbstractTransformerModel {
     static std::shared_ptr<AbstractTransformerModel> createGptNeoXModel(std::string inifile);
     static std::shared_ptr<AbstractTransformerModel> createT5Model(std::string model_dir);
     static std::shared_ptr<AbstractTransformerModel> createT5EncoderModel(std::string model_dir);
+    static std::shared_ptr<AbstractTransformerModel> createLlamaModel(std::string model_dir);
 
-    std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>>
+    virtual std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>>
     createNcclParams(const int node_id, const int device_id_start = 0, const bool multi_node = false);
 
     virtual void createCustomComms(std::vector<std::shared_ptr<ft::AbstractCustomComm>>* custom_all_reduce_comms,
                                    int                                                   world_size) = 0;
+
+    virtual std::unique_ptr<ft::AbstractInstanceComm> createInstanceComm(int size)
+    {
+        return nullptr;
+    }
 
     virtual std::unique_ptr<AbstractTransformerModelInstance>
     createModelInstance(int                                                               deviceId,

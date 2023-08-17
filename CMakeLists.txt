@@ -16,6 +16,21 @@ project(FasterTransformer LANGUAGES CXX CUDA)
 
 find_package(CUDA 10.2 REQUIRED)
 
+include(FetchContent)
+
+FetchContent_Declare(
+  repo-cutlass
+  GIT_REPOSITORY https://github.com/NVIDIA/cutlass.git
+  GIT_TAG        cc85b64cf676c45f98a17e3a47c0aafcf817f088
+)
+
+set(CUTLASS_ENABLE_HEADERS_ONLY ON CACHE BOOL "Enable only the header library")
+
+FetchContent_MakeAvailable(repo-cutlass)
+
+set(CUTLASS_HEADER_DIR ${PROJECT_SOURCE_DIR}/3rdparty/cutlass/include)
+set(CUTLASS_EXTENSIONS_DIR ${PROJECT_SOURCE_DIR}/src/turbomind/cutlass_extensions/include)
+
 if(${CUDA_VERSION_MAJOR} VERSION_GREATER_EQUAL "11")
   add_definitions("-DENABLE_BF16")
   message("CUDA_VERSION ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} is greater or equal than 11.0, enable -DENABLE_BF16 flag")
@@ -346,6 +361,9 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:GptNeoXTritonBackend>
   $<TARGET_OBJECTS:GptNeoXWeight>
   $<TARGET_OBJECTS:LinearAdapterLayer>
+  $<TARGET_OBJECTS:llama_fmha>
+  $<TARGET_OBJECTS:Llama>
+  $<TARGET_OBJECTS:LlamaTritonBackend>
   $<TARGET_OBJECTS:OnlineBeamSearchLayer>
   $<TARGET_OBJECTS:ParallelGpt>
   $<TARGET_OBJECTS:ParallelGptContextDecoder>
@@ -466,6 +484,7 @@ set_target_properties(transformer-shared PROPERTIES POSITION_INDEPENDENT_CODE ON
 set_target_properties(transformer-shared PROPERTIES CUDA_RESOLVE_DEVICE_SYMBOLS ON)
 set_target_properties(transformer-shared PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(transformer-shared PUBLIC -lcudart -lcublas -lcublasLt -lcurand)
+target_link_libraries(transformer-shared PUBLIC stdc++fs)
 
 include(GNUInstallDirs)
 set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/FasterTransformer)

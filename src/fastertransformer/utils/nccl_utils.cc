@@ -15,6 +15,7 @@
  */
 
 #include "src/fastertransformer/utils/nccl_utils.h"
+#include <atomic>
 
 namespace fastertransformer {
 
@@ -415,6 +416,22 @@ void ftNcclInitialize(NcclParam& tensor_para,
                 pipeline_para.toString().c_str());
 #endif
     FT_LOG_DEBUG("%s stop", __PRETTY_FUNCTION__);
+}
+
+static std::atomic<int>& ncclGroupCount()
+{
+    static std::atomic<int> value{};
+    return value;
+}
+
+int ftNcclNextGroupId()
+{
+    return ncclGroupCount()++;
+}
+
+int ftNcclGroupCount()
+{
+    return ncclGroupCount();
 }
 
 size_t getLocalBatchSize(const size_t batch_size, const size_t seq_len, const size_t pipeline_para_size)
