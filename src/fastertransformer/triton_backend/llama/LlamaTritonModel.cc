@@ -362,11 +362,11 @@ LlamaTritonModel<T>::createNcclParams(const int node_id, const int device_id_sta
     }
 }
 
-// template<typename T>
-// std::unique_ptr<ft::AbstractInstanceComm> LlamaTritonModel<T>::createInstanceComm(int size)
-// {
-//     return std::make_unique<ft::LlamaInstanceComm>(size);
-// }
+template<typename T>
+std::unique_ptr<ft::AbstractInstanceComm> LlamaTritonModel<T>::createInstanceComm(int size)
+{
+    return std::make_unique<ft::LlamaInstanceComm>(size);
+}
 
 template<typename T>
 int LlamaTritonModel<T>::getTensorParaSize()
