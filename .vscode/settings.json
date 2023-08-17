@@ -93,6 +93,7 @@
         "compare": "cpp",
         "concepts": "cpp",
         "filesystem": "cpp",
-        "__memory": "cpp"
+        "__memory": "cpp",
+        "version": "cpp"
     }
 }

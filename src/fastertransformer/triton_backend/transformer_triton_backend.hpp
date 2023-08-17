@@ -270,6 +270,13 @@ struct AbstractTransformerModelInstance {
     virtual std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
     forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors) = 0;
 
+    virtual std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
+    forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors,
+            ft::AbstractInstanceComm*)
+    {
+        return forward(input_tensors);
+    }
+
     void registerCallback(triton_stream_cb_t* cb, void* ctx)
     {
         stream_cb_  = cb;
