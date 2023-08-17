@@ -23,6 +23,7 @@
 
 #include "src/fastertransformer/utils/Tensor.h"
 #include "src/fastertransformer/utils/custom_ar_comm.h"
+#include "src/fastertransformer/utils/instance_comm.h"
 #include "src/fastertransformer/utils/mpi_utils.h"
 #include "src/fastertransformer/utils/nccl_utils.h"
 
@@ -307,6 +308,11 @@ struct AbstractTransformerModel {
 
     virtual void createCustomComms(std::vector<std::shared_ptr<ft::AbstractCustomComm>>* custom_all_reduce_comms,
                                    int                                                   world_size) = 0;
+
+    virtual std::unique_ptr<ft::AbstractInstanceComm> createInstanceComm(int size)
+    {
+        return nullptr;
+    }
 
     virtual std::unique_ptr<AbstractTransformerModelInstance>
     createModelInstance(int                                                               deviceId,
