@@ -25,7 +25,6 @@ add_subdirectory(vit_int8)
 add_subdirectory(wenet)
 
 add_subdirectory(gptj)
-add_subdirectory(llama)
 add_subdirectory(gptneox)
 add_subdirectory(multi_gpu_gpt)
 
