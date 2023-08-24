@@ -45,7 +45,6 @@ void LlamaContextAttentionLayer<T>::forward(TensorMap*                output_ten
     //      hidden_features [token_num, hidden_dimension]
     //      key_cache [batch, local_head_num, size_per_head // x, max_seq_len, x]
     //      value_cache [batch, local_head_num, max_seq_len, size_per_head]
-    printf("LlamaContextAttentionLayer<T>::forward\n");
     FT_LOG_DEBUG("%s start", __PRETTY_FUNCTION__);
     FT_CHECK(output_tensors->at("key_cache").shape.size() == 5);
     FT_CHECK(output_tensors->at("value_cache").shape.size() == 4
@@ -71,12 +70,10 @@ void LlamaContextAttentionLayer<T>::forward(TensorMap*                output_ten
     FT_CHECK_WITH_INFO(attention_type != AttentionType::FUSED_PADDED_MHA,
                        "Llama Context FUSED_PADDED_MHA is not supported !");
 
-    printf("attention buffer alloc %d %d\n", request_batch_size, request_seq_len + max_prompt_length);
     PUSH_RANGE("attention buffer alloc");
     allocateBuffer(request_batch_size, request_seq_len + max_prompt_length, attention_type != AttentionType::FUSED_MHA);
     POP_RANGE;
     sync_check_cuda_error();
-    printf("attention buffer alloc done\n");
     const bool is_final = input_tensors->at("is_final_layer").getVal<bool>();
 
     const int m = input_tensors->at("input_query").shape[0];
@@ -312,7 +309,6 @@ void LlamaContextAttentionLayer<T>::forward(TensorMap*                output_ten
 
     }
     sync_check_cuda_error();
-    printf("cublas_wrapper_->Gemm: done\n");
     // IDEA: append prefix prompt key value here
     PrefixPromptBatchWeightsParam<T> param{d_prefix_prompt_batch,
                                            d_prefix_prompt_lengths,
