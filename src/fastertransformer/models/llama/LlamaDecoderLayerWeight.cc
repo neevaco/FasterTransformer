@@ -234,19 +234,6 @@ void LlamaDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType 
                          {(size_t)hidden_units_, (size_t)(qkv_size / tensor_para_size_)},
                          dir_path + ".attention.query_key_value.weight." + rank_spec + ".bin",
                          model_file_type);
-        // {
-        //     printf("qkv_size: %d\n", qkv_size);
-        //     printf("w2\n");
-        //     int sz = 100;
-        //     T *qkv_buf = new T[sz];
-        //     cudaMemcpy(qkv_buf, weights_ptr[2], sizeof(T)*sz, cudaMemcpyDeviceToHost);
-        //     sync_check_cuda_error();
-        //     for (int i=0; i<sz; i++) {
-        //         printf("%f ", (float)qkv_buf[i]);
-        //     }
-        //     printf("\n");
-        //     delete qkv_buf;
-        // }
 
         loadWeightFromBin<T>(weights_ptr[4],
                          {(size_t)(hidden_units_ / tensor_para_size_), (size_t)hidden_units_},

@@ -755,7 +755,6 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         gpt_context_decoder_->forward(
             &decoder_output_tensors, &decoder_input_tensors, &gpt_weights->decoder_layer_weights);
         sync_check_cuda_error();
-        printf("gpt_context_decoder_->forward done\n");
         invokeDecodingInitialize(finished_buf_,
                                  sequence_lengths_,
                                  nullptr,

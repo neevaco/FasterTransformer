@@ -332,7 +332,6 @@ void LlamaContextDecoder<T>::forward(std::unordered_map<std::string, Tensor>*   
     AttentionType attention_type  = (d_prefix_prompt_lengths != nullptr) ?
                                         getUnfusedAttentionType(attention_type_) :
                                         attention_type_;
-    printf("attention_type: %d\n", attention_type);
     const bool    is_unpadded_mha = isUnPaddedMHA(attention_type);
 
     for (int ite = 0; ite < iteration_num; ite++) {
@@ -458,27 +457,6 @@ void LlamaContextDecoder<T>::forward(std::unordered_map<std::string, Tensor>*   
                                            &self_attention_input_tensors,
                                            &gpt_decoder_layer_weight->at(l)->self_attention_weights);
 
-            #ifdef ENABLE_FLEX_DEBUG 
-            if (l == 0) {
-                printf("%d %d: %d %d\n", l, ite, h_token_num, hidden_units_);
-                T *self_attn_output = new T[h_token_num * hidden_units_];
-                cudaMemcpy(self_attn_output, self_attn_output_, sizeof(T)*h_token_num * hidden_units_, cudaMemcpyDeviceToHost);
-                sync_check_cuda_error();
-                int k = 0;
-                for (int i=0; i<h_token_num; i++) {
-                    for (int j=0; j<hidden_units_; j++) {
-                        if (j < 32) {
-                            printf("%f ", (float)self_attn_output[k]);
-                        }
-                        k++;
-                    }
-                    printf("\n");
-                }
-                delete self_attn_output;
-
-            }
-            #endif
-
             if (use_shared_contexts) {
                 // Even with local batches, we must process the whole K/V caches as any
                 // element in batch_idx_to_compact_idx may reference the local batch
@@ -572,25 +550,6 @@ void LlamaContextDecoder<T>::forward(std::unordered_map<std::string, Tensor>*   
                 }
 
                 sync_check_cuda_error();
-                #ifdef ENABLE_FLEX_DEBUG 
-                if (l == 1) {
-                    printf("%d %d: %d %d\n", l, ite, h_token_num, hidden_units_);
-                    T *self_attn_output = new T[h_token_num * hidden_units_];
-                    cudaMemcpy(self_attn_output, layer_output, sizeof(T)*h_token_num * hidden_units_, cudaMemcpyDeviceToHost);
-                    sync_check_cuda_error();
-                    int k = 0;
-                    for (int i=0; i<h_token_num; i++) {
-                        for (int j=0; j<hidden_units_; j++) {
-                            if (i == 0) {
-                                printf("%f, ", (float)self_attn_output[k]);
-                            }
-                            k++;
-                        }
-                        printf("\n");
-                    }
-                    delete self_attn_output;
-                }
-                #endif
                 if (isLastLayerParallelId(l) && pipeline_para_.rank_ != pipeline_para_.world_size_ - 1
                     && pipeline_para_.world_size_ > 1) {
                     int data_size = h_token_num * hidden_units_ / tensor_para_.world_size_;
