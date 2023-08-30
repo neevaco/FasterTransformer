@@ -189,7 +189,7 @@ LlamaTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::str
                     ft::TYPE_UINT32,
                     std::vector<size_t>{request_batch_size, beam_width},
                     d_sequence_lengths_}},
-        {"input_lengths", ft_input_tensors.at("input_lengths")}};
+        {"input_sequence_lengths", ft_input_tensors.at("input_lengths")}};
 
     if (input_tensors->count("is_return_log_probs") && *((bool*)input_tensors->at("is_return_log_probs").data)) {
         output_tensors.insert({"output_log_probs",
