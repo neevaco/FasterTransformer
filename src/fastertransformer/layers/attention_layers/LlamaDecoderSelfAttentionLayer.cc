@@ -144,7 +144,7 @@ void fusedQKV_masked_attention_dispatch(const T*     qkv_buf,
     }
 
     PUSH_RANGE("scaled dot-product fusion");
-    masked_multihead_attention(params, stream);
+    masked_groupedquery_attention(params, stream);
     POP_RANGE;
 }
 
