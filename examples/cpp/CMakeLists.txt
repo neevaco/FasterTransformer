@@ -21,6 +21,7 @@ add_subdirectory(swin)
 add_subdirectory(swin_int8)
 add_subdirectory(vit)
 add_subdirectory(vit_int8)
+add_subdirectory(llama)
 
 add_subdirectory(wenet)
 
