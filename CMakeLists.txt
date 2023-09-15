@@ -167,7 +167,7 @@ if(NOT (FIND_SM STREQUAL True))
                         -gencode=arch=compute_75,code=\\\"sm_75,compute_75\\\" \
                         -gencode=arch=compute_80,code=\\\"sm_80,compute_80\\\" \
                         -gencode=arch=compute_86,code=\\\"sm_86,compute_86\\\" \
-                        -gencode=arch=compute_90,code=\\\"sm_86,compute_90\\\" \
+                        -gencode=arch=compute_90,code=\\\"sm_90,compute_90\\\" \
                         ")
   #                      -rdc=true")
   set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS}    -DWMMA")
