@@ -254,6 +254,7 @@ void LlamaWeight<T>::loadModel(std::string dir_path)
 {
     FtCudaDataType model_file_type = getModelFileType(dir_path + "/config.ini", "llama");
     FT_CHECK(is_maintain_buffer == true);
+    FT_LOG_INFO("loading llama model from %s", dir_path);
 
     loadWeightFromBin<T>(
         weights_ptr[0], {(size_t)(vocab_size_ * hidden_units_)}, dir_path + "/model.wte.weight.bin", model_file_type);
@@ -292,6 +293,7 @@ void LlamaWeight<T>::loadModel(std::string dir_path)
             decoder_layer_weights[l]->loadModel(dir_path + "/model.layers." + std::to_string(l), model_file_type);
         }
     }
+    FT_LOG_INFO("finished loading llama model from %s", dir_path);
 }
 
 template<typename T>
