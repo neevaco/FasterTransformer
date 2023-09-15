@@ -167,16 +167,17 @@ if(NOT (FIND_SM STREQUAL True))
                         -gencode=arch=compute_75,code=\\\"sm_75,compute_75\\\" \
                         -gencode=arch=compute_80,code=\\\"sm_80,compute_80\\\" \
                         -gencode=arch=compute_86,code=\\\"sm_86,compute_86\\\" \
+                        -gencode=arch=compute_90,code=\\\"sm_86,compute_90\\\" \
                         ")
   #                      -rdc=true")
   set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS}    -DWMMA")
   set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  -DWMMA")
   set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -DWMMA")
   if(BUILD_PYT)
-    set(ENV{TORCH_CUDA_ARCH_LIST} "7.0;7.5;8.0;8.6")
+    set(ENV{TORCH_CUDA_ARCH_LIST} "7.0;7.5;8.0;8.6;9.0")
   endif()
-  set(CMAKE_CUDA_ARCHITECTURES 70 75 80 86)
-  message("-- Assign GPU architecture (sm=70,75,80,86)")
+  set(CMAKE_CUDA_ARCHITECTURES 70 75 80 86 90)
+  message("-- Assign GPU architecture (sm=70,75,80,86,90)")
 endif()
 
 if(BUILD_PYT)
