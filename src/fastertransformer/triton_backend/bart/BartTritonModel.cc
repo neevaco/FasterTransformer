@@ -60,8 +60,6 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
     encoder_num_bucket_or_max_pos_seq_len_ =
         reader.GetInteger("encoder", "relative_attention_num_buckets_or_max_pos_seq_len");
-    encoder_adapter_.interSize(reader.GetInteger("encoder", "adapter_inter_size", 0));
-    encoder_adapter_.layerNormType(reader.Get("encoder", "adapter_norm_position", "pre"));
 
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
@@ -121,8 +119,6 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
     encoder_num_bucket_or_max_pos_seq_len_ =
         reader.GetInteger("encoder", "relative_attention_num_buckets_or_max_pos_seq_len");
-    encoder_adapter_.interSize(reader.GetInteger("encoder", "adapter_inter_size", 0));
-    encoder_adapter_.layerNormType(reader.Get("encoder", "adapter_norm_position", "pre"));
 
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
@@ -133,8 +129,6 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
     decoding_vocab_size_    = reader.GetInteger("decoder", "vocab_size");
     decoding_num_bucket_or_max_pos_seq_len_ =
         reader.GetInteger("decoder", "relative_attention_num_buckets_or_max_pos_seq_len");
-    decoding_adapter_.interSize(reader.GetInteger("decoder", "adapter_inter_size", 0));
-    decoding_adapter_.layerNormType(reader.Get("decoder", "adapter_norm_position", "pre"));
 
     start_id_            = reader.GetInteger("decoder", "decoder_start_token_id");
     end_id_              = reader.GetInteger("decoder", "eos_token_id");
@@ -340,13 +334,12 @@ std::string BartTritonModel<T>::toString()
        << "\n    encoder_d_model_: " << encoder_d_model_ << "\n    encoder_inter_size_: " << encoder_inter_size_
        << "\n    encoder_num_layer_: " << encoder_num_layer_ << "\n    encoder_vocab_size_: " << encoder_vocab_size_
        << "\n    encoder_num_bucket_or_max_pos_seq_len_: " << encoder_num_bucket_or_max_pos_seq_len_
-       << "\n    encoder_adapter_: " << encoder_adapter_.toString()
        << "\n    decoding_head_num_: " << decoding_head_num_
        << "\n    decoding_size_per_head_: " << decoding_size_per_head_
        << "\n    decoding_d_model_: " << decoding_d_model_ << "\n    decoding_inter_size_: " << decoding_inter_size_
        << "\n    decoding_num_layer_: " << decoding_num_layer_ << "\n    decoding_vocab_size_: " << decoding_vocab_size_
        << "\n    decoding_num_bucket_or_max_pos_seq_len_: " << decoding_num_bucket_or_max_pos_seq_len_
-       << "\n    decoding_adapter: " << decoding_adapter_.toString() << "\n    bart_with_bias_: " << bart_with_bias_
+       << "\n    bart_with_bias_: " << bart_with_bias_
        << "\n    use_gated_activation_: " << use_gated_activation_
        << "\n   position_embedding_type_: " << position_embedding_type_string << "\n    start_id_: " << start_id_
        << "\n    end_id_: " << end_id_ << "\n    model_name_: " << model_name_ << "\n    model_dir_: " << model_dir_
