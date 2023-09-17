@@ -19,6 +19,7 @@ target_link_libraries(TransformerTritonBackend PRIVATE nccl_utils mpi_utils)
 
 add_subdirectory(gptj)
 add_subdirectory(gptneox)
+add_subdirectory(bart)
 add_subdirectory(t5)
 add_subdirectory(t5-encoder)
 add_subdirectory(multi_gpu_gpt)
