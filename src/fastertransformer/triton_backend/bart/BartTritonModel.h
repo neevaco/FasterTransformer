@@ -95,6 +95,7 @@ private:
     bool                      use_gated_activation_;
     ft::PositionEmbeddingType position_embedding_type_;
     ft::ActivationType        activation_type_;
+    ft::LayerNormType         layernorm_type_;
 
     bool is_fp16_;
     int  int8_mode_;

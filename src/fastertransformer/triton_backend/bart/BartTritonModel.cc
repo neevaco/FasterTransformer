@@ -206,12 +206,9 @@ BartTritonModel<T>::createModelInstance(int                                     
                                                                        encoder_d_model_,
                                                                        encoder_num_layer_,
                                                                        encoder_num_bucket_or_max_pos_seq_len_,
-                                                                       0,  // expert_num
                                                                        max_distance_,
-                                                                       0,  // moe_k
                                                                        sm_,
                                                                        q_scaling_,
-                                                                       {},  // moe_layer_index
                                                                        stream,
                                                                        cublas_wrapper.get(),
                                                                        allocator.get(),
@@ -219,14 +216,11 @@ BartTritonModel<T>::createModelInstance(int                                     
                                                                        attention_type,
                                                                        false,
                                                                        activation_type_,
-                                                                       ft::LayerNormType::pre_layernorm,
+                                                                       layernorm_type_,
                                                                        tensor_para_,
                                                                        pipeline_para_,
-                                                                       prompt_learning_start_id_,
-                                                                       prompt_learning_type_,
                                                                        custom_all_reduce_comm,
-                                                                       enable_custom_all_reduce_,
-                                                                       encoder_adapter_));
+                                                                       enable_custom_all_reduce_));
 
     auto decoding = std::make_unique<ft::BartDecoding<T>>(ft::BartDecoding<T>(0,
                                                                           0,
@@ -239,9 +233,7 @@ BartTritonModel<T>::createModelInstance(int                                     
                                                                           decoding_num_layer_,
                                                                           decoding_vocab_size_,
                                                                           decoding_num_bucket_or_max_pos_seq_len_,
-                                                                          0,  // expert_num
                                                                           max_distance_,
-                                                                          0,  // moe_k
                                                                           q_scaling_,
                                                                           start_id_,
                                                                           end_id_,
@@ -251,7 +243,6 @@ BartTritonModel<T>::createModelInstance(int                                     
                                                                           1.0f,  // temperature_,
                                                                           0.0f,  // len_penalty_,
                                                                           1.0f,  // repetition_penalty_,
-                                                                          {},    // moe_layer_index
                                                                           stream,
                                                                           cublas_wrapper.get(),
                                                                           allocator.get(),
@@ -260,10 +251,10 @@ BartTritonModel<T>::createModelInstance(int                                     
                                                                           tensor_para_,
                                                                           pipeline_para_,
                                                                           activation_type_,
+                                                                          layernorm_type_,
                                                                           tie_word_embeddings_,
                                                                           custom_all_reduce_comm,
-                                                                          enable_custom_all_reduce_,
-                                                                          decoding_adapter_));
+                                                                          enable_custom_all_reduce_));
 
     return std::unique_ptr<BartTritonModelInstance<T>>(new BartTritonModelInstance<T>(std::move(encoder),
                                                                                   std::move(decoding),
