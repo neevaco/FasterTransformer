@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "src/fastertransformer/triton_backend/t5/T5TritonModel.h"
-#include "src/fastertransformer/triton_backend/t5/T5TritonModelInstance.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModel.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModelInstance.h"
 #include "src/fastertransformer/triton_backend/transformer_triton_backend.hpp"
 #include "src/fastertransformer/utils/allocator.h"
 
 namespace ft = fastertransformer;
 
-std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createT5Model(std::string model_dir)
+std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createBartModel(std::string model_dir)
 {
     INIReader reader = INIReader(model_dir + "/config.ini");
     if (reader.ParseError() < 0) {
@@ -32,15 +32,15 @@ std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createT5Mode
 
     const std::string data_type = reader.Get("ft_instance_hyperparameter", "data_type");
     if (data_type == "fp16") {
-        return std::make_shared<T5TritonModel<half>>(reader, model_dir);
+        return std::make_shared<BartTritonModel<half>>(reader, model_dir);
     }
 #ifdef ENABLE_BF16
     else if (data_type == "bf16") {
-        return std::make_shared<T5TritonModel<__nv_bfloat16>>(reader, model_dir);
+        return std::make_shared<BartTritonModel<__nv_bfloat16>>(reader, model_dir);
     }
 #endif
     else if (data_type == "fp32") {
-        return std::make_shared<T5TritonModel<float>>(reader, model_dir);
+        return std::make_shared<BartTritonModel<float>>(reader, model_dir);
     }
     else {
         FT_LOG_ERROR("Unsupported data type " + data_type);
@@ -49,7 +49,7 @@ std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createT5Mode
 }
 
 template<typename T>
-T5TritonModel<T>::T5TritonModel(INIReader reader, std::string model_dir): model_dir_(model_dir)
+BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): model_dir_(model_dir)
 {
     // encoder
     encoder_head_num_      = reader.GetInteger("encoder", "num_heads");
@@ -80,24 +80,24 @@ T5TritonModel<T>::T5TritonModel(INIReader reader, std::string model_dir): model_
     tensor_para_size_         = reader.GetInteger("ft_instance_hyperparameter", "tensor_para_size");
     pipeline_para_size_       = reader.GetInteger("ft_instance_hyperparameter", "pipeline_para_size");
     enable_custom_all_reduce_ = reader.GetInteger("ft_instance_hyperparameter", "enable_custom_all_reduce", 0);
-    t5_with_bias_             = reader.GetBoolean("structure", "t5_with_bias", false);
+    bart_with_bias_             = reader.GetBoolean("structure", "bart_with_bias", false);
     use_gated_activation_     = reader.GetBoolean("structure", "use_gated_activation", false);
     position_embedding_type_ =
         ft::PositionEmbeddingType(reader.Get("structure", "position_embedding_type", "relative") == "relative" ? 0 : 1);
-    q_scaling_    = t5_with_bias_ ? 1.0f : (1.0f / (sqrt(encoder_size_per_head_) * 1.0f));
+    q_scaling_    = bart_with_bias_ ? 1.0f : (1.0f / (sqrt(encoder_size_per_head_) * 1.0f));
     max_distance_ = 128;  // use default value of huggingface here
 }
 
 template<typename T>
-T5TritonModel<T>::T5TritonModel(size_t      tensor_para_size,
+BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
                                 size_t      pipeline_para_size,
                                 int         enable_custom_all_reduce,
                                 std::string model_dir,
                                 int         int8_mode):
     tensor_para_size_(tensor_para_size),
     pipeline_para_size_(pipeline_para_size),
-    encoder_shared_weights_(std::vector<std::shared_ptr<ft::T5EncoderWeight<T>>>(ft::getDeviceCount())),
-    decoding_shared_weights_(std::vector<std::shared_ptr<ft::T5DecodingWeight<T>>>(ft::getDeviceCount())),
+    encoder_shared_weights_(std::vector<std::shared_ptr<ft::BartEncoderWeight<T>>>(ft::getDeviceCount())),
+    decoding_shared_weights_(std::vector<std::shared_ptr<ft::BartDecodingWeight<T>>>(ft::getDeviceCount())),
     enable_custom_all_reduce_(enable_custom_all_reduce),
     model_dir_(model_dir),
     int8_mode_(int8_mode)
@@ -154,12 +154,12 @@ T5TritonModel<T>::T5TritonModel(size_t      tensor_para_size,
     tie_word_embeddings_ = reader.GetBoolean("decoder", "tie_word_embeddings", true);
 
     // common settings
-    t5_with_bias_         = reader.GetBoolean("structure", "t5_with_bias", false);
+    bart_with_bias_         = reader.GetBoolean("structure", "bart_with_bias", false);
     use_gated_activation_ = reader.GetBoolean("structure", "use_gated_activation", false);
     activation_type_      = ft::getActivationType(reader.Get("encoder", "feed_forward_proj"));
     position_embedding_type_ =
         ft::PositionEmbeddingType(reader.Get("structure", "position_embedding_type", "relative") == "relative" ? 0 : 1);
-    q_scaling_ = t5_with_bias_ ? 1.0f : (1.0f / (sqrt(encoder_size_per_head_) * 1.0f));
+    q_scaling_ = bart_with_bias_ ? 1.0f : (1.0f / (sqrt(encoder_size_per_head_) * 1.0f));
 
     ia3_num_tasks_ = reader.GetInteger("structure", "ia3_num_tasks", 0);
 
@@ -168,7 +168,7 @@ T5TritonModel<T>::T5TritonModel(size_t      tensor_para_size,
 
 template<typename T>
 std::unique_ptr<AbstractTransformerModelInstance>
-T5TritonModel<T>::createModelInstance(int                                                               device_id,
+BartTritonModel<T>::createModelInstance(int                                                               device_id,
                                       int                                                               rank,
                                       cudaStream_t                                                      stream,
                                       std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>> nccl_params,
@@ -212,14 +212,14 @@ T5TritonModel<T>::createModelInstance(int                                       
     const int sm_ = ft::getSMVersion();
 
     // TODO(bhsueh) not support fused mha
-    // NOTE: fmha doesn't support t5-style relative position bias
+    // NOTE: fmha doesn't support bart-style relative position bias
     ft::AttentionType attention_type =
         ft::getAttentionType<T>(encoder_size_per_head_, sm_, true, encoder_num_bucket_or_max_pos_seq_len_, false);
 
     ft::NcclParam tensor_para_   = nccl_params.first[comms_rank];
     ft::NcclParam pipeline_para_ = nccl_params.second[comms_rank];
 
-    auto encoder = std::make_unique<ft::T5Encoder<T>>(ft::T5Encoder<T>(0,
+    auto encoder = std::make_unique<ft::BartEncoder<T>>(ft::BartEncoder<T>(0,
                                                                        0,
                                                                        encoder_head_num_,
                                                                        encoder_size_per_head_,
@@ -249,7 +249,7 @@ T5TritonModel<T>::createModelInstance(int                                       
                                                                        enable_custom_all_reduce_,
                                                                        encoder_adapter_));
 
-    auto decoding = std::make_unique<ft::T5Decoding<T>>(ft::T5Decoding<T>(0,
+    auto decoding = std::make_unique<ft::BartDecoding<T>>(ft::BartDecoding<T>(0,
                                                                           0,
                                                                           0,
                                                                           0,
@@ -286,7 +286,7 @@ T5TritonModel<T>::createModelInstance(int                                       
                                                                           enable_custom_all_reduce_,
                                                                           decoding_adapter_));
 
-    return std::unique_ptr<T5TritonModelInstance<T>>(new T5TritonModelInstance<T>(std::move(encoder),
+    return std::unique_ptr<BartTritonModelInstance<T>>(new BartTritonModelInstance<T>(std::move(encoder),
                                                                                   std::move(decoding),
                                                                                   encoder_shared_weights_[device_id],
                                                                                   decoding_shared_weights_[device_id],
@@ -298,14 +298,14 @@ T5TritonModel<T>::createModelInstance(int                                       
 }
 
 template<typename T>
-void T5TritonModel<T>::createSharedWeights(int device_id, int rank)
+void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
 {
     ft::check_cuda_error(cudaSetDevice(device_id));
     const int tensor_para_rank   = rank % tensor_para_size_;
     const int pipeline_para_rank = rank / tensor_para_size_;
 
     encoder_shared_weights_[device_id] =
-        std::make_shared<ft::T5EncoderWeight<T>>(encoder_head_num_,
+        std::make_shared<ft::BartEncoderWeight<T>>(encoder_head_num_,
                                                  encoder_size_per_head_,
                                                  encoder_d_model_,
                                                  encoder_inter_size_,
@@ -316,7 +316,7 @@ void T5TritonModel<T>::createSharedWeights(int device_id, int rank)
                                                  tensor_para_rank,
                                                  pipeline_para_size_,
                                                  pipeline_para_rank,
-                                                 t5_with_bias_,
+                                                 bart_with_bias_,
                                                  use_gated_activation_,
                                                  position_embedding_type_,
                                                  prompt_learning_type_,
@@ -325,7 +325,7 @@ void T5TritonModel<T>::createSharedWeights(int device_id, int rank)
                                                  encoder_adapter_.interSize());
 
     decoding_shared_weights_[device_id] =
-        std::make_shared<ft::T5DecodingWeight<T>>(decoding_head_num_,
+        std::make_shared<ft::BartDecodingWeight<T>>(decoding_head_num_,
                                                   decoding_size_per_head_,
                                                   decoding_d_model_,
                                                   decoding_inter_size_,
@@ -337,7 +337,7 @@ void T5TritonModel<T>::createSharedWeights(int device_id, int rank)
                                                   tensor_para_rank,
                                                   pipeline_para_size_,
                                                   pipeline_para_rank,
-                                                  t5_with_bias_,
+                                                  bart_with_bias_,
                                                   use_gated_activation_,
                                                   position_embedding_type_,
                                                   ia3_num_tasks_,
@@ -348,7 +348,7 @@ void T5TritonModel<T>::createSharedWeights(int device_id, int rank)
 }
 
 template<typename T>
-std::string T5TritonModel<T>::toString()
+std::string BartTritonModel<T>::toString()
 {
     std::stringstream ss;
     std::string       position_embedding_type_string =
@@ -365,7 +365,7 @@ std::string T5TritonModel<T>::toString()
        << "\n    decoding_d_model_: " << decoding_d_model_ << "\n    decoding_inter_size_: " << decoding_inter_size_
        << "\n    decoding_num_layer_: " << decoding_num_layer_ << "\n    decoding_vocab_size_: " << decoding_vocab_size_
        << "\n    decoding_num_bucket_or_max_pos_seq_len_: " << decoding_num_bucket_or_max_pos_seq_len_
-       << "\n    decoding_adapter: " << decoding_adapter_.toString() << "\n    t5_with_bias_: " << t5_with_bias_
+       << "\n    decoding_adapter: " << decoding_adapter_.toString() << "\n    bart_with_bias_: " << bart_with_bias_
        << "\n    use_gated_activation_: " << use_gated_activation_
        << "\n   position_embedding_type_: " << position_embedding_type_string << "\n    start_id_: " << start_id_
        << "\n    end_id_: " << end_id_ << "\n    model_name_: " << model_name_ << "\n    model_dir_: " << model_dir_
@@ -375,7 +375,7 @@ std::string T5TritonModel<T>::toString()
 }
 
 template<typename T>
-void T5TritonModel<T>::createCustomComms(std::vector<std::shared_ptr<ft::AbstractCustomComm>>* custom_all_reduce_comms,
+void BartTritonModel<T>::createCustomComms(std::vector<std::shared_ptr<ft::AbstractCustomComm>>* custom_all_reduce_comms,
                                          int                                                   world_size)
 {
     using commDataType = typename ft::CustomARCommTypeConverter<T>::Type;
@@ -383,19 +383,19 @@ void T5TritonModel<T>::createCustomComms(std::vector<std::shared_ptr<ft::Abstrac
 }
 
 template<typename T>
-int T5TritonModel<T>::getTensorParaSize()
+int BartTritonModel<T>::getTensorParaSize()
 {
     return tensor_para_size_;
 }
 
 template<typename T>
-int T5TritonModel<T>::getPipelineParaSize()
+int BartTritonModel<T>::getPipelineParaSize()
 {
     return pipeline_para_size_;
 }
 
-template struct T5TritonModel<float>;
-template struct T5TritonModel<half>;
+template struct BartTritonModel<float>;
+template struct BartTritonModel<half>;
 #ifdef ENABLE_BF16
-template struct T5TritonModel<__nv_bfloat16>;
+template struct BartTritonModel<__nv_bfloat16>;
 #endif
