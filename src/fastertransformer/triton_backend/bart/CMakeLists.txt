@@ -15,11 +15,11 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(bart_triton_backend_files
-    T5TritonModel.cc
-    T5TritonModelInstance.cc
+    BartTritonModel.cc
+    BartTritonModelInstance.cc
 )
 
-add_library(T5TritonBackend STATIC ${t5_triton_backend_files})
-set_property(TARGET T5TritonBackend PROPERTY POSITION_INDEPENDENT_CODE  ON)
-target_link_libraries(T5TritonBackend PRIVATE TransformerTritonBackend T5Encoder T5Decoding -lcublasLt)
-target_compile_features(T5TritonBackend PRIVATE cxx_std_14)
+add_library(BartTritonBackend STATIC ${t5_triton_backend_files})
+set_property(TARGET BartTritonBackend PROPERTY POSITION_INDEPENDENT_CODE  ON)
+target_link_libraries(BartTritonBackend PRIVATE TransformerTritonBackend BartEncoder BartDecoding -lcublasLt)
+target_compile_features(BartTritonBackend PRIVATE cxx_std_14)
