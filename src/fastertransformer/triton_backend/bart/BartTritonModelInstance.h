@@ -16,27 +16,27 @@
 
 #pragma once
 
-#include "src/fastertransformer/models/t5/T5Decoding.h"
-#include "src/fastertransformer/models/t5/T5Encoder.h"
-#include "src/fastertransformer/triton_backend/t5/T5TritonModel.h"
+#include "src/fastertransformer/models/bart/BartDecoding.h"
+#include "src/fastertransformer/models/bart/BartEncoder.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModel.h"
 #include "src/fastertransformer/triton_backend/transformer_triton_backend.hpp"
 #include <memory>
 
 namespace ft = fastertransformer;
 
 template<typename T>
-struct T5TritonModelInstance: AbstractTransformerModelInstance {
+struct BartTritonModelInstance: AbstractTransformerModelInstance {
 
-    T5TritonModelInstance(std::unique_ptr<ft::T5Encoder<T>>                       t5_encoder,
-                          std::unique_ptr<ft::T5Decoding<T>>                      t5_decoding,
-                          std::shared_ptr<ft::T5EncoderWeight<T>>                 t5_encoder_weight,
-                          std::shared_ptr<ft::T5DecodingWeight<T>>                t5_decoding_weight,
+    BartTritonModelInstance(std::unique_ptr<ft::BartEncoder<T>>                       bart_encoder,
+                          std::unique_ptr<ft::BartDecoding<T>>                      bart_decoding,
+                          std::shared_ptr<ft::BartEncoderWeight<T>>                 bart_encoder_weight,
+                          std::shared_ptr<ft::BartDecodingWeight<T>>                bart_decoding_weight,
                           std::unique_ptr<ft::Allocator<ft::AllocatorType::CUDA>> allocator,
                           std::unique_ptr<ft::cublasAlgoMap>                      cublas_algo_map,
                           std::unique_ptr<std::mutex>                             cublas_wrapper_mutex,
                           std::unique_ptr<ft::cublasMMWrapper>                    cublas_wrapper,
                           std::unique_ptr<cudaDeviceProp>                         cuda_device_prop_ptr);
-    ~T5TritonModelInstance();
+    ~BartTritonModelInstance();
 
     std::shared_ptr<std::vector<triton::Tensor>>
     forward(std::shared_ptr<std::vector<triton::Tensor>> input_tensors) override
@@ -52,10 +52,10 @@ struct T5TritonModelInstance: AbstractTransformerModelInstance {
     convert_outputs(ft::TensorMap& output_tensors);
 
 private:
-    const std::unique_ptr<ft::T5Encoder<T>>                       t5_encoder_;
-    const std::shared_ptr<ft::T5EncoderWeight<T>>                 t5_encoder_weight_;
-    const std::unique_ptr<ft::T5Decoding<T>>                      t5_decoding_;
-    const std::shared_ptr<ft::T5DecodingWeight<T>>                t5_decoding_weight_;
+    const std::unique_ptr<ft::BartEncoder<T>>                       bart_encoder_;
+    const std::shared_ptr<ft::BartEncoderWeight<T>>                 bart_encoder_weight_;
+    const std::unique_ptr<ft::BartDecoding<T>>                      bart_decoding_;
+    const std::shared_ptr<ft::BartDecodingWeight<T>>                bart_decoding_weight_;
     const std::unique_ptr<ft::Allocator<ft::AllocatorType::CUDA>> allocator_;
     const std::unique_ptr<ft::cublasAlgoMap>                      cublas_algo_map_;
     const std::unique_ptr<std::mutex>                             cublas_wrapper_mutex_;
