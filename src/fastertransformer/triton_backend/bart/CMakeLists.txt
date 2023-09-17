@@ -19,7 +19,7 @@ set(bart_triton_backend_files
     BartTritonModelInstance.cc
 )
 
-add_library(BartTritonBackend STATIC ${t5_triton_backend_files})
+add_library(BartTritonBackend STATIC ${bart_triton_backend_files})
 set_property(TARGET BartTritonBackend PROPERTY POSITION_INDEPENDENT_CODE  ON)
 target_link_libraries(BartTritonBackend PRIVATE TransformerTritonBackend BartEncoder BartDecoding -lcublasLt)
 target_compile_features(BartTritonBackend PRIVATE cxx_std_14)
