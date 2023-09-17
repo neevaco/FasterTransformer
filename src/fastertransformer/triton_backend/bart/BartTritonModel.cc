@@ -70,8 +70,6 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     decoding_vocab_size_    = reader.GetInteger("decoder", "vocab_size");
     decoding_num_bucket_or_max_pos_seq_len_ =
         reader.GetInteger("decoder", "relative_attention_num_buckets_or_max_pos_seq_len");
-    decoding_adapter_.interSize(reader.GetInteger("decoder", "adapter_inter_size", 0));
-    decoding_adapter_.layerNormType(reader.Get("decoder", "adapter_norm_position", "pre"));
 
     start_id_                 = reader.GetInteger("decoder", "decoder_start_token_id");
     end_id_                   = reader.GetInteger("decoder", "eos_token_id");
@@ -307,7 +305,7 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                   bart_with_bias_,
                                                   mbart_para_,
                                                   use_gated_activation_,
-                                                  position_embedding_type_,);
+                                                  position_embedding_type_);
 
     encoder_shared_weights_[device_id]->loadModel(model_dir_);
     decoding_shared_weights_[device_id]->loadModel(model_dir_);
