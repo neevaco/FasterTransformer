@@ -64,13 +64,6 @@ private:
     size_t                  encoder_num_layer_;
     size_t                  encoder_vocab_size_;
     size_t                  encoder_num_bucket_or_max_pos_seq_len_;
-    ft::LinearAdapterConfig encoder_adapter_{};
-
-    // prompt for encoder
-    size_t                                     num_tasks_                  = 0;
-    int                                        prompt_learning_start_id_   = 0;
-    ft::PromptLearningType                     prompt_learning_type_       = ft::PromptLearningType::no_prompt;
-    std::map<std::string, std::pair<int, int>> prompt_learning_table_pair_ = {};
 
     // decoding
     size_t                  decoding_head_num_;
@@ -80,7 +73,6 @@ private:
     size_t                  decoding_num_layer_;
     size_t                  decoding_vocab_size_;
     size_t                  decoding_num_bucket_or_max_pos_seq_len_;
-    ft::LinearAdapterConfig decoding_adapter_{};
 
     float  q_scaling_;
     size_t ia3_num_tasks_;

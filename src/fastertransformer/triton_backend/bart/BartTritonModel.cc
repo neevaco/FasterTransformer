@@ -124,19 +124,6 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
     encoder_adapter_.interSize(reader.GetInteger("encoder", "adapter_inter_size", 0));
     encoder_adapter_.layerNormType(reader.Get("encoder", "adapter_norm_position", "pre"));
 
-    // encoder prompt
-    num_tasks_                = reader.GetInteger("encoder", "num_tasks", 0);
-    prompt_learning_start_id_ = reader.GetInteger("encoder", "prompt_learning_start_id", encoder_vocab_size_ + 1);
-    prompt_learning_type_ =
-        static_cast<ft::PromptLearningType>(reader.GetInteger("encoder", "prompt_learning_type", 0));
-
-    for (int task_name_id = 0; task_name_id < num_tasks_; task_name_id++) {
-        std::string config_task_name = "task_" + std::to_string(task_name_id);
-        std::string task_name        = reader.Get(config_task_name, "task_name");
-        const int   prompt_length    = reader.GetInteger(config_task_name, "prompt_length", 0);
-        prompt_learning_table_pair_.insert({task_name, {task_name_id, prompt_length}});
-    }
-
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
     decoding_size_per_head_ = reader.GetInteger("decoder", "d_kv");
