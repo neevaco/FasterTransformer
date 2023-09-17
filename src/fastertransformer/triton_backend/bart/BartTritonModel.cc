@@ -148,8 +148,6 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
         ft::PositionEmbeddingType(reader.Get("structure", "position_embedding_type", "relative") == "relative" ? 0 : 1);
     q_scaling_ = bart_with_bias_ ? 1.0f : (1.0f / (sqrt(encoder_size_per_head_) * 1.0f));
 
-    ia3_num_tasks_ = reader.GetInteger("structure", "ia3_num_tasks", 0);
-
     max_distance_ = 128;  // use default value of huggingface here
 }
 
@@ -304,12 +302,9 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                  pipeline_para_size_,
                                                  pipeline_para_rank,
                                                  bart_with_bias_,
+                                                 mbart_para_,
                                                  use_gated_activation_,
-                                                 position_embedding_type_,
-                                                 prompt_learning_type_,
-                                                 prompt_learning_table_pair_,
-                                                 ia3_num_tasks_,
-                                                 encoder_adapter_.interSize());
+                                                 position_embedding_type_);
 
     decoding_shared_weights_[device_id] =
         std::make_shared<ft::BartDecodingWeight<T>>(decoding_head_num_,
@@ -325,10 +320,9 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                   pipeline_para_size_,
                                                   pipeline_para_rank,
                                                   bart_with_bias_,
+                                                  mbart_para_,
                                                   use_gated_activation_,
-                                                  position_embedding_type_,
-                                                  ia3_num_tasks_,
-                                                  decoding_adapter_.interSize());
+                                                  position_embedding_type_,);
 
     encoder_shared_weights_[device_id]->loadModel(model_dir_);
     decoding_shared_weights_[device_id]->loadModel(model_dir_);

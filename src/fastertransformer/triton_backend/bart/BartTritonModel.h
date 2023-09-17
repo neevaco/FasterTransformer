@@ -75,7 +75,6 @@ private:
     size_t                  decoding_num_bucket_or_max_pos_seq_len_;
 
     float  q_scaling_;
-    size_t ia3_num_tasks_;
 
     size_t max_distance_;
     int    start_id_;
@@ -92,6 +91,7 @@ private:
 
     // bart structure difference
     bool                      bart_with_bias_;
+    bool                      mbart_para_ = false;
     bool                      use_gated_activation_;
     ft::PositionEmbeddingType position_embedding_type_;
     ft::ActivationType        activation_type_;
