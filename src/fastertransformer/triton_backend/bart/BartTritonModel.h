@@ -93,9 +93,9 @@ private:
     bool                      bart_with_bias_;
     bool                      mbart_para_ = false;
     bool                      use_gated_activation_;
-    ft::PositionEmbeddingType position_embedding_type_;
+    ft::PositionEmbeddingType position_embedding_type_ = ft::PositionEmbeddingType::absolute;
     ft::ActivationType        activation_type_;
-    ft::LayerNormType         layernorm_type_;
+    ft::LayerNormType         layernorm_type_ = ft::LayerNormType::post_layernorm;
 
     bool is_fp16_;
     int  int8_mode_;

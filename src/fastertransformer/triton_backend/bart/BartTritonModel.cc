@@ -76,10 +76,8 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     tensor_para_size_         = reader.GetInteger("ft_instance_hyperparameter", "tensor_para_size");
     pipeline_para_size_       = reader.GetInteger("ft_instance_hyperparameter", "pipeline_para_size");
     enable_custom_all_reduce_ = reader.GetInteger("ft_instance_hyperparameter", "enable_custom_all_reduce", 0);
-    bart_with_bias_             = reader.GetBoolean("structure", "bart_with_bias", false);
+    bart_with_bias_           = reader.GetBoolean("structure", "bart_with_bias", true);
     use_gated_activation_     = reader.GetBoolean("structure", "use_gated_activation", false);
-    position_embedding_type_ =
-        ft::PositionEmbeddingType(reader.Get("structure", "position_embedding_type", "relative") == "relative" ? 0 : 1);
     q_scaling_    = bart_with_bias_ ? 1.0f : (1.0f / (sqrt(encoder_size_per_head_) * 1.0f));
     max_distance_ = 128;  // use default value of huggingface here
 }
