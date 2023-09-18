@@ -257,8 +257,8 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
     // weight [4] pre-LN bias[5] post-LN bias. Assuming both mBART and bias
     */
 
-    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/shared.ape.bin", model_file_type);
-    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/shared.weight_T.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/encoder.embed_positions.weight.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
     loadWeightFromBin<T>(
         weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/encoder.final_layer_norm.weight.bin", model_file_type);
     if (bart_with_bias) {

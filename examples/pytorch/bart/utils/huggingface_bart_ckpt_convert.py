@@ -66,26 +66,28 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
 def split_and_convert_process(key, val, factor, saved_dir):
     if val.ndim == 2:
         val = val.transpose(1, 0)
-    saved_key = key
     LOGGER.debug(f"key: {key}, val.shape: {val.shape}")
 
-    if key.find("shared.weight") != -1:
+    if key.find("encoder.embed_positions.weight") != -1:
         # shared weights, only need to convert the weights of rank 0
-        saved_path = saved_dir / f"{saved_key}.bin"
-        val.tofile(saved_path.as_posix())
-
-        saved_path = saved_dir / f"{saved_key}_T.bin"
-        val.T.tofile(saved_path.as_posix())
-    elif key.find("lm_head.weight") != -1:
-        # lm_head weights, only need to convert the weights of rank 0
-        val = val.transpose(1, 0)  # For lm_head, we use TN gemm to compute, so we don't need to transpose
-        saved_path = saved_dir / f"{saved_key}.bin"
-        val.tofile(saved_path.as_posix())
-
-    elif key.find("layer_norm.weight") != -1:
+        saved_path = saved_dir / "encoder.embed_positions.weight.bin"
+        val[2:, :].tofile(saved_path.as_posix())
+    if key.find("encoder.embed_tokens.weight") != -1:
         # shared weights, only need to convert the weights of rank 0
-        saved_path = saved_dir / f"{saved_key}.bin"
+        saved_path = saved_dir / "encoder.embed_tokens.weight.bin"
         val.tofile(saved_path.as_posix())
+    elif key.find("encoder.layernorm_embedding.weight") != -1:
+        # shared weights, only need to convert the weights of rank 0
+        saved_path = saved_dir / "encoder.final_layer_norm.weight.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("encoder.layernorm_embedding.bias") != -1:
+        # shared weights, only need to convert the weights of rank 0
+        saved_path = saved_dir / "encoder.final_layer_norm.bias.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("encoder.embed_positions.weight") != -1:
+        # shared weights, only need to convert the weights of rank 0
+        saved_path = saved_dir / "encoder.shared.ape.bin"
+        val[2:, :].tofile(saved_path.as_posix())
 
     elif (
             key.find("SelfAttention.o.weight") != -1
