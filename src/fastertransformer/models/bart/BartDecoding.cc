@@ -322,6 +322,17 @@ BartDecoding<T>::~BartDecoding()
 }
 
 template<typename T>
+void BartDecoding<T>::registerCallback(callback_sig* fn, void* ctx)
+{
+}
+
+template<typename T>
+void BartDecoding<T>::unRegisterCallback()
+{
+}
+
+
+template<typename T>
 void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                               TensorMap*                   input_tensors,
                               const BartDecodingWeight<T>* decoding_weights)

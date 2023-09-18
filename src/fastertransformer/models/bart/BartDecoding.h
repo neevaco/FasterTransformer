@@ -170,6 +170,9 @@ public:
     void forward(TensorMap* output_tensors, TensorMap* input_tensors, const BartDecodingWeight<T>* Decoding_weights);
 
     void setStream(cudaStream_t stream) override;
+
+    void registerCallback(callback_sig* fn, void* ctx);
+    void unRegisterCallback();
 };
 
 }  // namespace fastertransformer
