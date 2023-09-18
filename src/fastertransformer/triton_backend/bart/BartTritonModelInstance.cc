@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "src/fastertransformer/triton_backend/t5/T5TritonModelInstance.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModelInstance.h"
 #include "src/fastertransformer/triton_backend/transformer_triton_backend.hpp"
 #include "src/fastertransformer/triton_backend/triton_utils.hpp"
 #include "src/fastertransformer/utils/Tensor.h"
@@ -25,26 +25,26 @@ namespace ft = fastertransformer;
 template<typename T>
 void triton_stream_callback(ft::TensorMap* output_tensors, void* ctx)
 {
-    auto* const model  = reinterpret_cast<T5TritonModelInstance<T>*>(ctx);
-    auto const  result = T5TritonModelInstance<T>::convert_outputs(*output_tensors);
+    auto* const model  = reinterpret_cast<BartTritonModelInstance<T>*>(ctx);
+    auto const  result = BartTritonModelInstance<T>::convert_outputs(*output_tensors);
 
     model->stream_cb_(result, model->stream_ctx_);
 }
 
 template<typename T>
-T5TritonModelInstance<T>::T5TritonModelInstance(std::unique_ptr<ft::T5Encoder<T>>        t5_encoder,
-                                                std::unique_ptr<ft::T5Decoding<T>>       t5_decoding,
-                                                std::shared_ptr<ft::T5EncoderWeight<T>>  t5_encoder_weight,
-                                                std::shared_ptr<ft::T5DecodingWeight<T>> t5_decoding_weight,
+BartTritonModelInstance<T>::BartTritonModelInstance(std::unique_ptr<ft::BartEncoder<T>>        bart_encoder,
+                                                std::unique_ptr<ft::BartDecoding<T>>       bart_decoding,
+                                                std::shared_ptr<ft::BartEncoderWeight<T>>  bart_encoder_weight,
+                                                std::shared_ptr<ft::BartDecodingWeight<T>> bart_decoding_weight,
                                                 std::unique_ptr<ft::Allocator<ft::AllocatorType::CUDA>> allocator,
                                                 std::unique_ptr<ft::cublasAlgoMap>                      cublas_algo_map,
                                                 std::unique_ptr<std::mutex>          cublas_wrapper_mutex,
                                                 std::unique_ptr<ft::cublasMMWrapper> cublas_wrapper,
                                                 std::unique_ptr<cudaDeviceProp>      cuda_device_prop_ptr):
-    t5_encoder_(std::move(t5_encoder)),
-    t5_decoding_(std::move(t5_decoding)),
-    t5_encoder_weight_(t5_encoder_weight),
-    t5_decoding_weight_(t5_decoding_weight),
+    bart_encoder_(std::move(bart_encoder)),
+    bart_decoding_(std::move(bart_decoding)),
+    bart_encoder_weight_(bart_encoder_weight),
+    bart_decoding_weight_(bart_decoding_weight),
     allocator_(std::move(allocator)),
     cublas_algo_map_(std::move(cublas_algo_map)),
     cublas_wrapper_mutex_(std::move(cublas_wrapper_mutex)),
@@ -55,7 +55,7 @@ T5TritonModelInstance<T>::T5TritonModelInstance(std::unique_ptr<ft::T5Encoder<T>
 
 template<typename T>
 ft::TensorMap
-T5TritonModelInstance<T>::convert_inputs(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
+BartTritonModelInstance<T>::convert_inputs(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
 {
     move_tensor_H2D(input_tensors->at("input_ids"), d_input_ids_, &allocator_);
     move_tensor_H2D(input_tensors->at("sequence_length"), d_input_lengths_, &allocator_);
@@ -88,7 +88,7 @@ T5TritonModelInstance<T>::convert_inputs(std::shared_ptr<std::unordered_map<std:
 
 template<typename T>
 std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
-T5TritonModelInstance<T>::convert_outputs(ft::TensorMap& output_tensors)
+BartTritonModelInstance<T>::convert_outputs(ft::TensorMap& output_tensors)
 {
     std::unordered_map<std::string, triton::Tensor>* outputs_mapping =
         new std::unordered_map<std::string, triton::Tensor>();
@@ -102,7 +102,7 @@ T5TritonModelInstance<T>::convert_outputs(ft::TensorMap& output_tensors)
 
 template<typename T>
 std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
-T5TritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
+BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
 {
     const size_t request_batch_size = input_tensors->at("input_ids").shape[0];
     const size_t mem_max_seq_len    = input_tensors->at("input_ids").shape[1];
@@ -123,7 +123,7 @@ T5TritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string
         {{"output_hidden_state",
           ft::Tensor{ft::MEMORY_GPU,
                      ft::getTensorType<T>(),
-                     std::vector<size_t>{request_batch_size, mem_max_seq_len, t5_encoder_->getDModel()},
+                     std::vector<size_t>{request_batch_size, mem_max_seq_len, bart_encoder_->getDModel()},
                      d_encoder_outputs_}}});
 
     ft::TensorMap decoding_input_tensors({{"encoder_output", encoder_output_tensors.at("output_hidden_state")},
@@ -195,10 +195,10 @@ T5TritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string
     }
 
     if (has_ia3_tasks) {
-        const auto num_ia3_tasks = t5_encoder_weight_->getNumIA3Tasks();
+        const auto num_ia3_tasks = bart_encoder_weight_->getNumIA3Tasks();
         FT_CHECK_WITH_INFO(num_ia3_tasks > 0, "Cannot request ia3_tasks, model has no IA3 adapters");
         const bool is_within_range = ft::invokeCheckRange<int>(
-            d_input_ia3_tasks_, request_batch_size, 0, num_ia3_tasks - 1, d_within_range_, t5_encoder_->getStream());
+            d_input_ia3_tasks_, request_batch_size, 0, num_ia3_tasks - 1, d_within_range_, bart_encoder_->getStream());
         FT_CHECK_WITH_INFO(is_within_range,
                            ft::fmtstr("Requested IA3 tasks aren't in the range [0, %d).", num_ia3_tasks));
 
@@ -207,14 +207,14 @@ T5TritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string
 
     try {
         if (stream_cb_ != nullptr) {
-            t5_decoding_->registerCallback(triton_stream_callback<T>, this);
+            bart_decoding_->registerCallback(triton_stream_callback<T>, this);
         }
 
-        t5_encoder_->forward(&encoder_output_tensors, &encoder_input_tensors, t5_encoder_weight_.get());
-        t5_decoding_->forward(&decoding_output_tensors, &decoding_input_tensors, t5_decoding_weight_.get());
+        bart_encoder_->forward(&encoder_output_tensors, &encoder_input_tensors, bart_encoder_weight_.get());
+        bart_decoding_->forward(&decoding_output_tensors, &decoding_input_tensors, bart_decoding_weight_.get());
 
         if (stream_cb_ != nullptr) {
-            t5_decoding_->unRegisterCallback();
+            bart_decoding_->unRegisterCallback();
         }
     }
     catch (...) {
@@ -227,13 +227,13 @@ T5TritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string
 }
 
 template<typename T>
-T5TritonModelInstance<T>::~T5TritonModelInstance()
+BartTritonModelInstance<T>::~BartTritonModelInstance()
 {
     freeBuffer();
 }
 
 template<typename T>
-void T5TritonModelInstance<T>::allocateBuffer(const size_t request_batch_size,
+void BartTritonModelInstance<T>::allocateBuffer(const size_t request_batch_size,
                                               const size_t beam_width,
                                               const size_t max_output_len,
                                               const size_t mem_max_seq_len)
@@ -241,7 +241,7 @@ void T5TritonModelInstance<T>::allocateBuffer(const size_t request_batch_size,
     d_output_ids_      = (int*)(allocator_->reMalloc(
         d_output_ids_, sizeof(int) * request_batch_size * beam_width * max_output_len, false));
     d_encoder_outputs_ = (T*)(allocator_->reMalloc(
-        d_encoder_outputs_, sizeof(T) * request_batch_size * mem_max_seq_len * t5_encoder_->getDModel(), false));
+        d_encoder_outputs_, sizeof(T) * request_batch_size * mem_max_seq_len * bart_encoder_->getDModel(), false));
     d_sequence_lengths_ =
         (int*)(allocator_->reMalloc(d_sequence_lengths_, sizeof(int) * request_batch_size * beam_width, false));
     d_output_log_probs_ = (float*)(allocator_->reMalloc(
@@ -252,7 +252,7 @@ void T5TritonModelInstance<T>::allocateBuffer(const size_t request_batch_size,
 }
 
 template<typename T>
-void T5TritonModelInstance<T>::freeBuffer()
+void BartTritonModelInstance<T>::freeBuffer()
 {
     allocator_->free((void**)(&d_encoder_outputs_));
     allocator_->free((void**)(&d_output_ids_));
@@ -262,8 +262,8 @@ void T5TritonModelInstance<T>::freeBuffer()
     allocator_->free((void**)(&d_within_range_));
 }
 
-template struct T5TritonModelInstance<float>;
-template struct T5TritonModelInstance<half>;
+template struct BartTritonModelInstance<float>;
+template struct BartTritonModelInstance<half>;
 #ifdef ENABLE_BF16
-template struct T5TritonModelInstance<__nv_bfloat16>;
+template struct BartTritonModelInstance<__nv_bfloat16>;
 #endif
