@@ -123,7 +123,6 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
 
     start_id_            = reader.GetInteger("decoder", "decoder_start_token_id");
     end_id_              = reader.GetInteger("decoder", "eos_token_id");
-    tie_word_embeddings_ = reader.GetBoolean("decoder", "tie_word_embeddings", true);
 
     // common settings
     activation_type_      = ft::getActivationType(reader.Get("encoder", "feed_forward_proj"));
@@ -310,12 +309,12 @@ std::string BartTritonModel<T>::toString()
        << "\n    encoder_head_num_: " << encoder_head_num_ << "\n    encoder_size_per_head_: " << encoder_size_per_head_
        << "\n    encoder_d_model_: " << encoder_d_model_ << "\n    encoder_inter_size_: " << encoder_inter_size_
        << "\n    encoder_num_layer_: " << encoder_num_layer_ << "\n    encoder_vocab_size_: " << encoder_vocab_size_
-       << "\n    encoder_num_bucket_or_max_pos_seq_len_: " << encoder_num_bucket_or_max_pos_seq_len_
+       << "\n    encoder_max_pos_seq_len_: " << encoder_max_pos_seq_len_
        << "\n    decoding_head_num_: " << decoding_head_num_
        << "\n    decoding_size_per_head_: " << decoding_size_per_head_
        << "\n    decoding_d_model_: " << decoding_d_model_ << "\n    decoding_inter_size_: " << decoding_inter_size_
        << "\n    decoding_num_layer_: " << decoding_num_layer_ << "\n    decoding_vocab_size_: " << decoding_vocab_size_
-       << "\n    decoding_num_bucket_or_max_pos_seq_len_: " << decoding_num_bucket_or_max_pos_seq_len_
+       << "\n    decoding_max_pos_seq_len_: " << decoding_max_pos_seq_len_
        << "\n    bart_with_bias_: " << bart_with_bias_
        << "\n    use_gated_activation_: " << use_gated_activation_
        << "\n   position_embedding_type_: " << position_embedding_type_string << "\n    start_id_: " << start_id_

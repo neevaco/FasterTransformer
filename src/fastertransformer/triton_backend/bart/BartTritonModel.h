@@ -80,7 +80,7 @@ private:
     int    start_id_;
     int    end_id_;
 
-    bool tie_word_embeddings_;
+    bool tie_word_embeddings_ = false;
 
     size_t tensor_para_size_;
     size_t pipeline_para_size_;
