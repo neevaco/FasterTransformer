@@ -80,9 +80,6 @@ BartTritonModelInstance<T>::convert_inputs(std::shared_ptr<std::unordered_map<st
             {"request_prompt_embedding",
              as_GPU_tensor(input_tensors->at("request_prompt_embedding"), d_request_prompt_embedding_)});
     }
-    if (input_tensors->count("ia3_tasks")) {
-        ft_input_tensors.insert({"ia3_tasks", as_GPU_tensor(input_tensors->at("ia3_tasks"), d_input_ia3_tasks_)});
-    }
     return ft_input_tensors;
 }
 
@@ -109,13 +106,8 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
     const size_t max_output_len     = *((uint*)input_tensors->at("max_output_len").data);
     const size_t beam_width =
         input_tensors->count("beam_width") ? (size_t)(*(uint*)input_tensors->at("beam_width").data) : 1;
-    const bool has_ia3_tasks = input_tensors->count("ia3_tasks");
 
     allocateBuffer(request_batch_size, beam_width, max_output_len, mem_max_seq_len);
-
-    if (has_ia3_tasks) {
-        move_tensor_H2D(input_tensors->at("ia3_tasks"), d_input_ia3_tasks_, &allocator_);
-    }
 
     ft::TensorMap encoder_input_tensors(convert_inputs(input_tensors));
 
@@ -147,7 +139,6 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
                                          "sequence_length",
                                          "bad_words_list",
                                          "stop_words_list",
-                                         "ia3_tasks",
                                          "top_p_decay",
                                          "top_p_min",
                                          "top_p_reset_ids"};
@@ -192,17 +183,6 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
                                                    ft::TYPE_FP32,
                                                    std::vector<size_t>{request_batch_size, beam_width},
                                                    d_cum_log_probs_}});
-    }
-
-    if (has_ia3_tasks) {
-        const auto num_ia3_tasks = bart_encoder_weight_->getNumIA3Tasks();
-        FT_CHECK_WITH_INFO(num_ia3_tasks > 0, "Cannot request ia3_tasks, model has no IA3 adapters");
-        const bool is_within_range = ft::invokeCheckRange<int>(
-            d_input_ia3_tasks_, request_batch_size, 0, num_ia3_tasks - 1, d_within_range_, bart_encoder_->getStream());
-        FT_CHECK_WITH_INFO(is_within_range,
-                           ft::fmtstr("Requested IA3 tasks aren't in the range [0, %d).", num_ia3_tasks));
-
-        decoding_input_tensors.insert({"ia3_tasks", as_GPU_tensor(input_tensors->at("ia3_tasks"), d_input_ia3_tasks_)});
     }
 
     try {
