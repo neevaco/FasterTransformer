@@ -252,19 +252,15 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
     FtCudaDataType model_file_type = getModelFileType(dir_path + "/config.ini", "encoder");
     FT_CHECK(is_maintain_buffer == true);
 
+    /*
+        // 6: [0] absolute/relative positional embedding weight [1] word embedding weight [2] pre-LN weight [3] post-LN
+    // weight [4] pre-LN bias[5] post-LN bias. Assuming both mBART and bias
+    */
+
+    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/shared.ape.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/shared.weight_T.bin", model_file_type);
     loadWeightFromBin<T>(
-        weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/encoder.final_layer_norm.weight.bin", model_file_type);
-    if (position_embedding_type == PositionEmbeddingType::absolute) {
-        loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/shared.ape.bin", model_file_type);
-    }
-    else {
-        loadWeightFromBin<T>(weights_ptr[1],
-                             {(size_t)weights_size[1]},
-                             dir_path + "/encoder.block.0.layer.0.SelfAttention.relative_attention_bias.weight."
-                                 + std::to_string(tensor_para_rank_) + ".bin",
-                             model_file_type);
-    }
-    loadWeightFromBin<T>(weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/shared.weight_T.bin", model_file_type);
+        weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/encoder.final_layer_norm.weight.bin", model_file_type);
     if (bart_with_bias) {
         loadWeightFromBin<T>(weights_ptr[3],
                              {(size_t)weights_size[3]},
