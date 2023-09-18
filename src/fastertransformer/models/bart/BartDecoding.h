@@ -128,6 +128,8 @@ protected:
     const bool     using_beam_hyps = true;
     BeamHypotheses beam_hyps_;
 
+    using callback_sig                 = void(TensorMap*, void*);
+
 public:
     BartDecoding(size_t                              max_batch_size,
                  size_t                              max_seq_len,
