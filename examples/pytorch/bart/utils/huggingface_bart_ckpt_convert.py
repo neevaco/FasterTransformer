@@ -34,7 +34,7 @@ LOGGER = logging.getLogger(__name__)
 
 rename_mapping = {"relative_attention_num_buckets": "relative_attention_num_buckets_or_max_pos_seq_len"}
 new_configs = {
-    "structure": {"t5_with_bias": "false", "use_gated_activation": "false", "position_embedding_type": "relative"}}
+    "structure": {"t5_with_bias": "false", "use_gated_activation": "false"}}
 
 
 def get_weight_data_type(data_type):
@@ -155,25 +155,18 @@ def convert_checkpoint(args):
     saved_dir = Path(args.saved_dir) / f"{args.inference_tensor_para_size:d}-gpu"
     saved_dir.mkdir(parents=True, exist_ok=True)
 
-    if args.encoder_only:
-        t5_model = T5EncoderModel.from_pretrained(args.in_file)
-    else:
-        t5_model = T5ForConditionalGeneration.from_pretrained(args.in_file)
+    bart_model = BartForConditionalGeneration.from_pretrained(args.in_file)
 
     config = configparser.ConfigParser()
 
-    if t5_model.encoder.config.feed_forward_proj.find("gated") != -1:
-        new_configs["structure"]["use_gated_activation"] = "1"
-
     config["encoder"] = {}
-    for key, val in t5_model.encoder.config.to_dict().items():
+    for key, val in bart_model.encoder.config.to_dict().items():
         config["encoder"][key] = f"{val}"
     config["encoder"]["weight_data_type"] = args.weight_data_type
     config["decoder"] = {}
-    if not args.encoder_only:
-        for key, val in t5_model.decoder.config.to_dict().items():
-            config["decoder"][key] = f"{val}"
-        config["decoder"]["weight_data_type"] = args.weight_data_type
+    for key, val in bart_model.decoder.config.to_dict().items():
+        config["decoder"][key] = f"{val}"
+    config["decoder"]["weight_data_type"] = args.weight_data_type
 
     for key, val in rename_mapping.items():
         config['encoder'][val] = config['encoder'].pop(key)

@@ -74,7 +74,7 @@ private:
     size_t                  decoding_vocab_size_;
     size_t                  decoding_num_bucket_or_max_pos_seq_len_;
 
-    float  q_scaling_;
+    float  q_scaling_ = 1.f;
 
     size_t max_distance_;
     int    start_id_;
@@ -91,8 +91,9 @@ private:
 
     // bart structure difference
     bool                      bart_with_bias_;
+    // TODO(zhwang): support mbart.
     bool                      mbart_para_ = false;
-    bool                      use_gated_activation_;
+    bool                      use_gated_activation_ = false;
     ft::PositionEmbeddingType position_embedding_type_ = ft::PositionEmbeddingType::absolute;
     ft::ActivationType        activation_type_;
     ft::LayerNormType         layernorm_type_ = ft::LayerNormType::post_layernorm;
