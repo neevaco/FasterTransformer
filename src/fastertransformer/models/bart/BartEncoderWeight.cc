@@ -274,7 +274,7 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
 
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {
-            t5_encoder_layer_weights[l]->loadModel(dir_path + "/encoder.block." + std::to_string(l) + ".",
+            bart_encoder_layer_weights[l]->loadModel(dir_path + "/encoder.block." + std::to_string(l) + ".",
                                                    model_file_type);
         }
     }
