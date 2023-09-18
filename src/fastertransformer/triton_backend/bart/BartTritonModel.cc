@@ -58,8 +58,7 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     encoder_inter_size_    = reader.GetInteger("encoder", "d_ff");
     encoder_num_layer_     = reader.GetInteger("encoder", "num_layers");
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
-    encoder_num_bucket_or_max_pos_seq_len_ =
-        reader.GetInteger("encoder", "relative_attention_num_buckets_or_max_pos_seq_len");
+    encoder_max_pos_seq_len_ = reader.GetInteger("encoder", "max_pos_seq_len");
 
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
@@ -68,8 +67,7 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     decoding_inter_size_    = reader.GetInteger("decoder", "d_ff");
     decoding_num_layer_     = reader.GetInteger("decoder", "num_layers");
     decoding_vocab_size_    = reader.GetInteger("decoder", "vocab_size");
-    decoding_num_bucket_or_max_pos_seq_len_ =
-        reader.GetInteger("decoder", "relative_attention_num_buckets_or_max_pos_seq_len");
+    decoding_max_pos_seq_len_ = reader.GetInteger("decoder", "max_pos_seq_len");
 
     start_id_                 = reader.GetInteger("decoder", "decoder_start_token_id");
     end_id_                   = reader.GetInteger("decoder", "eos_token_id");
@@ -110,8 +108,8 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
     encoder_inter_size_    = reader.GetInteger("encoder", "d_ff");
     encoder_num_layer_     = reader.GetInteger("encoder", "num_layers");
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
-    encoder_num_bucket_or_max_pos_seq_len_ =
-        reader.GetInteger("encoder", "relative_attention_num_buckets_or_max_pos_seq_len");
+    encoder_max_pos_seq_len_ =
+        reader.GetInteger("encoder", "max_pos_seq_len");
 
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
@@ -120,8 +118,8 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
     decoding_inter_size_    = reader.GetInteger("decoder", "d_ff");
     decoding_num_layer_     = reader.GetInteger("decoder", "num_layers");
     decoding_vocab_size_    = reader.GetInteger("decoder", "vocab_size");
-    decoding_num_bucket_or_max_pos_seq_len_ =
-        reader.GetInteger("decoder", "relative_attention_num_buckets_or_max_pos_seq_len");
+    decoding_max_pos_seq_len_ =
+        reader.GetInteger("decoder", "max_pos_seq_len");
 
     start_id_            = reader.GetInteger("decoder", "decoder_start_token_id");
     end_id_              = reader.GetInteger("decoder", "eos_token_id");
@@ -129,9 +127,6 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
 
     // common settings
     activation_type_      = ft::getActivationType(reader.Get("encoder", "feed_forward_proj"));
-    position_embedding_type_ =
-        ft::PositionEmbeddingType(reader.Get("structure", "position_embedding_type", "relative") == "relative" ? 0 : 1);
-    q_scaling_ = bart_with_bias_ ? 1.0f : (1.0f / (sqrt(encoder_size_per_head_) * 1.0f));
 
     max_distance_ = 128;  // use default value of huggingface here
 }
@@ -184,7 +179,7 @@ BartTritonModel<T>::createModelInstance(int                                     
     // TODO(bhsueh) not support fused mha
     // NOTE: fmha doesn't support bart-style relative position bias
     ft::AttentionType attention_type =
-        ft::getAttentionType<T>(encoder_size_per_head_, sm_, true, encoder_num_bucket_or_max_pos_seq_len_, false);
+        ft::getAttentionType<T>(encoder_size_per_head_, sm_, true, encoder_max_pos_seq_len_, false);
 
     ft::NcclParam tensor_para_   = nccl_params.first[comms_rank];
     ft::NcclParam pipeline_para_ = nccl_params.second[comms_rank];
@@ -196,7 +191,7 @@ BartTritonModel<T>::createModelInstance(int                                     
                                                                        encoder_inter_size_,
                                                                        encoder_d_model_,
                                                                        encoder_num_layer_,
-                                                                       encoder_num_bucket_or_max_pos_seq_len_,
+                                                                       encoder_max_pos_seq_len_,
                                                                        max_distance_,
                                                                        sm_,
                                                                        q_scaling_,
@@ -223,7 +218,7 @@ BartTritonModel<T>::createModelInstance(int                                     
                                                                           decoding_d_model_,
                                                                           decoding_num_layer_,
                                                                           decoding_vocab_size_,
-                                                                          decoding_num_bucket_or_max_pos_seq_len_,
+                                                                          decoding_max_pos_seq_len_,
                                                                           max_distance_,
                                                                           q_scaling_,
                                                                           start_id_,
@@ -272,7 +267,7 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                  encoder_inter_size_,
                                                  encoder_vocab_size_,
                                                  encoder_num_layer_,
-                                                 encoder_num_bucket_or_max_pos_seq_len_,
+                                                 encoder_max_pos_seq_len_,
                                                  tensor_para_size_,
                                                  tensor_para_rank,
                                                  pipeline_para_size_,
@@ -290,7 +285,7 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                   decoding_vocab_size_,
                                                   decoding_num_layer_,
                                                   encoder_d_model_,
-                                                  decoding_num_bucket_or_max_pos_seq_len_,
+                                                  decoding_max_pos_seq_len_,
                                                   tensor_para_size_,
                                                   tensor_para_rank,
                                                   pipeline_para_size_,

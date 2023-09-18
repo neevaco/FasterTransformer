@@ -25,16 +25,12 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path + "/../../../../3rdparty/transformers/src/")
 
-from transformers import BartForConditionalGeneration, BartEncoderModel
+from transformers import BartForConditionalGeneration
 
 import numpy as np
 import torch  # pytype: disable=import-error
 
 LOGGER = logging.getLogger(__name__)
-
-rename_mapping = {"relative_attention_num_buckets": "relative_attention_num_buckets_or_max_pos_seq_len"}
-new_configs = {
-    "structure": {"t5_with_bias": "false", "use_gated_activation": "false"}}
 
 
 def get_weight_data_type(data_type):
@@ -160,23 +156,24 @@ def convert_checkpoint(args):
     config = configparser.ConfigParser()
 
     config["encoder"] = {}
-    for key, val in bart_model.encoder.config.to_dict().items():
-        config["encoder"][key] = f"{val}"
-    config["encoder"]["weight_data_type"] = args.weight_data_type
-    config["decoder"] = {}
-    for key, val in bart_model.decoder.config.to_dict().items():
-        config["decoder"][key] = f"{val}"
-    config["decoder"]["weight_data_type"] = args.weight_data_type
+    config["encoder"]["num_heads"] = bart_model.config.encoder_attention_heads
+    config["encoder"]["d_kv"] = bart_model.config.d_model // bart_model.config.encoder_attention_heads
+    config["encoder"]["d_model"] = bart_model.config.d_model
+    config["encoder"]["d_ff"] = bart_model.config.encoder_ffn_dim
+    config["encoder"]["num_layers"] = bart_model.config.encoder_layers
+    config["encoder"]["vocab_size"] = bart_model.config.vocab_size
+    config["encoder"]["max_pos_seq_len"] = bart_model.config.max_position_embeddings
 
-    for key, val in rename_mapping.items():
-        config['encoder'][val] = config['encoder'].pop(key)
-        if not args.encoder_only:
-            config['decoder'][val] = config['decoder'].pop(key)
-    for key, val in new_configs.items():
-        config[key] = {}
-        for val_key, val_val in val.items():
-            config[key][val_key] = val_val
-    with open((saved_dir / f"config.ini").as_posix(), 'w') as configfile:
+    config["decoder"] = {}
+    config["encoder"]["num_heads"] = bart_model.config.decoder_attention_heads
+    config["encoder"]["d_kv"] = bart_model.config.d_model // bart_model.config.decoder_attention_heads
+    config["encoder"]["d_model"] = bart_model.config.d_model
+    config["encoder"]["d_ff"] = bart_model.config.decoder_ffn_dim
+    config["encoder"]["num_layers"] = bart_model.config.decoder_layers
+    config["encoder"]["vocab_size"] = bart_model.config.vocab_size
+    config["encoder"]["max_pos_seq_len"] = bart_model.config.max_position_embeddings
+
+    with open((saved_dir / "config.ini").as_posix(), 'w') as configfile:
         config.write(configfile)
     np_weight_data_type = get_weight_data_type(args.weight_data_type)
 
@@ -185,13 +182,12 @@ def convert_checkpoint(args):
     pool = multiprocessing.Pool(args.processes)
     pool.starmap_async(split_and_convert_process,
                        [(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
-                        for name, param in t5_model.state_dict().items()])
+                        for name, param in bart_model.state_dict().items()])
 
     pool.close()
     pool.join()
 
-    if not args.encoder_only:
-        fuse_decoder_qkv(t5_model, i_gpu_num, saved_dir, np_weight_data_type)
+    fuse_decoder_qkv(bart_model, i_gpu_num, saved_dir, np_weight_data_type)
 
 
 if __name__ == "__main__":
@@ -203,7 +199,6 @@ if __name__ == "__main__":
     parser.add_argument("-processes", "-p", type=int, help="How many processes to spawn for conversion (default: 4)",
                         default=4)
     parser.add_argument("-weight_data_type", type=str, default="fp32", choices=["fp32", "fp16"])
-    parser.add_argument("--encoder_only", "-e", action="store_true")
     parser.add_argument("--verbose", action="store_true", help="Provide verbose messages")
     args = parser.parse_args()
     log_format = "%(asctime)s %(name)s [%(levelname)s] %(message)s"

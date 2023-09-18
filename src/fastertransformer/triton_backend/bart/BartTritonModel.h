@@ -63,7 +63,7 @@ private:
     size_t                  encoder_inter_size_;
     size_t                  encoder_num_layer_;
     size_t                  encoder_vocab_size_;
-    size_t                  encoder_num_bucket_or_max_pos_seq_len_;
+    size_t                  encoder_max_pos_seq_len_;
 
     // decoding
     size_t                  decoding_head_num_;
@@ -72,7 +72,7 @@ private:
     size_t                  decoding_inter_size_;
     size_t                  decoding_num_layer_;
     size_t                  decoding_vocab_size_;
-    size_t                  decoding_num_bucket_or_max_pos_seq_len_;
+    size_t                  decoding_max_pos_seq_len_;
 
     float  q_scaling_ = 1.f;
 
@@ -90,7 +90,7 @@ private:
     std::vector<std::shared_ptr<ft::BartDecodingWeight<T>>> decoding_shared_weights_;
 
     // bart structure difference
-    bool                      bart_with_bias_;
+    bool                      bart_with_bias_ = true;
     // TODO(zhwang): support mbart.
     bool                      mbart_para_ = false;
     bool                      use_gated_activation_ = false;
