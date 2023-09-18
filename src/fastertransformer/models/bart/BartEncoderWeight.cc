@@ -272,28 +272,6 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
                              model_file_type);
     }
 
-    // prompt table: load weights from bin
-    if (malloc_load_prompt_weights_) {
-        for (auto const& prompt : prompt_learning_pair_) {
-            std::string task_name      = prompt.first;
-            int         task_name_id   = prompt.second.first;
-            int         prompt_length  = prompt.second.second;
-            size_t      task_weight_id = weights_num_ + (size_t)task_name_id;
-
-            std::string prompt_weight_path_name = (prompt_learning_type_ == PromptLearningType::p_prompt_tuning) ?
-                                                      (dir_path + "/model.prompt_table." + task_name + ".weight.bin") :
-                                                      (dir_path + "/model.prefix_prompt." + task_name + ".weight."
-                                                       + std::to_string(tensor_para_rank_) + ".bin");
-            FT_LOG_DEBUG("load prompt_weight_path_name: %s", prompt_weight_path_name.c_str());
-            if (prompt_length > 0) {
-                loadWeightFromBin<T>(weights_ptr[task_weight_id],
-                                     {prompt_length * prompt_token_weight_size_},
-                                     prompt_weight_path_name,
-                                     model_file_type);
-            }
-        }
-    }
-
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {
             t5_encoder_layer_weights[l]->loadModel(dir_path + "/encoder.block." + std::to_string(l) + ".",
