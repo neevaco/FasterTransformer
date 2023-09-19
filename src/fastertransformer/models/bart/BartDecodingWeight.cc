@@ -264,6 +264,8 @@ void BartDecodingWeight<T>::loadModel(std::string dir_path)
     loadWeightFromBin<T>(weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/decoder.lm_head.weight.bin", model_file_type);
     loadWeightFromBin<T>(
         weights_ptr[3], {(size_t)weights_size[3]}, dir_path + "/decoder.final_layer_norm.weight.bin", model_file_type);
+    loadWeightFromBin<T>(
+        weights_ptr[5], {(size_t)weights_size[5]}, dir_path + "/decoder.final_layer_norm.weight.bin", model_file_type);
     if (bart_with_bias) {
         loadWeightFromBin<T>(weights_ptr[4],
                              {(size_t)weights_size[4]},

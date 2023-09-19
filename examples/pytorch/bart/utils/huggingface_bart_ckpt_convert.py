@@ -276,59 +276,12 @@ def split_and_convert_process(key, val, factor, saved_dir):
         layer = int(key.split('layers.')[1].split('.final_layer_norm.')[0])
         saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.final_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
-    # elif (
-    #         key.find("SelfAttention.o.weight") != -1
-    #         or key.find("EncDecAttention.o.weight") != -1
-    #         or key.find("DenseReluDense.wo.weight") != -1
-    # ):
-    #     split_vals = np.split(val, factor, axis=0)
-    #     for j in range(factor):
-    #         saved_path = saved_dir / f"{saved_key}.{j:d}.bin"
-    #         split_vals[j].tofile(saved_path.as_posix())
-
-    # elif (
-    #         key.find("DenseReluDense.wi.weight") != -1
-    #         or (key.find("encoder") != -1 and (
-    #         key.find("SelfAttention.q.weight") != -1
-    #         or key.find("SelfAttention.k.weight") != -1
-    #         or key.find("SelfAttention.v.weight") != -1
-    # )
-    #         )
-    #         or key.find("EncDecAttention.q.weight") != -1
-    #         or key.find("EncDecAttention.k.weight") != -1
-    #         or key.find("EncDecAttention.v.weight") != -1
-    # ):
-    #     split_vals = np.split(val, factor, axis=-1)
-    #     for j in range(factor):
-    #         saved_path = saved_dir / f"{saved_key}.{j:d}.bin"
-    #         split_vals[j].tofile(saved_path.as_posix())
-    # elif (
-    #         key.find("DenseReluDense.wi_0.weight") != -1
-    #         or key.find("DenseReluDense.wi_1.weight") != -1
-    # ):
-    #     # For gated activation.
-    #     if key.find("DenseReluDense.wi_0.weight") != -1:
-    #         saved_key = key.replace("wi_0", "wi")
-    #     elif key.find("DenseReluDense.wi_1.weight") != -1:
-    #         saved_key = key.replace("wi_1", "wi2")
-    #     split_vals = np.split(val, factor, axis=-1)
-    #     for j in range(factor):
-    #         saved_path = saved_dir / f"{saved_key}.{j:d}.bin"
-    #         split_vals[j].tofile(saved_path.as_posix())
-    # elif key.find("relative_attention_bias") != -1:
-    #     split_vals = np.split(val, factor, axis=0)
-    #     for j in range(factor):
-    #         saved_path = saved_dir / f"{saved_key}.{j:d}.bin"
-    #         split_vals[j].tofile(saved_path.as_posix())
-    # elif (
-    #         key.find("decoder") != -1 and
-    #         (
-    #                 key.find("SelfAttention.q.weight") != -1
-    #                 or key.find("SelfAttention.k.weight") != -1
-    #                 or key.find("SelfAttention.v.weight") != -1
-    #         )
-    # ):
-    #     pass
+    elif key.find("lm_head.weight") != -1:
+        saved_path = saved_dir / "decoder.lm_head.weight.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("final_logits_bias") != -1:
+        saved_path = saved_dir / "decoder.final_logits.bias"
+        val.tofile(saved_path.as_posix())
     elif key.find("encoder.embed_tokens.weight") != -1 or \
             key.find("decoder.embed_tokens.weight") != -1:
         LOGGER.warning(f"Not save {key}, using shared.weight directly.")
