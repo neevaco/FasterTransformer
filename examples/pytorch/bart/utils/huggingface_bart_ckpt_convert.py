@@ -75,11 +75,9 @@ def split_and_convert_process(key, val, factor, saved_dir):
         saved_path = saved_dir / "encoder.embed_tokens.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("encoder.layernorm_embedding.weight") != -1:
-        # shared weights, only need to convert the weights of rank 0
         saved_path = saved_dir / "encoder.final_layer_norm.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("encoder.layernorm_embedding.bias") != -1:
-        # shared weights, only need to convert the weights of rank 0
         saved_path = saved_dir / "encoder.final_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
 
