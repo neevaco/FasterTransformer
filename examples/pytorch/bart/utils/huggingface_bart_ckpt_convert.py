@@ -280,7 +280,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
         saved_path = saved_dir / "decoder.lm_head.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("final_logits_bias") != -1:
-        saved_path = saved_dir / "decoder.final_logits.bias"
+        saved_path = saved_dir / "decoder.final_logits_bias.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("encoder.embed_tokens.weight") != -1 or \
             key.find("decoder.embed_tokens.weight") != -1:
