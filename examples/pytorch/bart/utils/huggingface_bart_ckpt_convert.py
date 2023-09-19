@@ -93,7 +93,22 @@ def split_and_convert_process(key, val, factor, saved_dir):
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         qkv = key.split('self_attn.')[1][:1]
         for j in range(factor):
-            saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{qkv}.weight{j:d}.bin"
+            saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{qkv}.weight.{j:d}.bin"
+            split_vals[j].tofile(saved_path.as_posix())
+    elif (
+        key.find("self_attn.k_proj.bias") != -1
+        or key.find("self_attn.v_proj.bias") != -1
+        or key.find("self_attn.q_proj.bias") != -1
+    ):
+        split_vals = np.split(val, factor, axis=0)
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        layer = int(key.split('layers.')[1].split('.self_attn')[0])
+        qkv = key.split('self_attn.')[1][:1]
+        for j in range(factor):
+            saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{qkv}.bias.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     # elif (
     #         key.find("SelfAttention.o.weight") != -1
