@@ -170,7 +170,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
         layer = int(key.split('layers.')[1].split('.fc2.')[0])
         saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.fc2.weight.bin"
         val.tofile(saved_path.as_posix())
-    elif key.find("fc1.bias") != -1:
+    elif key.find("fc2.bias") != -1:
         if key.find("encoder") != -1:
             prefix = "encoder"
         else:
