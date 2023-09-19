@@ -71,7 +71,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
     if key.find("encoder.embed_positions.weight") != -1:
         saved_path = saved_dir / "encoder.embed_positions.weight.bin"
         val[2:, :].tofile(saved_path.as_posix())
-    if key.find("encoder.embed_tokens.weight") != -1:
+    elif key.find("encoder.embed_tokens.weight") != -1:
         saved_path = saved_dir / "encoder.embed_tokens.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("encoder.layernorm_embedding.weight") != -1:
@@ -203,7 +203,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
             key.find("decoder.embed_tokens.weight") != -1:
         LOGGER.warning(f"Not save {key}, using shared.weight directly.")
     else:
-        LOGGER.warning(f"cannot find key '{key}' with shape {val.shape}")
+        LOGGER.warning(f"Not save '{key}' with shape {val.shape}")
 
 
 def convert_checkpoint(args):
