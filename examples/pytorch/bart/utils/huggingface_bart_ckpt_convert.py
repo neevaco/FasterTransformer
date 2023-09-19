@@ -160,26 +160,26 @@ def convert_checkpoint(args):
     saved_dir.mkdir(parents=True, exist_ok=True)
 
     bart_model = BartForConditionalGeneration.from_pretrained(args.in_file)
-
+    hf_config = vars(bart_model.config)
     config = configparser.ConfigParser()
 
     config["encoder"] = {}
-    config["encoder"]["num_heads"] = bart_model.config.encoder_attention_heads
-    config["encoder"]["d_kv"] = bart_model.config.d_model // bart_model.config.encoder_attention_heads
-    config["encoder"]["d_model"] = bart_model.config.d_model
-    config["encoder"]["d_ff"] = bart_model.config.encoder_ffn_dim
-    config["encoder"]["num_layers"] = bart_model.config.encoder_layers
-    config["encoder"]["vocab_size"] = bart_model.config.vocab_size
-    config["encoder"]["max_pos_seq_len"] = bart_model.config.max_position_embeddings
+    config["encoder"]["num_heads"] = hf_config["encoder_attention_heads"]
+    config["encoder"]["d_kv"] = hf_config["d_model"] // hf_config["encoder_attention_heads"]
+    config["encoder"]["d_model"] = hf_config["d_model"]
+    config["encoder"]["d_ff"] = hf_config["encoder_ffn_dim"]
+    config["encoder"]["num_layers"] = hf_config["encoder_layers"]
+    config["encoder"]["vocab_size"] = hf_config["vocab_size"]
+    config["encoder"]["max_pos_seq_len"] = hf_config["max_position_embeddings"]
 
     config["decoder"] = {}
-    config["encoder"]["num_heads"] = bart_model.config.decoder_attention_heads
-    config["encoder"]["d_kv"] = bart_model.config.d_model // bart_model.config.decoder_attention_heads
-    config["encoder"]["d_model"] = bart_model.config.d_model
-    config["encoder"]["d_ff"] = bart_model.config.decoder_ffn_dim
-    config["encoder"]["num_layers"] = bart_model.config.decoder_layers
-    config["encoder"]["vocab_size"] = bart_model.config.vocab_size
-    config["encoder"]["max_pos_seq_len"] = bart_model.config.max_position_embeddings
+    config["encoder"]["num_heads"] = hf_config["decoder_attention_heads"]
+    config["encoder"]["d_kv"] = hf_config["d_model"] // hf_config["decoder_attention_heads"]
+    config["encoder"]["d_model"] = hf_config["d_model"]
+    config["encoder"]["d_ff"] = hf_config["decoder_ffn_dim"]
+    config["encoder"]["num_layers"] = hf_config["decoder_layers"]
+    config["encoder"]["vocab_size"] = hf_config["vocab_size"]
+    config["encoder"]["max_pos_seq_len"] = hf_config["max_position_embeddings"]
 
     with open((saved_dir / "config.ini").as_posix(), 'w') as configfile:
         config.write(configfile)
