@@ -164,7 +164,7 @@ def convert_checkpoint(args):
     config = configparser.ConfigParser()
 
     config["encoder"] = {}
-    config["encoder"]["num_heads"] = hf_config["encoder_attention_heads"]
+    config["encoder"]["num_heads"] = str(hf_config["encoder_attention_heads"])
     config["encoder"]["d_kv"] = hf_config["d_model"] // hf_config["encoder_attention_heads"]
     config["encoder"]["d_model"] = hf_config["d_model"]
     config["encoder"]["d_ff"] = hf_config["encoder_ffn_dim"]
@@ -173,7 +173,7 @@ def convert_checkpoint(args):
     config["encoder"]["max_pos_seq_len"] = hf_config["max_position_embeddings"]
 
     config["decoder"] = {}
-    config["encoder"]["num_heads"] = hf_config["decoder_attention_heads"]
+    config["encoder"]["num_heads"] = str(hf_config["decoder_attention_heads"])
     config["encoder"]["d_kv"] = hf_config["d_model"] // hf_config["decoder_attention_heads"]
     config["encoder"]["d_model"] = hf_config["d_model"]
     config["encoder"]["d_ff"] = hf_config["decoder_ffn_dim"]
