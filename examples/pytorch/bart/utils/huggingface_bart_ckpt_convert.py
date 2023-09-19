@@ -69,11 +69,9 @@ def split_and_convert_process(key, val, factor, saved_dir):
     LOGGER.debug(f"key: {key}, val.shape: {val.shape}")
 
     if key.find("encoder.embed_positions.weight") != -1:
-        # shared weights, only need to convert the weights of rank 0
         saved_path = saved_dir / "encoder.embed_positions.weight.bin"
         val[2:, :].tofile(saved_path.as_posix())
     if key.find("encoder.embed_tokens.weight") != -1:
-        # shared weights, only need to convert the weights of rank 0
         saved_path = saved_dir / "encoder.embed_tokens.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("encoder.layernorm_embedding.weight") != -1:
@@ -84,10 +82,6 @@ def split_and_convert_process(key, val, factor, saved_dir):
         # shared weights, only need to convert the weights of rank 0
         saved_path = saved_dir / "encoder.final_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
-    elif key.find("encoder.embed_positions.weight") != -1:
-        # shared weights, only need to convert the weights of rank 0
-        saved_path = saved_dir / "encoder.shared.ape.bin"
-        val[2:, :].tofile(saved_path.as_posix())
 
     elif (
             key.find("SelfAttention.o.weight") != -1
