@@ -146,6 +146,54 @@ def split_and_convert_process(key, val, factor, saved_dir):
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.attn_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
+    elif key.find("fc1.weight") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        layer = int(key.split('layers.')[1].split('.fc1.weight')[0])
+        saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.fc1.weight.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("fc1.bias") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        layer = int(key.split('layers.')[1].split('.fc1.bias')[0])
+        saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.fc1.bias.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("fc2.weight") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        layer = int(key.split('layers.')[1].split('.fc2.weight')[0])
+        saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.fc2.weight.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("fc1.bias") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        layer = int(key.split('layers.')[1].split('.fc2.bias')[0])
+        saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.fc2.bias.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("self_attn_layer_norm.weight") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        layer = int(key.split('layers.')[1].split('.self_attn')[0])
+        saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.attn_layer_norm.weight.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find("self_attn_layer_norm.bias") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        layer = int(key.split('layers.')[1].split('.self_attn')[0])
+        saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.attn_layer_norm.bias.bin"
+        val.tofile(saved_path.as_posix())
     # elif (
     #         key.find("SelfAttention.o.weight") != -1
     #         or key.find("EncDecAttention.o.weight") != -1
