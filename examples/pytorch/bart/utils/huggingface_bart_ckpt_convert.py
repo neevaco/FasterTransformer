@@ -165,21 +165,21 @@ def convert_checkpoint(args):
 
     config["encoder"] = {}
     config["encoder"]["num_heads"] = str(hf_config["encoder_attention_heads"])
-    config["encoder"]["d_kv"] = hf_config["d_model"] // hf_config["encoder_attention_heads"]
-    config["encoder"]["d_model"] = hf_config["d_model"]
-    config["encoder"]["d_ff"] = hf_config["encoder_ffn_dim"]
-    config["encoder"]["num_layers"] = hf_config["encoder_layers"]
-    config["encoder"]["vocab_size"] = hf_config["vocab_size"]
-    config["encoder"]["max_pos_seq_len"] = hf_config["max_position_embeddings"]
+    config["encoder"]["d_kv"] = str(hf_config["d_model"] // hf_config["encoder_attention_heads"])
+    config["encoder"]["d_model"] = str(hf_config["d_model"])
+    config["encoder"]["d_ff"] = str(hf_config["encoder_ffn_dim"])
+    config["encoder"]["num_layers"] = str(hf_config["encoder_layers"])
+    config["encoder"]["vocab_size"] = str(hf_config["vocab_size"])
+    config["encoder"]["max_pos_seq_len"] = str(hf_config["max_position_embeddings"])
 
     config["decoder"] = {}
     config["encoder"]["num_heads"] = str(hf_config["decoder_attention_heads"])
-    config["encoder"]["d_kv"] = hf_config["d_model"] // hf_config["decoder_attention_heads"]
-    config["encoder"]["d_model"] = hf_config["d_model"]
-    config["encoder"]["d_ff"] = hf_config["decoder_ffn_dim"]
-    config["encoder"]["num_layers"] = hf_config["decoder_layers"]
-    config["encoder"]["vocab_size"] = hf_config["vocab_size"]
-    config["encoder"]["max_pos_seq_len"] = hf_config["max_position_embeddings"]
+    config["encoder"]["d_kv"] = str(hf_config["d_model"] // hf_config["decoder_attention_heads"])
+    config["encoder"]["d_model"] = str(hf_config["d_model"])
+    config["encoder"]["d_ff"] = str(hf_config["decoder_ffn_dim"])
+    config["encoder"]["num_layers"] = str(hf_config["decoder_layers"])
+    config["encoder"]["vocab_size"] = str(hf_config["vocab_size"])
+    config["encoder"]["max_pos_seq_len"] = str(hf_config["max_position_embeddings"])
 
     with open((saved_dir / "config.ini").as_posix(), 'w') as configfile:
         config.write(configfile)
