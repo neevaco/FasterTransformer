@@ -256,21 +256,17 @@ void BartDecodingWeight<T>::loadModel(std::string dir_path)
 {
     FT_LOG_DEBUG("BartDecodingWeight " + std::string(__func__) + " start");
 
-    // 8: [0] absolute/relative positional embedding weight [1] word embedding weight [2] word embedding 2 weight [3]
-    // pre-LN weight [4] post-LN weight [5] pre-LN bias [6] post-LN bias [7] word embedding 2 bias. Assuming both mBART
-    // and bias
     loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/decoder.embed_positions.weight.bin", model_file_type);
     loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/decoder.embed_tokens.weight.bin", model_file_type);
     loadWeightFromBin<T>(weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/decoder.lm_head.weight.bin", model_file_type);
     loadWeightFromBin<T>(
         weights_ptr[3], {(size_t)weights_size[3]}, dir_path + "/decoder.final_layer_norm.weight.bin", model_file_type);
-    loadWeightFromBin<T>(
-        weights_ptr[5], {(size_t)weights_size[5]}, dir_path + "/decoder.final_layer_norm.weight.bin", model_file_type);
     if (bart_with_bias) {
         loadWeightFromBin<T>(weights_ptr[4],
                              {(size_t)weights_size[4]},
                              dir_path + "/decoder.final_layer_norm.bias.bin",
                              model_file_type);
+        loadWeightFromBin<T>(weights_ptr[5], {(size_t)weights_size[5]}, dir_path + "/decoder.final_logits_bias.bin", model_file_type);
     }
 
     for (int l = 0; l < num_layer_; l++) {
