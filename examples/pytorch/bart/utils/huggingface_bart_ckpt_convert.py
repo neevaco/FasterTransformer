@@ -82,11 +82,19 @@ def split_and_convert_process(key, val, factor, saved_dir):
             prefix = "decoder"
         saved_path = saved_dir / f"{prefix}.embed_tokens.weight.bin"
         val.tofile(saved_path.as_posix())
-    elif key.find("encoder.layernorm_embedding.weight") != -1:
-        saved_path = saved_dir / "encoder.final_layer_norm.weight.bin"
+    elif key.find(".layernorm_embedding.weight") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        saved_path = saved_dir / f"{prefix}.final_layer_norm.weight.bin"
         val.tofile(saved_path.as_posix())
-    elif key.find("encoder.layernorm_embedding.bias") != -1:
-        saved_path = saved_dir / "encoder.final_layer_norm.bias.bin"
+    elif key.find(".layernorm_embedding.bias") != -1:
+        if key.find("encoder") != -1:
+            prefix = "encoder"
+        else:
+            prefix = "decoder"
+        saved_path = saved_dir / f"{prefix}.final_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
     elif (
         key.find("self_attn.k_proj.weight") != -1
