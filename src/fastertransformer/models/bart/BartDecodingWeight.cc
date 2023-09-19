@@ -271,7 +271,7 @@ void BartDecodingWeight<T>::loadModel(std::string dir_path)
 
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {
-            bart_encoder_layer_weights[l]->loadModel(dir_path + "/decoder." + std::to_string(l) + ".",
+            decoder_layer_weights[l]->loadModel(dir_path + "/decoder." + std::to_string(l) + ".",
                                                    model_file_type);
         }
     }
