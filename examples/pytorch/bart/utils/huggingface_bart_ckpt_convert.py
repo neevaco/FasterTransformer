@@ -45,21 +45,37 @@ def get_weight_data_type(data_type):
 def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
     model_dict = {}
     for name, param in model.named_parameters():
-        if name.find("decoder") != -1 and name.find("SelfAttention") != -1:
+        if name.find("encoder_attn") == -1:
+            continue
+        if name.find(".q_proj.") != -1 or name.find(".k_proj.") != -1 or name.find(".v_proj.") != -1:
             model_dict[name] = param
 
-    for i in range(model.decoder.config.num_layers):
-        shape = model_dict[f"decoder.block.{i}.layer.0.SelfAttention.q.weight"].T.shape
-        qkv = torch.cat([model_dict[f"decoder.block.{i}.layer.0.SelfAttention.q.weight"].T,
-                         model_dict[f"decoder.block.{i}.layer.0.SelfAttention.k.weight"].T,
-                         model_dict[f"decoder.block.{i}.layer.0.SelfAttention.v.weight"].T], dim=-1)
+    for i in range(model.decoder_layers):
+        shape = model_dict[f"model.decoder.layers.{i}.encoder_attn.q_proj.weight"].T.shape
+        qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.encoder_attn.q_proj.weight"].T,
+                         model_dict[f"model.decoder.layers.{i}.encoder_attn.k_proj.weight"].T,
+                         model_dict[f"model.decoder.layers.{i}.encoder_attn.v_proj.weight"].T], dim=-1)
 
         qkv = qkv.reshape([shape[0], 3, shape[1]])
         qkv = qkv.cpu().detach().numpy().astype(np_weight_data_type)
 
         split_vals = np.split(qkv, factor, axis=-1)
         for j in range(factor):
-            saved_path = saved_dir / f"decoder.block.{i}.layer.0.SelfAttention.qkv.weight.{j}.bin"
+            saved_path = saved_dir / f"decoder.{i}.layer.SelfAttention.qkv.weight.{j}.bin"
+            split_vals[j].tofile(saved_path.as_posix())
+
+    for i in range(model.decoder_layers):
+        shape = model_dict[f"model.decoder.layers.{i}.encoder_attn.q_proj.bias"].shape
+        qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.encoder_attn.q_proj.bias"],
+                         model_dict[f"model.decoder.layers.{i}.encoder_attn.k_proj.bias"],
+                         model_dict[f"model.decoder.layers.{i}.encoder_attn.v_proj.bias"]], dim=-1)
+
+        qkv = qkv.reshape([shape[0], 3, shape[1]])
+        qkv = qkv.cpu().detach().numpy().astype(np_weight_data_type)
+
+        split_vals = np.split(qkv, factor, axis=-1)
+        for j in range(factor):
+            saved_path = saved_dir / f"decoder.{i}.layer.SelfAttention.qkv.bias.{j}.bin"
             split_vals[j].tofile(saved_path.as_posix())
 
 
