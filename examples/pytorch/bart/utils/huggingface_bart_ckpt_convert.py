@@ -238,8 +238,9 @@ def split_and_convert_process(key, val, factor, saved_dir):
             fc = 'fc2'
         layer = int(key.split('layers.')[1].split(f'.{fc}.')[0])
         split_vals = np.split(val, factor, axis=0)
-        saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{fc}.bias.{j:d}.bin"
-        val.tofile(saved_path.as_posix())
+        for j in range(factor):
+            saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{fc}.bias.{j:d}.bin"
+            split_vals[j].tofile(saved_path.as_posix())
     elif key.find("final_layer_norm.weight") != -1:
         if key.find("encoder") != -1:
             prefix = "encoder"
