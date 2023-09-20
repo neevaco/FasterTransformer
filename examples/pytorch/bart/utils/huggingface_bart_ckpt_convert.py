@@ -50,7 +50,7 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
         if name.find(".q_proj.") != -1 or name.find(".k_proj.") != -1 or name.find(".v_proj.") != -1:
             model_dict[name] = param
 
-    for i in range(model.decoder_layers):
+    for i in range(model.config.decoder_layers):
         shape = model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.weight"].T.shape
         qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.weight"].T,
                          model_dict[f"model.decoder.layers.{i}.self_attn.k_proj.weight"].T,
@@ -64,7 +64,7 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
             saved_path = saved_dir / f"decoder.{i}.layer.SelfAttention.qkv.weight.{j}.bin"
             split_vals[j].tofile(saved_path.as_posix())
 
-    for i in range(model.decoder_layers):
+    for i in range(model.config.decoder_layers):
         shape = model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.bias"].shape
         qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.bias"],
                          model_dict[f"model.decoder.layers.{i}.self_attn.k_proj.bias"],
