@@ -38,6 +38,7 @@ BartEncoderLayerWeight<T>::BartEncoderLayerWeight(const size_t head_num,
     bart_with_bias_(bart_with_bias),
     use_gated_activation_(use_gated_activation)
 {
+    printf("BartEncoderLayerWeight\n");
     real_weights_num_ = (8 + (use_gated_activation_ ? 1 : 0))
                         * (bart_with_bias_ ? 2 : 1);  // 8: Q, K, V, O, LayerNorm1, FC1, FC2, LayerNorm2
     FT_LOG_DEBUG("BartEncoderLayerWeight " + std::string(__func__) + " start");
