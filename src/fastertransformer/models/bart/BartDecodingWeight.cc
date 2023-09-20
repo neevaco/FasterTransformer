@@ -256,6 +256,9 @@ void BartDecodingWeight<T>::loadModel(std::string dir_path)
 {
     FT_LOG_DEBUG("BartDecodingWeight " + std::string(__func__) + " start");
 
+    FtCudaDataType model_file_type = getModelFileType(dir_path + "/config.ini", "decoder");
+    FT_CHECK(is_maintain_buffer == true);
+
     loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/decoder.embed_positions.weight.bin", model_file_type);
     loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/decoder.embed_tokens.weight.bin", model_file_type);
     loadWeightFromBin<T>(weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/decoder.lm_head.weight.bin", model_file_type);
