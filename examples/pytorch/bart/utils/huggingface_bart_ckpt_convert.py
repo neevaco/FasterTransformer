@@ -175,7 +175,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
         layer = int(key.split('layers.')[1].split('.encoder_attn')[0])
         qkv = key.split('encoder_attn.')[1][:1]
         for j in range(factor):
-            saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{qkv}.weight.{j:d}.bin"
+            saved_path = saved_dir / f"{prefix}.{layer}.layer.CrossAttention.{qkv}.weight.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     elif (
         key.find("encoder_attn.k_proj.bias") != -1
