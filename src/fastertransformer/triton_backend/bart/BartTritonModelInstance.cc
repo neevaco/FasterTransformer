@@ -108,6 +108,7 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
     const size_t beam_width =
         input_tensors->count("beam_width") ? (size_t)(*(uint*)input_tensors->at("beam_width").data) : 1;
 
+    printf("allocateBuffer\n");
     allocateBuffer(request_batch_size, beam_width, max_output_len, mem_max_seq_len);
 
     ft::TensorMap encoder_input_tensors(convert_inputs(input_tensors));
