@@ -227,12 +227,12 @@ def split_and_convert_process(key, val, factor, saved_dir):
         for j in range(factor):
             saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{fc}.weight.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
-    elif key.find("fc1.") != -1 or key.find("fc2.bias") != -1:
+    elif key.find("fc1.bias") != -1 or key.find("fc2.bias") != -1:
         if key.find("encoder") != -1:
             prefix = "encoder"
         else:
             prefix = "decoder"
-        if key.find("fc1.bias") != -1:
+        if key.find("fc1.") != -1:
             fc = 'fc1'
         else:
             fc = 'fc2'
