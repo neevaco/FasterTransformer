@@ -183,7 +183,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
         layer = int(key.split('layers.')[1].split('.encoder_attn')[0])
         qkv = key.split('encoder_attn.')[1][:1]
         for j in range(factor):
-            saved_path = saved_dir / f"decoder.{layer}.layer.SelfAttention.{qkv}.bias.{j:d}.bin"
+            saved_path = saved_dir / f"decoder.{layer}.layer.CrossAttention.{qkv}.bias.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     elif key.find("encoder_attn.out_proj.weight") != -1:
         split_vals = np.split(val, factor, axis=0)
