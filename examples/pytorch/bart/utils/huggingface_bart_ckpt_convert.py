@@ -296,6 +296,7 @@ def convert_checkpoint(args):
     config["decoder"]["vocab_size"] = str(hf_config["vocab_size"])
     config["decoder"]["max_pos_seq_len"] = str(hf_config["max_position_embeddings"])
     config["decoder"]["decoder_start_token_id"] = str(hf_config["decoder_start_token_id"])
+    config["decoder"]["eos_token_id"] = str(hf_config["eos_token_id"])
 
     with open((saved_dir / "config.ini").as_posix(), 'w') as configfile:
         config.write(configfile)
