@@ -32,15 +32,16 @@ std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createBartMo
 
     const std::string data_type = reader.Get("ft_instance_hyperparameter", "data_type");
     if (data_type == "fp16") {
-        return std::make_shared<BartTritonModel<half>>(reader, model_dir);
+        // return std::make_shared<BartTritonModel<half>>(reader, model_dir);
+        return std::make_shared<BartTritonModel<half>>(1, 1, 0, model_dir, 0);
     }
 #ifdef ENABLE_BF16
     else if (data_type == "bf16") {
-        return std::make_shared<BartTritonModel<__nv_bfloat16>>(reader, model_dir);
+        return std::make_shared<BartTritonModel<__nv_bfloat16>>(1, 1, 0, model_dir, 0);
     }
 #endif
     else if (data_type == "fp32") {
-        return std::make_shared<BartTritonModel<float>>(reader, model_dir);
+        return std::make_shared<BartTritonModel<float>>(1, 1, 0, model_dir, 0);
     }
     else {
         FT_LOG_ERROR("Unsupported data type " + data_type);
