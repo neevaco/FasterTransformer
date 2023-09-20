@@ -261,6 +261,7 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
     const int tensor_para_rank   = rank % tensor_para_size_;
     const int pipeline_para_rank = rank / tensor_para_size_;
 
+    printf("BartEncoderWeight\n");
     encoder_shared_weights_[device_id] =
         std::make_shared<ft::BartEncoderWeight<T>>(encoder_head_num_,
                                                  encoder_size_per_head_,
@@ -278,6 +279,7 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                  use_gated_activation_,
                                                  position_embedding_type_);
 
+    printf("BartDecodingWeight\n");
     decoding_shared_weights_[device_id] =
         std::make_shared<ft::BartDecodingWeight<T>>(decoding_head_num_,
                                                   decoding_size_per_head_,
