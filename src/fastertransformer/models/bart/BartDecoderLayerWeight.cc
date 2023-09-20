@@ -317,13 +317,13 @@ void BartDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
                          model_file_type);
     loadWeightFromBin<T>(weights_ptr_[7],
                          {weights_size_[7]},
-                         dir_path + "layer.CrossAttention.attn_layer_norm.weight.bin",
+                         dir_path + "layer.CrossAttention.out_proj.weight." + tp_rank + ".bin",
                          model_file_type);
     loadWeightFromBin<T>(weights_ptr_[8],
                         {weights_size_[8]},
-                        dir_path + "layer.SelfAttention.attn_layer_norm.weight." + tp_rank + ".bin",
+                        dir_path + "layer.CrossAttention.attn_layer_norm.weight." + tp_rank + ".bin",
                         model_file_type);
-                        
+
     loadWeightFromBin<T>(weights_ptr_[6],
                         {weights_size_[6]},
                         dir_path + "layer.SelfAttention.fc2.weight.bin",
