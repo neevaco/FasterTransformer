@@ -64,6 +64,7 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
 
 
 def split_and_convert_process(key, val, factor, saved_dir):
+    print(key)
     if val.ndim == 2:
         val = val.transpose(1, 0)
     LOGGER.debug(f"key: {key}, val.shape: {val.shape}")
