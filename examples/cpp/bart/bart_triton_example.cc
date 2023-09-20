@@ -358,6 +358,7 @@ int main(int argc, char* argv[])
     // step 5: Forward
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> output_tensors_lists(
         (size_t)gpu_count);
+    printf("[INFO] gpu_count: %d\n", gpu_count);
     for (int i = 0; i < 2; i++) {
         threads.clear();
         for (int device_id = 0; device_id < gpu_count; device_id++) {
