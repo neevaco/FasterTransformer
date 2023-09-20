@@ -123,6 +123,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
             prefix = "encoder"
         else:
             prefix = "decoder"
+            return
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         qkv = key.split('self_attn.')[1][:1]
         for j in range(factor):
@@ -138,6 +139,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
             prefix = "encoder"
         else:
             prefix = "decoder"
+            return
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         qkv = key.split('self_attn.')[1][:1]
         for j in range(factor):
