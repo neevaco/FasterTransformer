@@ -281,27 +281,27 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                  position_embedding_type_);
 
     printf("BartDecodingWeight\n");
-    // decoding_shared_weights_[device_id] =
-    //     std::make_shared<ft::BartDecodingWeight<T>>(decoding_head_num_,
-    //                                               decoding_size_per_head_,
-    //                                               decoding_d_model_,
-    //                                               decoding_inter_size_,
-    //                                               decoding_vocab_size_,
-    //                                               decoding_num_layer_,
-    //                                               encoder_d_model_,
-    //                                               decoding_max_pos_seq_len_,
-    //                                               tensor_para_size_,
-    //                                               tensor_para_rank,
-    //                                               pipeline_para_size_,
-    //                                               pipeline_para_rank,
-    //                                               bart_with_bias_,
-    //                                               mbart_para_,
-    //                                               use_gated_activation_,
-    //                                               position_embedding_type_);
+    decoding_shared_weights_[device_id] =
+        std::make_shared<ft::BartDecodingWeight<T>>(decoding_head_num_,
+                                                  decoding_size_per_head_,
+                                                  decoding_d_model_,
+                                                  decoding_inter_size_,
+                                                  decoding_vocab_size_,
+                                                  decoding_num_layer_,
+                                                  encoder_d_model_,
+                                                  decoding_max_pos_seq_len_,
+                                                  tensor_para_size_,
+                                                  tensor_para_rank,
+                                                  pipeline_para_size_,
+                                                  pipeline_para_rank,
+                                                  bart_with_bias_,
+                                                  mbart_para_,
+                                                  use_gated_activation_,
+                                                  position_embedding_type_);
 
-    // printf("load model\n");
-    // encoder_shared_weights_[device_id]->loadModel(model_dir_);
-    // decoding_shared_weights_[device_id]->loadModel(model_dir_);
+    printf("load model\n");
+    encoder_shared_weights_[device_id]->loadModel(model_dir_);
+    decoding_shared_weights_[device_id]->loadModel(model_dir_);
 }
 
 template<typename T>
