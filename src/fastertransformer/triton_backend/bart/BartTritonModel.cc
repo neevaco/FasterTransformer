@@ -255,7 +255,8 @@ BartTritonModel<T>::createModelInstance(int                                     
 
 template<typename T>
 void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
-{
+{   
+    printf("createSharedWeights\n");
     ft::check_cuda_error(cudaSetDevice(device_id));
     const int tensor_para_rank   = rank % tensor_para_size_;
     const int pipeline_para_rank = rank / tensor_para_size_;
