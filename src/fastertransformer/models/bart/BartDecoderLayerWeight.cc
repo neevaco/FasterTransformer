@@ -276,17 +276,6 @@ void BartDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
 
     const auto tp_rank = std::to_string(tensor_para_rank_);
 
-    layernorm_weights.gamma                               = weights_ptr[0];
-    self_attention_weights.query_weight.kernel            = weights_ptr[1];
-    self_attention_weights.attention_output_weight.kernel = weights_ptr[2];
-    self_attn_layernorm_weights.gamma                     = weights_ptr[3];
-
-    cross_attention_weights.query_weight.kernel            = weights_ptr[4];
-    cross_attention_weights.key_weight.kernel              = weights_ptr[5];
-    cross_attention_weights.value_weight.kernel            = weights_ptr[6];
-    cross_attention_weights.attention_output_weight.kernel = weights_ptr[7];
-    cross_attn_layernorm_weights.gamma                     = weights_ptr[8];
-
     loadWeightFromBin<T>(weights_ptr[0],
                          {weights_size[0]},
                          dir_path + "layer.SelfAttention.final_layer_norm.weight.bin",
@@ -329,7 +318,7 @@ void BartDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
 
     loadWeightFromBin<T>(weights_ptr[9],
                         {weights_size[9]},
-                        dir_path + "layer.SelfAttention.fc2.weight.bin",
+                        dir_path + "layer.SelfAttention.fc2.weight." + tp_rank + ".bin",
                         model_file_type);
     loadWeightFromBin<T>(weights_ptr[10],
                         {weights_size[10]},
