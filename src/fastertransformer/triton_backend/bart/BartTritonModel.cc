@@ -261,7 +261,7 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
     const int tensor_para_rank   = rank % tensor_para_size_;
     const int pipeline_para_rank = rank / tensor_para_size_;
 
-    printf("BartEncoderWeight\n");
+    printf("BartEncoderWeight %d %d\n", encoder_shared_weights_.size(), device_id);
     encoder_shared_weights_[device_id] =
         std::make_shared<ft::BartEncoderWeight<T>>(encoder_head_num_,
                                                  encoder_size_per_head_,
