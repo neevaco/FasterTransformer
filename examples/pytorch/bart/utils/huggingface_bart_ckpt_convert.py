@@ -69,7 +69,7 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
         qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.bias"],
                          model_dict[f"model.decoder.layers.{i}.self_attn.k_proj.bias"],
                          model_dict[f"model.decoder.layers.{i}.self_attn.v_proj.bias"]], dim=-1)
-
+        print(qkv.shape)
         qkv = qkv.reshape([shape[0], 3, shape[1]])
         qkv = qkv.cpu().detach().numpy().astype(np_weight_data_type)
 
