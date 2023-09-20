@@ -156,6 +156,7 @@ BartEncoderWeight<T>::BartEncoderWeight(const BartEncoderWeight& other):
     position_embedding_type(other.position_embedding_type),
     real_weights_num_(other.real_weights_num_)
 {
+    printf("Copy BartEncoderWeight\n");
     FT_LOG_DEBUG("BartEncoderWeight " + std::string(__func__) + " start");
     initialize();
     mallocWeights();
