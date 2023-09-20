@@ -102,6 +102,11 @@ std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
 BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
 {
     printf("BartTritonModelInstance<T>::forward\n");
+    for (const auto& pair : *input_tensors) {
+        int key = pair.first;
+        std::cout << "Key: " << key << std::endl;
+    }
+
     printf("input_tensors input_ids %d", input_tensors->at("input_ids").shape.size());
     const size_t request_batch_size = input_tensors->at("input_ids").shape[0];
     const size_t mem_max_seq_len    = input_tensors->at("input_ids").shape[1];
