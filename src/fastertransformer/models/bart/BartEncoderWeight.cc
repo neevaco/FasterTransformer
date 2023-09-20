@@ -62,6 +62,7 @@ BartEncoderWeight<T>::BartEncoderWeight(const size_t                head_num,
     setWeightPtr();
     bart_encoder_layer_weights.clear();
     bart_encoder_layer_weights.reserve(num_layer_);
+    printf("bart_encoder_layer_weights.reserve(num_layer_);\n");
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {
             bart_encoder_layer_weights.push_back(new BartEncoderLayerWeight<T>(head_num_,
