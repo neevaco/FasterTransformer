@@ -67,7 +67,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
     if val.ndim == 2:
         val = val.transpose(1, 0)
     # LOGGER.debug(f"key: {key}, val.shape: {val.shape}")
-    print(f"key: {key}, val.shape: {val.shape} {val[:, 2].shape}")
+    print(f"key: {key}, val.shape: {val.shape} {val[:, 2:].shape}")
 
     if key.find(".embed_positions.weight") != -1:
         if key.find("encoder") != -1:
@@ -75,7 +75,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
         else:
             prefix = "decoder"
         saved_path = saved_dir / f"{prefix}.embed_positions.weight.bin"
-        val[:, 2].tofile(saved_path.as_posix())
+        val[:, 2:].tofile(saved_path.as_posix())
     elif key.find(".embed_tokens.weight") != -1:
         if key.find("encoder") != -1:
             prefix = "encoder"
