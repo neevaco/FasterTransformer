@@ -231,7 +231,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
             prefix = "encoder"
         else:
             prefix = "decoder"
-        if key.find("fc1.weight") != -1:
+        if key.find("fc1.bias") != -1:
             fc = 'fc1'
         else:
             fc = 'fc2'
