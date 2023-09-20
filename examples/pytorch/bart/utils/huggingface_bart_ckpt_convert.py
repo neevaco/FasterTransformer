@@ -279,6 +279,7 @@ def convert_checkpoint(args):
     config = configparser.ConfigParser()
 
     config["encoder"] = {}
+    config["encoder"]["model_name"] = "bart"
     config["encoder"]["num_heads"] = str(hf_config["encoder_attention_heads"])
     config["encoder"]["d_kv"] = str(hf_config["d_model"] // hf_config["encoder_attention_heads"])
     config["encoder"]["d_model"] = str(hf_config["d_model"])
