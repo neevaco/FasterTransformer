@@ -318,11 +318,11 @@ void BartEncoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
 
     loadWeightFromBin<T>(weights_ptr_[5],
                         {weights_size_[5]},
-                        dir_path + "layer.SelfAttention.fc1.weight.bin",
+                        dir_path + "layer.SelfAttention.fc1.weight." + tp_rank + ".bin",
                         model_file_type);
     loadWeightFromBin<T>(weights_ptr_[6],
                         {weights_size_[6]},
-                        dir_path + "layer.SelfAttention.fc2.weight.bin",
+                        dir_path + "layer.SelfAttention.fc2.weight." + tp_rank + ".bin",
                         model_file_type);
     loadWeightFromBin<T>(weights_ptr_[7],
                         {weights_size_[7]},
@@ -353,11 +353,11 @@ void BartEncoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
 
         loadWeightFromBin<T>(weights_ptr_[13],
                             {weights_size_[13]},
-                            dir_path + "layer.SelfAttention.fc1.bias.bin",
+                            dir_path + "layer.SelfAttention.fc1.bias." + tp_rank + ".bin",
                             model_file_type);
         loadWeightFromBin<T>(weights_ptr_[14],
                             {weights_size_[14]},
-                            dir_path + "layer.SelfAttention.fc2.bias.bin",
+                            dir_path + "layer.SelfAttention.fc2.bias." + tp_rank + ".bin",
                             model_file_type);
         loadWeightFromBin<T>(weights_ptr_[15],
                             {weights_size_[15]},
