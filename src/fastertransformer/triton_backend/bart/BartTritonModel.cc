@@ -296,6 +296,7 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                   use_gated_activation_,
                                                   position_embedding_type_);
 
+    printf("load model\n");
     encoder_shared_weights_[device_id]->loadModel(model_dir_);
     decoding_shared_weights_[device_id]->loadModel(model_dir_);
 }
