@@ -80,6 +80,7 @@ BartEncoderWeight<T>::BartEncoderWeight(const size_t                head_num,
         }
     }
     FT_LOG_DEBUG("BartEncoderWeight " + std::string(__func__) + " end");
+    printf("BartEncoderWeight Done\n");
 }
 
 template<typename T>
