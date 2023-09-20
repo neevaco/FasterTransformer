@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+add_subdirectory(bart)
 add_subdirectory(bert)
 add_subdirectory(bert_int8)
 add_subdirectory(decoding)
