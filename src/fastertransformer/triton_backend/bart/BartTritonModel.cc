@@ -70,7 +70,7 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     decoding_vocab_size_    = reader.GetInteger("decoder", "vocab_size");
     decoding_max_pos_seq_len_ = reader.GetInteger("decoder", "max_pos_seq_len");
 
-    start_id_                 = reader.GetInteger("decoder", "decoder_start_token_id");
+    start_id_                 = reader.GetInteger("decoder", "decoder_start_token_id"); 
     end_id_                   = reader.GetInteger("decoder", "eos_token_id");
     tensor_para_size_         = reader.GetInteger("ft_instance_hyperparameter", "tensor_para_size");
     pipeline_para_size_       = reader.GetInteger("ft_instance_hyperparameter", "pipeline_para_size");
@@ -101,7 +101,7 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
 
     ft::FT_CHECK(int8_mode_ == 0);
 
-    model_name_ = reader.Get("encoder", "_name_or_path");
+    model_name_ = reader.Get("encoder", "model_name");
     // encoder
     encoder_head_num_      = reader.GetInteger("encoder", "num_heads");
     encoder_size_per_head_ = reader.GetInteger("encoder", "d_kv");
