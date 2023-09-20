@@ -103,8 +103,7 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
 {
     printf("BartTritonModelInstance<T>::forward\n");
     for (const auto& pair : *input_tensors) {
-        int key = pair.first;
-        std::cout << "Key: " << key << std::endl;
+        std::cout << "Key: " << pair.first << std::endl;
     }
 
     printf("input_tensors input_ids %d", input_tensors->at("input_ids").shape.size());
