@@ -242,10 +242,10 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
                        max_input_len,
                        end_id,
                        1,
-                       "../examples/cpp/llama/start_ids.csv");
+                       "../examples/cpp/bart/start_ids.csv");
 
     std::vector<int> v_bad_words;
-    ft::read_word_list("../examples/cpp/llama/bad_words.csv", v_bad_words);
+    ft::read_word_list("../examples/cpp/bart/bad_words.csv", v_bad_words);
 
     RequestParam param;
     param.beam_width                 = reader.GetInteger("request", "beam_width");
