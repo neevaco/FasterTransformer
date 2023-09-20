@@ -307,14 +307,15 @@ def convert_checkpoint(args):
     np_weight_data_type = get_weight_data_type(args.weight_data_type)
 
     i_gpu_num = args.inference_tensor_para_size
+    for name, param in bart_model.state_dict().items():
+        split_and_convert_process(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
+    # pool = multiprocessing.Pool(args.processes)
+    # pool.starmap_async(split_and_convert_process,
+    #                    [(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
+    #                     for name, param in bart_model.state_dict().items()])
 
-    pool = multiprocessing.Pool(args.processes)
-    pool.starmap_async(split_and_convert_process,
-                       [(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
-                        for name, param in bart_model.state_dict().items()])
-
-    pool.close()
-    pool.join()
+    # pool.close()
+    # pool.join()
 
     # fuse_decoder_qkv(bart_model, i_gpu_num, saved_dir, np_weight_data_type)
 
