@@ -327,7 +327,7 @@ def convert_checkpoint(args):
     # pool.close()
     # pool.join()
 
-    # fuse_decoder_qkv(bart_model, i_gpu_num, saved_dir, np_weight_data_type)
+    fuse_decoder_qkv(bart_model, i_gpu_num, saved_dir, np_weight_data_type)
 
 
 if __name__ == "__main__":
