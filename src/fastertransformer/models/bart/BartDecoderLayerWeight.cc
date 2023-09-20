@@ -324,7 +324,7 @@ void BartDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
 
     if (bart_with_bias_) {
         /*
-                    layernorm_weights.beta                              = weights_ptr[11];
+            layernorm_weights.beta                              = weights_ptr[11];
             self_attention_weights.query_weight.bias            = weights_ptr[12];
             self_attention_weights.attention_output_weight.bias = weights_ptr[13];
             self_attn_layernorm_weights.beta                    = weights_ptr[14];
@@ -338,39 +338,53 @@ void BartDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
             ffn_weights.intermediate_weight.bias = weights_ptr[20];
             ffn_weights.output_weight.bias       = weights_ptr[21];
         */
-        loadWeightFromBin<T>(weights_ptr[8],
-                            {weights_size[8]},
-                            dir_path + "layer.SelfAttention.q.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr[9],
-                            {weights_size[9]},
-                            dir_path + "layer.SelfAttention.k.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr[10],
-                            {weights_size[10]},
-                            dir_path + "layer.SelfAttention.v.bias." + tp_rank + ".bin",
-                            model_file_type);
         loadWeightFromBin<T>(weights_ptr[11],
                             {weights_size[11]},
-                            dir_path + "layer.SelfAttention.out_proj.bias." + tp_rank + ".bin",
+                            dir_path + "layer.SelfAttention.final_layer_norm.bias.bin",
                             model_file_type);
         loadWeightFromBin<T>(weights_ptr[12],
                             {weights_size[12]},
-                            dir_path + "layer.SelfAttention.attn_layer_norm.bias.bin",
+                            dir_path + "layer.SelfAttention.qkv.bias." + tp_rank + ".bin",
                             model_file_type);
-
         loadWeightFromBin<T>(weights_ptr[13],
                             {weights_size[13]},
-                            dir_path + "layer.SelfAttention.fc1.bias.bin",
+                            dir_path + "layer.SelfAttention.out_proj.bias." + tp_rank + ".bin",
                             model_file_type);
         loadWeightFromBin<T>(weights_ptr[14],
                             {weights_size[14]},
-                            dir_path + "layer.SelfAttention.fc2.bias.bin",
+                            dir_path + "layer.SelfAttention.attn_layer_norm.bias.bin",
                             model_file_type);
+
         loadWeightFromBin<T>(weights_ptr[15],
                             {weights_size[15]},
-                            dir_path + "layer.SelfAttention.final_layer_norm.bias.bin",
-                            model_file_type);       
+                            dir_path + "layer.CrossAttention.q.bias." + tp_rank + ".bin",
+                            model_file_type);
+        loadWeightFromBin<T>(weights_ptr[16],
+                            {weights_size[16]},
+                            dir_path + "layer.CrossAttention.k.bias." + tp_rank + ".bin",
+                            model_file_type);
+        loadWeightFromBin<T>(weights_ptr[17],
+                            {weights_size[17]},
+                            dir_path + "layer.CrossAttention.v.bias." + tp_rank + ".bin",
+                            model_file_type);
+        loadWeightFromBin<T>(weights_ptr[18],
+                            {weights_size[18]},
+                            dir_path + "layer.CrossAttention.out_proj.bias." + tp_rank + ".bin",
+                            model_file_type);
+        loadWeightFromBin<T>(weights_ptr[19],
+                            {weights_size[19]},
+                            dir_path + "layer.CrossAttention.attn_layer_norm.bias.bin",
+                            model_file_type);
+
+        loadWeightFromBin<T>(weights_ptr[20],
+                            {weights_size[20]},
+                            dir_path + "layer.SelfAttention.fc1.bias." + tp_rank + ".bin",
+                            model_file_type);
+        loadWeightFromBin<T>(weights_ptr[21],
+                            {weights_size[21]},
+                            dir_path + "layer.SelfAttention.fc2.bias." + tp_rank + ".bin",
+                            model_file_type);
+  
     }
 
     FT_LOG_DEBUG("BartDecoderLayerWeight " + std::string(__func__) + " end");
