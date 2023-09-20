@@ -16,8 +16,8 @@
 
 #include "3rdparty/INIReader.h"
 #include "examples/cpp/multi_gpu_gpt/gpt_example_utils.h"
-#include "src/fastertransformer/triton_backend/llama/LlamaTritonModel.h"
-#include "src/fastertransformer/triton_backend/llama/LlamaTritonModelInstance.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModel.h"
+#include "src/fastertransformer/triton_backend/bart/BartTritonModelInstance.h"
 #include "src/fastertransformer/utils/custom_ar_comm.h"
 #include "src/fastertransformer/utils/mpi_utils.h"
 #include "src/fastertransformer/utils/nccl_utils.h"
