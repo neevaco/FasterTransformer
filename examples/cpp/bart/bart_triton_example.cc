@@ -243,7 +243,8 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
                        end_id,
                        1,
                        "../examples/cpp/bart/start_ids.csv");
-    printf("v_start_ids size: %d", v_start_ids.size());
+    printf("v_start_ids size: %d v_start_lengths size: %d\n", v_start_ids.size(), v_start_lengths.size());
+
     std::vector<int> v_bad_words;
     ft::read_word_list("../examples/cpp/bart/bad_words.csv", v_bad_words);
 
