@@ -287,87 +287,87 @@ void BartDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
     cross_attention_weights.attention_output_weight.kernel = weights_ptr[7];
     cross_attn_layernorm_weights.gamma                     = weights_ptr[8];
 
-    loadWeightFromBin<T>(weights_ptr_[0],
-                         {weights_size_[0]},
+    loadWeightFromBin<T>(weights_ptr[0],
+                         {weights_size[0]},
                          dir_path + "layer.SelfAttention.final_layer_norm.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[1],
-                         {weights_size_[1]},
+    loadWeightFromBin<T>(weights_ptr[1],
+                         {weights_size[1]},
                          dir_path + "layer.SelfAttention.qkv.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[2],
-                         {weights_size_[2]},
+    loadWeightFromBin<T>(weights_ptr[2],
+                         {weights_size[2]},
                          dir_path + "layer.SelfAttention.out_proj.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[3],
-                         {weights_size_[3]},
+    loadWeightFromBin<T>(weights_ptr[3],
+                         {weights_size[3]},
                          dir_path + "layer.SelfAttention.attn_layer_norm.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[4],
-                         {weights_size_[4]},
+    loadWeightFromBin<T>(weights_ptr[4],
+                         {weights_size[4]},
                          dir_path + "layer.CrossAttention.q.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[5],
-                         {weights_size_[5]},
+    loadWeightFromBin<T>(weights_ptr[5],
+                         {weights_size[5]},
                          dir_path + "layer.CrossAttention.k.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[6],
-                         {weights_size_[6]},
+    loadWeightFromBin<T>(weights_ptr[6],
+                         {weights_size[6]},
                          dir_path + "layer.CrossAttention.v.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[7],
-                         {weights_size_[7]},
+    loadWeightFromBin<T>(weights_ptr[7],
+                         {weights_size[7]},
                          dir_path + "layer.CrossAttention.out_proj.weight." + tp_rank + ".bin",
                          model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[8],
-                        {weights_size_[8]},
+    loadWeightFromBin<T>(weights_ptr[8],
+                        {weights_size[8]},
                         dir_path + "layer.CrossAttention.attn_layer_norm.weight.bin",
                         model_file_type);
 
         ffn_weights.intermediate_weight.kernel = weights_ptr[9];
         ffn_weights.output_weight.kernel       = weights_ptr[10];
 
-    loadWeightFromBin<T>(weights_ptr_[9],
-                        {weights_size_[9]},
+    loadWeightFromBin<T>(weights_ptr[9],
+                        {weights_size[9]},
                         dir_path + "layer.SelfAttention.fc2.weight.bin",
                         model_file_type);
-    loadWeightFromBin<T>(weights_ptr_[10],
-                        {weights_size_[10]},
+    loadWeightFromBin<T>(weights_ptr[10],
+                        {weights_size[10]},
                         dir_path + "layer.SelfAttention.final_layer_norm.weight.bin",
                         model_file_type);
 
     if (bart_with_bias_) {
-        loadWeightFromBin<T>(weights_ptr_[8],
-                            {weights_size_[8]},
+        loadWeightFromBin<T>(weights_ptr[8],
+                            {weights_size[8]},
                             dir_path + "layer.SelfAttention.q.bias." + tp_rank + ".bin",
                             model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[9],
-                            {weights_size_[9]},
+        loadWeightFromBin<T>(weights_ptr[9],
+                            {weights_size[9]},
                             dir_path + "layer.SelfAttention.k.bias." + tp_rank + ".bin",
                             model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[10],
-                            {weights_size_[10]},
+        loadWeightFromBin<T>(weights_ptr[10],
+                            {weights_size[10]},
                             dir_path + "layer.SelfAttention.v.bias." + tp_rank + ".bin",
                             model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[11],
-                            {weights_size_[11]},
+        loadWeightFromBin<T>(weights_ptr[11],
+                            {weights_size[11]},
                             dir_path + "layer.SelfAttention.out_proj.bias." + tp_rank + ".bin",
                             model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[12],
-                            {weights_size_[12]},
+        loadWeightFromBin<T>(weights_ptr[12],
+                            {weights_size[12]},
                             dir_path + "layer.SelfAttention.attn_layer_norm.bias.bin",
                             model_file_type);
 
-        loadWeightFromBin<T>(weights_ptr_[13],
-                            {weights_size_[13]},
+        loadWeightFromBin<T>(weights_ptr[13],
+                            {weights_size[13]},
                             dir_path + "layer.SelfAttention.fc1.bias.bin",
                             model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[14],
-                            {weights_size_[14]},
+        loadWeightFromBin<T>(weights_ptr[14],
+                            {weights_size[14]},
                             dir_path + "layer.SelfAttention.fc2.bias.bin",
                             model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[15],
-                            {weights_size_[15]},
+        loadWeightFromBin<T>(weights_ptr[15],
+                            {weights_size[15]},
                             dir_path + "layer.SelfAttention.final_layer_norm.bias.bin",
                             model_file_type);       
     }
