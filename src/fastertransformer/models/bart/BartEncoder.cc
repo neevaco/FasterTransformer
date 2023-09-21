@@ -466,11 +466,8 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         printf("bart_encoder_emb_buf_\n");
         for (int i=0; i<50; i++) {
             printf("%f ", double(buf[i]));
-            if (i % 500 == 10 ) {
-                printf("\n");
-            }
         }
-        printf("buf last: %f\n", buf[st-1]);
+        printf("buf last: %f\n", double(buf[st-1]));
         printf("\n");
 }
         size_t  h_token_num;
