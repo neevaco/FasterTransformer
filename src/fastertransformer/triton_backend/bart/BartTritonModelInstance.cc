@@ -92,7 +92,6 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
     }
 
     printf("input_tensors input_ids\n");
-    input_tensors->at("input_lengths");
     printf("done\n");
     const size_t request_batch_size = input_tensors->at("input_ids").shape[0];
     const size_t mem_max_seq_len    = input_tensors->at("input_ids").shape[1];
