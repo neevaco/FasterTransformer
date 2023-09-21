@@ -368,6 +368,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         FT_CHECK(input_tensors->at("input_ids").shape.size() == 2);
     }
     std::string  input_tensor_name  = use_inputs_embeds ? "inputs_embeds" : "input_ids";
+    printf("input_tensor_name: %s\n", input_tensor_name.c_str());
     const size_t request_batch_size = input_tensors->at(input_tensor_name).shape[0];
     const size_t request_seq_len    = input_tensors->at(input_tensor_name).shape[1];
     const bool   return_attentions  = output_tensors->at("output_attentions", {}).size();

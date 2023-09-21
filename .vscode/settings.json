@@ -83,6 +83,7 @@
         "charconv": "cpp",
         "ios": "cpp",
         "locale": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "__memory": "cpp"
     }
 }
