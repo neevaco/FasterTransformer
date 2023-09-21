@@ -198,6 +198,7 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
                 printf("\n");
             }
         }
+        printf("\n");
 }
 
         bart_decoding_->forward(&decoding_output_tensors, &decoding_input_tensors, bart_decoding_weight_.get());
