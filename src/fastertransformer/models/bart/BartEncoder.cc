@@ -464,7 +464,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         buf = new T[st];
         cudaMemcpy(buf, bart_encoder_emb_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
         printf("bart_encoder_emb_buf_\n");
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<50; i++) {
             printf("%f ", double(buf[i]));
             if (i % 500 == 10 ) {
                 printf("\n");
