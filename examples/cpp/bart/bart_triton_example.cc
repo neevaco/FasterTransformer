@@ -375,6 +375,11 @@ int main(int argc, char* argv[])
     }
     printf("[INFO] forward is completed. \n");
 
+    for (const auto& pair : *output_tensors_lists[0]) {
+        std::cout << "Key: " << pair.first << std::endl;
+        input_tensors->at(pair.first);
+    }
+
     const int* d_output_ids = (const int*)output_tensors_lists[0].get()->at("output_ids").data;
     const int  batch_size   = output_tensors_lists[0].get()->at("output_ids").shape[0];
     const int  beam_width   = output_tensors_lists[0].get()->at("output_ids").shape[1];
