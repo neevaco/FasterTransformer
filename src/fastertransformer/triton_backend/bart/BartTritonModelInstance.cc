@@ -104,7 +104,7 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
     allocateBuffer(request_batch_size, beam_width, max_output_len, mem_max_seq_len);
 
     ft::TensorMap encoder_input_tensors(convert_inputs(input_tensors));
-
+    printf("encoder_input_tensors\n");
     ft::TensorMap encoder_output_tensors(
         {{"output_hidden_state",
           ft::Tensor{ft::MEMORY_GPU,
