@@ -377,7 +377,6 @@ int main(int argc, char* argv[])
 
     for (const auto& pair : *output_tensors_lists[0]) {
         std::cout << "Key: " << pair.first << std::endl;
-        input_tensors->at(pair.first);
     }
 
     const int* d_output_ids = (const int*)output_tensors_lists[0].get()->at("output_ids").data;
