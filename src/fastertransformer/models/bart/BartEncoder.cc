@@ -470,6 +470,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
                 printf("\n");
             }
         }
+        printf("buf last: %f\n", buf[st-1]);
         printf("\n");
 }
         size_t  h_token_num;
