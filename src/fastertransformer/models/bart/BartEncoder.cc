@@ -452,6 +452,8 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
             }
         }
 
+        sync_check_cuda_error();
+
 {
         T* buf;
         int st = max_batch_size_ * max_seq_len_ * d_model_;
@@ -466,9 +468,6 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         }
         printf("\n");
 }
-
-        sync_check_cuda_error();
-
         size_t  h_token_num;
         T*      bart_encoder_input_ptr;
         T*      bart_encoder_output_ptr;
