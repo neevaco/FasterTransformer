@@ -64,22 +64,6 @@ BartTritonModelInstance<T>::convert_inputs(std::shared_ptr<std::unordered_map<st
         {{"input_ids", as_GPU_tensor(input_tensors->at("input_ids"), d_input_ids_)},
          {"sequence_length", as_GPU_tensor(input_tensors->at("sequence_length"), d_input_lengths_)}});
 
-    if (input_tensors->count("prompt_learning_task_name_ids")) {
-        ft_input_tensors.insert({"prompt_learning_task_name_ids",
-                                 input_tensors->at("prompt_learning_task_name_ids").convertTritonTensorToFt()});
-    }
-    if (input_tensors->count("request_prompt_lengths")) {
-        move_tensor_H2D(input_tensors->at("request_prompt_lengths"), d_request_prompt_lengths_, &allocator_);
-        ft_input_tensors.insert(
-            {"request_prompt_lengths",
-             as_GPU_tensor(input_tensors->at("request_prompt_lengths"), d_request_prompt_lengths_)});
-    }
-    if (input_tensors->count("request_prompt_embedding")) {
-        move_tensor_H2D(input_tensors->at("request_prompt_embedding"), d_request_prompt_embedding_, &allocator_);
-        ft_input_tensors.insert(
-            {"request_prompt_embedding",
-             as_GPU_tensor(input_tensors->at("request_prompt_embedding"), d_request_prompt_embedding_)});
-    }
     return ft_input_tensors;
 }
 
