@@ -416,6 +416,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         const int* sequence_lengths = input_tensors->at("sequence_length").getPtr<int>() + id_offset;
 
         if (position_embedding_type == PositionEmbeddingType::absolute) {
+            printf("invokeInputIdsEmbeddingLookupPosEncoding\n");
             invokeInputIdsEmbeddingLookupPosEncoding(
                 bart_encoder_emb_buf_,
                 nullptr,
