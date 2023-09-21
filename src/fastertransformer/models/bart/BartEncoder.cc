@@ -457,7 +457,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         int st = max_batch_size_ * max_seq_len_ * d_model_;
         buf = new T[st];
         cudaMemcpy(buf, bart_encoder_emb_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
-        printf("cudaMemcpy\n");
+        printf("bart_encoder_emb_buf_\n");
         for (int i=0; i<10; i++) {
             printf("%f ", double(buf[i]));
             if (i % 500 == 10 ) {
