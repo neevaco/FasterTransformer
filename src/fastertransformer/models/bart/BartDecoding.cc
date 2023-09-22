@@ -745,7 +745,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     }
                     printf("buf last: %f\n", double(buf[st-1]));
                     printf("\n");
-            }
+}
                 if (cache_indirections_[src_indir_idx] != nullptr) {
                     dynamic_decode_input_tensors.insert(
                         "src_cache_indirection",
