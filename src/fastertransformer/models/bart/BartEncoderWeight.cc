@@ -256,14 +256,15 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
     FT_CHECK(is_maintain_buffer == true);
 
     loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/encoder.embed_positions.weight.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
 {
         T* buf;
         int batch_size = 1;
         int seq_len = 11;
-        int st = weights_size[0];
-        printf("weights_size: %d \n",weights_size[0]);
+        int st = weights_size[1];
+        printf("weights_size: %d \n",weights_size[1]);
         buf = new T[st];
-        cudaMemcpy(buf, weights_ptr[0], sizeof(T) * st, cudaMemcpyDeviceToHost);
+        cudaMemcpy(buf, weights_ptr[1], sizeof(T) * st, cudaMemcpyDeviceToHost);
         printf("weights_ptr[0]\n");
         for (int i=0; i<50; i++) {
             printf("%f ", double(buf[i]));
@@ -271,7 +272,6 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
         printf("buf last: %f\n", double(buf[st-1]));
         printf("\n");
 }
-    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
     loadWeightFromBin<T>(
         weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/encoder.final_layer_norm.weight.bin", model_file_type);
     if (bart_with_bias) {
