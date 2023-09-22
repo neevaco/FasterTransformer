@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> output_tensors_lists(
         (size_t)gpu_count);
     printf("[INFO] gpu_count: %d %d %d %d\n", gpu_count, model_instances.size(), request_list.size(), output_tensors_lists.size());
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 1; i++) {
         threads.clear();
         for (int device_id = 0; device_id < gpu_count; device_id++) {
             threads.push_back(std::thread(threadForward,
