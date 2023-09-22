@@ -203,6 +203,20 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
 
         bart_decoding_->forward(&decoding_output_tensors, &decoding_input_tensors, bart_decoding_weight_.get());
 
+{
+        int* buf;
+        int st = request_batch_size * 32;
+        buf = new int[st];
+        cudaMemcpy(buf, d_output_ids_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+        printf("cudaMemcpy d_output_ids_\n");
+        for (int i=0; i<10; i++) {
+            printf("%d ", (buf[i]));
+            if (i % 500 == 10 ) {
+                printf("\n");
+            }
+        }
+        printf("\n");
+}
         if (stream_cb_ != nullptr) {
             bart_decoding_->unRegisterCallback();
         }
