@@ -524,6 +524,17 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                 sync_check_cuda_error();
             }
 
+    if (step == max_input_length) {
+        T* buf;
+        int st = batch_size * d_model_;
+        buf = new T[st];
+        cudaMemcpy(buf, decoder_input_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+        printf("decoder_input_buf_: %d\n", batch_size);
+        for (int i=0; i<st; i++) {
+            printf("%d ", buf[i]);
+        }
+        printf("\n");
+    }
             // BART/mBART has a layernorm after word + positional embedding
             invokeGeneralT5LayerNorm(decoder_input_buf_ + d_model_offset,
                                      decoder_input_buf_ + d_model_offset,
