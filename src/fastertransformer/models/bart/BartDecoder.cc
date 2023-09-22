@@ -552,9 +552,9 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
                     int st = local_batch_size * d_model_;
                     buf = new T[st];
                     cudaMemcpy(buf, decoder_output, sizeof(T) * st, cudaMemcpyDeviceToHost);
-                    if (input_tensors->at(4) == 0) {
+                    if (input_tensors->at(4).data[0] == 0) {
 
-                        printf("decoder_output at layer %d step %d\n", l, input_tensors->at(4));
+                        printf("decoder_output at layer %d step %d\n", l, input_tensors->at(4).data[0]);
                         for (int i=0; i<50; i++) {
                             printf("%f ", double(buf[i]));
                         }
