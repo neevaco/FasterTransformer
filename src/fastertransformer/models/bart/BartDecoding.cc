@@ -432,6 +432,18 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                              max_input_length - 1,
                              stream_);
     sync_check_cuda_error();
+    {
+        int* buf;
+        int st = batch_size;
+        buf = new T[st];
+        cudaMemcpy(buf, output_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+        printf("logits_buf_\n");
+        for (int i=0; i<50; i++) {
+            printf("%f ", double(buf[i]));
+        }
+        printf("buf last: %f\n", double(buf[st-1]));
+        printf("\n");
+    }
 
     invokeBuildRelativeAttentionBias(relative_attention_bias_,
                                      decoding_weights->absolute_or_relative_position_embedding,
