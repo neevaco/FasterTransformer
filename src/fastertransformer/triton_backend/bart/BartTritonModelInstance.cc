@@ -205,7 +205,7 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
 
 {
         int* buf;
-        int st = request_batch_size * 32;
+        int st = request_batch_size * max_output_len;
         buf = new int[st];
         cudaMemcpy(buf, d_output_ids_, sizeof(int) * st, cudaMemcpyDeviceToHost);
         printf("cudaMemcpy d_output_ids_\n");
