@@ -433,17 +433,17 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                              max_input_length - 1,
                              stream_);
     sync_check_cuda_error();
-    {
-        int* buf;
-        int st = batch_size;
-        buf = new int[st];
-        cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
-        printf("start_ids_buf_ batch_size: %d\n", batch_size);
-        for (int i=0; i<st; i++) {
-            printf("%d ", buf[i]);
-        }
-        printf("\n");
-    }
+    // {
+    //     int* buf;
+    //     int st = batch_size;
+    //     buf = new int[st];
+    //     cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+    //     printf("start_ids_buf_ batch_size: %d\n", batch_size);
+    //     for (int i=0; i<st; i++) {
+    //         printf("%d ", buf[i]);
+    //     }
+    //     printf("\n");
+    // }
 
     invokeBuildRelativeAttentionBias(relative_attention_bias_,
                                      decoding_weights->absolute_or_relative_position_embedding,
@@ -746,18 +746,18 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                      {"local_batch_size", Tensor{MEMORY_CPU, TYPE_INT32, {1}, &tmp_local_batch_size}},
                      {"is_initialize_random_table", Tensor{MEMORY_CPU, TYPE_BOOL, {1}, &is_initialize_random_table}}});
 
-{
-                    T* buf;
-                    int st = batch_size * beam_width * vocab_size_padded_;
-                    buf = new T[st];
-                    cudaMemcpy(buf, logits_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
-                    printf("logits_buf_\n");
-                    for (int i=0; i<50; i++) {
-                        printf("%f ", double(buf[i]));
-                    }
-                    printf("buf last: %f\n", double(buf[st-1]));
-                    printf("\n");
-}
+// {
+//                     T* buf;
+//                     int st = batch_size * beam_width * vocab_size_padded_;
+//                     buf = new T[st];
+//                     cudaMemcpy(buf, logits_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+//                     printf("logits_buf_\n");
+//                     for (int i=0; i<50; i++) {
+//                         printf("%f ", double(buf[i]));
+//                     }
+//                     printf("buf last: %f\n", double(buf[st-1]));
+//                     printf("\n");
+// }
                 if (cache_indirections_[src_indir_idx] != nullptr) {
                     dynamic_decode_input_tensors.insert(
                         "src_cache_indirection",
@@ -815,8 +815,30 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     }
                     dynamic_decode_output_tensors.insert(*t);
                 }
+    {
+        int* buf;
+        int st = batch_size;
+        buf = new int[st];
+        cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+        printf("start_ids_buf_ before forward: %d\n", batch_size);
+        for (int i=0; i<st; i++) {
+            printf("%d ", buf[i]);
+        }
+        printf("\n");
+    }
 
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
+    {
+        int* buf;
+        int st = batch_size;
+        buf = new int[st];
+        cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+        printf("start_ids_buf_ after forward: %d\n", batch_size);
+        for (int i=0; i<st; i++) {
+            printf("%d ", buf[i]);
+        }
+        printf("\n");
+    }
             }
         }
 
