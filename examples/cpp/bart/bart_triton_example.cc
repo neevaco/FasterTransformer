@@ -396,9 +396,9 @@ int main(int argc, char* argv[])
         else {
             size_t outCount = batch_size * beam_width * seq_len;
             int*   hBuf     = new int[outCount];
-            int*   iBuf     = new int[batch_size];
+            // int*   iBuf     = new int[batch_size];
             ft::cudaD2Hcpy(hBuf, d_output_ids, outCount);
-            ft::cudaD2Hcpy(iBuf, d_input_lengths, batch_size);
+            // ft::cudaD2Hcpy(iBuf, d_input_lengths, batch_size);
             
 
             {
