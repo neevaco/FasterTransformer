@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
     const int  batch_size   = output_tensors_lists[0].get()->at("output_ids").shape[0];
     const int  beam_width   = output_tensors_lists[0].get()->at("output_ids").shape[1];
     const int  seq_len      = output_tensors_lists[0].get()->at("output_ids").shape[2];
-    const int* d_input_lengths = (const int*)output_tensors_lists[0].get()->at("sequence_length").data;
+    // const int* d_input_lengths = (const int*)output_tensors_lists[0].get()->at("sequence_length").data;
     // step 6: check results
     if (node_id == 0) {
 
@@ -404,10 +404,10 @@ int main(int argc, char* argv[])
             {
                 std::cout << "Writing " << outCount << " elements\n";
                 int zeroCount = 0;
-                for (int i=0; i<batch_size; i++) {
-                    printf("%d ", iBuf[i]);
-                }
-                printf("\n");
+                // for (int i=0; i<batch_size; i++) {
+                //     printf("%d ", iBuf[i]);
+                // }
+                // printf("\n");
                 for (size_t i = 0; i < outCount; i++) {
                     if (hBuf[i] == int(0))
                         zeroCount++;
@@ -435,20 +435,20 @@ int main(int argc, char* argv[])
     cudaDeviceSynchronize();
     gettimeofday(&start, NULL);
 
-    const int ite = 1;
-    for (int i = 0; i < ite; i++) {
-        threads.clear();
-        for (int device_id = 0; device_id < gpu_count; device_id++) {
-            threads.push_back(std::thread(threadForward,
-                                          &model_instances[device_id],
-                                          request_list[device_id],
-                                          &output_tensors_lists[device_id],
-                                          device_id));
-        }
-        for (auto& t : threads) {
-            t.join();
-        }
-    }
+    // const int ite = 1;
+    // for (int i = 0; i < ite; i++) {
+    //     threads.clear();
+    //     for (int device_id = 0; device_id < gpu_count; device_id++) {
+    //         threads.push_back(std::thread(threadForward,
+    //                                       &model_instances[device_id],
+    //                                       request_list[device_id],
+    //                                       &output_tensors_lists[device_id],
+    //                                       device_id));
+    //     }
+    //     for (auto& t : threads) {
+    //         t.join();
+    //     }
+    // }
 
     cudaDeviceSynchronize();
     ft::mpi::barrier();
