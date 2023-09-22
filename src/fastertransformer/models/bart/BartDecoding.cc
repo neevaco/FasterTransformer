@@ -839,17 +839,17 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
     // }
 
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
-    // {
-    //     int* buf;
-    //     int st = batch_size * (max_seq_len+1);
-    //     buf = new int[st];
-    //     cudaMemcpy(buf, output_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
-    //     printf("start_ids_buf_ after forward: %d\n", batch_size);
-    //     for (int i=0; i<st; i++) {
-    //         printf("%d ", buf[i]);
-    //     }
-    //     printf("\n");
-    // }
+    {
+        int* buf;
+        int st = batch_size * (max_seq_len+1);
+        buf = new int[st];
+        cudaMemcpy(buf, output_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+        printf("output_ids_buf_ after forward: %d\n", batch_size);
+        for (int i=0; i<st; i++) {
+            printf("%d ", buf[i]);
+        }
+        printf("\n");
+    }
             }
         }
 
