@@ -734,6 +734,18 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                      {"local_batch_size", Tensor{MEMORY_CPU, TYPE_INT32, {1}, &tmp_local_batch_size}},
                      {"is_initialize_random_table", Tensor{MEMORY_CPU, TYPE_BOOL, {1}, &is_initialize_random_table}}});
 
+{
+                    T* buf;
+                    int st = batch_size * beam_width * vocab_size_padded_;
+                    buf = new T[st];
+                    cudaMemcpy(buf, logits_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                    printf("logits_buf_\n");
+                    for (int i=0; i<50; i++) {
+                        printf("%f ", double(buf[i]));
+                    }
+                    printf("buf last: %f\n", double(buf[st-1]));
+                    printf("\n");
+            }
                 if (cache_indirections_[src_indir_idx] != nullptr) {
                     dynamic_decode_input_tensors.insert(
                         "src_cache_indirection",
