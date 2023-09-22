@@ -815,30 +815,30 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     }
                     dynamic_decode_output_tensors.insert(*t);
                 }
-    {
-        int* buf;
-        int st = batch_size;
-        buf = new int[st];
-        cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
-        printf("start_ids_buf_ before forward: %d\n", batch_size);
-        for (int i=0; i<st; i++) {
-            printf("%d ", buf[i]);
-        }
-        printf("\n");
-    }
+    // {
+    //     int* buf;
+    //     int st = batch_size;
+    //     buf = new int[st];
+    //     cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+    //     printf("start_ids_buf_ before forward: %d\n", batch_size);
+    //     for (int i=0; i<st; i++) {
+    //         printf("%d ", buf[i]);
+    //     }
+    //     printf("\n");
+    // }
 
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
-    {
-        int* buf;
-        int st = batch_size;
-        buf = new int[st];
-        cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
-        printf("start_ids_buf_ after forward: %d\n", batch_size);
-        for (int i=0; i<st; i++) {
-            printf("%d ", buf[i]);
-        }
-        printf("\n");
-    }
+    // {
+    //     int* buf;
+    //     int st = batch_size;
+    //     buf = new int[st];
+    //     cudaMemcpy(buf, start_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+    //     printf("start_ids_buf_ after forward: %d\n", batch_size);
+    //     for (int i=0; i<st; i++) {
+    //         printf("%d ", buf[i]);
+    //     }
+    //     printf("\n");
+    // }
             }
         }
 
