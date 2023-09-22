@@ -467,7 +467,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         for (int b=0; b<batch_size; b++) {
             int tt = seq_len * d_model_;
             for (int i=0; i<tt; i++) {
-                printf("%f ", double(buf[tt*batch_size+i]));
+                printf("%f ", double(buf[tt*batch_size+b]));
             }
             printf("\n");
         }
