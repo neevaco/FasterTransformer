@@ -562,7 +562,7 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
                         printf("buf last: %f\n", double(buf[st-1]));
                         printf("\n");
                     }
-}
+    }
 }
         if (isLastLayerParallelId(l) == true && pipeline_para_.rank_ != pipeline_para_.world_size_ - 1
             && pipeline_para_.world_size_ > 1) {
