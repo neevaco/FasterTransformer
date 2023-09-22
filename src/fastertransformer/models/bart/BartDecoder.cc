@@ -546,7 +546,20 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
                                                        stream_);
         }
         sync_check_cuda_error();
-
+{
+    {
+                    T* buf;
+                    int st = local_batch_size * d_model_;
+                    buf = new T[st];
+                    cudaMemcpy(buf, decoder_output, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                    printf("decoder_output\n");
+                    for (int i=0; i<50; i++) {
+                        printf("%f ", double(buf[i]));
+                    }
+                    printf("buf last: %f\n", double(buf[st-1]));
+                    printf("\n");
+}
+}
         if (isLastLayerParallelId(l) == true && pipeline_para_.rank_ != pipeline_para_.world_size_ - 1
             && pipeline_para_.world_size_ > 1) {
             // ftNcclSend(decoder_output, local_batch_size * d_model_, pipeline_para_.rank_ + 1,

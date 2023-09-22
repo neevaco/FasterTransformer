@@ -14,7 +14,6 @@
 
 import argparse
 import configparser
-import multiprocessing
 from datetime import datetime
 import logging
 from pathlib import Path
