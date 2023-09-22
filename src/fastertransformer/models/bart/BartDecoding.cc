@@ -382,6 +382,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
         dynamic_decode_layer_->setup(batch_size, beam_width, &input_map);
         handleOptArg(&input_map, "start_id", start_ids_buf_, start_id_, batch_size);
         handleOptArg(&input_map, "end_id", end_ids_buf_, end_id_, batch_size);
+        printf("start_id_ end_id_ %d %d\n", start_id_, end_id_);
     }
 
     FT_CHECK_WITH_INFO(input_tensors->at("encoder_output").shape[2] == d_model_,
