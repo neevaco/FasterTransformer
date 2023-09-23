@@ -980,7 +980,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
 
     {
         int* buf;
-        int st = batch_size * (max_seq_len+1);
+        int st = 32;
         buf = new int[st];
         cudaMemcpy(buf, output_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
         printf("output_ids_buf_ after finalize: %d\n", batch_size);
