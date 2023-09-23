@@ -944,8 +944,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
         else {
             // For sampling, only transpose the results to output_tensor
             invokeTransposeAxis01(output_tensors->at("output_ids").getPtr<int>(),
-                                  // output_ids_buf_ + batch_size * beam_width,
-                                  output_ids_buf_,
+                                  output_ids_buf_ + batch_size * beam_width,
                                   max_seq_len,
                                   batch_size * beam_width,
                                   1,
