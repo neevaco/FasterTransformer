@@ -62,6 +62,7 @@ BartEncoderWeight<T>::BartEncoderWeight(const size_t                head_num,
     setWeightPtr();
     bart_encoder_layer_weights.clear();
     bart_encoder_layer_weights.reserve(num_layer_);
+    printf("bart_encoder_layer_weights.reserve(num_layer_);\n");
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {
             bart_encoder_layer_weights.push_back(new BartEncoderLayerWeight<T>(head_num_,
@@ -79,6 +80,7 @@ BartEncoderWeight<T>::BartEncoderWeight(const size_t                head_num,
         }
     }
     FT_LOG_DEBUG("BartEncoderWeight " + std::string(__func__) + " end");
+    printf("BartEncoderWeight Done\n");
 }
 
 template<typename T>
@@ -154,6 +156,7 @@ BartEncoderWeight<T>::BartEncoderWeight(const BartEncoderWeight& other):
     position_embedding_type(other.position_embedding_type),
     real_weights_num_(other.real_weights_num_)
 {
+    printf("Copy BartEncoderWeight\n");
     FT_LOG_DEBUG("BartEncoderWeight " + std::string(__func__) + " start");
     initialize();
     mallocWeights();
@@ -249,7 +252,41 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
 {
     FT_LOG_DEBUG("BartEncoderWeight " + std::string(__func__) + " start");
 
-    FT_LOG_DEBUG("Megatron BART support TBD");
+    FtCudaDataType model_file_type = getModelFileType(dir_path + "/config.ini", "encoder");
+    FT_CHECK(is_maintain_buffer == true);
+
+    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/encoder.embed_positions.weight.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
+{
+        T* buf;
+        int batch_size = 1;
+        int seq_len = 11;
+        int st = weights_size[1];
+        printf("weights_size: %d \n",weights_size[1]);
+        buf = new T[st];
+        cudaMemcpy(buf, weights_ptr[1], sizeof(T) * st, cudaMemcpyDeviceToHost);
+        printf("weights_ptr[0]\n");
+        for (int i=0; i<50; i++) {
+            printf("%f ", double(buf[i]));
+        }
+        printf("buf last: %f\n", double(buf[st-1]));
+        printf("\n");
+}
+    loadWeightFromBin<T>(
+        weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/encoder.final_layer_norm.weight.bin", model_file_type);
+    if (bart_with_bias) {
+        loadWeightFromBin<T>(weights_ptr[3],
+                             {(size_t)weights_size[3]},
+                             dir_path + "/encoder.final_layer_norm.bias.bin",
+                             model_file_type);
+    }
+
+    for (int l = 0; l < num_layer_; l++) {
+        if (isValidLayerParallelId(l)) {
+            bart_encoder_layer_weights[l]->loadModel(dir_path + "/encoder." + std::to_string(l) + ".",
+                                                   model_file_type);
+        }
+    }
 
     FT_LOG_DEBUG("BartEncoderWeight " + std::string(__func__) + " end");
 }
