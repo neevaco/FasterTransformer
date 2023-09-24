@@ -80,6 +80,11 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
 def get_encoder_or_decoder(key):
     return "encoder" if key.find("encoder") != -1 else "decoder"
 
+
+def get_fc(key):
+    return "fc1" if key.find("fc1.") != -1 else "fc2"
+
+
 def split_and_convert_process(key, val, factor, saved_dir):
     if val.ndim == 2:
         val = val.transpose(1, 0)
@@ -199,20 +204,14 @@ def split_and_convert_process(key, val, factor, saved_dir):
     elif key.find("fc1.weight") != -1 or key.find("fc2.weight") != -1:
         prefix = get_encoder_or_decoder(key)
         split_vals = np.split(val, factor, axis=0)
-        if key.find("fc1.") != -1:
-            fc = 'fc1'
-        else:
-            fc = 'fc2'
+        fc = get_fc(key)
         layer = int(key.split('layers.')[1].split(f'.{fc}.')[0])
         for j in range(factor):
             saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{fc}.weight.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     elif key.find("fc1.bias") != -1 or key.find("fc2.bias") != -1:
         prefix = get_encoder_or_decoder(key)
-        if key.find("fc1.") != -1:
-            fc = 'fc1'
-        else:
-            fc = 'fc2'
+        fc = get_fc(key)
         layer = int(key.split('layers.')[1].split(f'.{fc}.')[0])
         split_vals = np.split(val, factor, axis=0)
         for j in range(factor):
