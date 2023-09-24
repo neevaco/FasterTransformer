@@ -85,31 +85,19 @@ def split_and_convert_process(key, val, factor, saved_dir):
         val = val.transpose(1, 0)
 
     if key.find(".embed_positions.weight") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         saved_path = saved_dir / f"{prefix}.embed_positions.weight.bin"
         val[:, 2:].T.tofile(saved_path.as_posix())
     elif key.find(".embed_tokens.weight") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         saved_path = saved_dir / f"{prefix}.embed_tokens.weight.bin"
         val.T.tofile(saved_path.as_posix())
     elif key.find(".layernorm_embedding.weight") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         saved_path = saved_dir / f"{prefix}.final_layer_norm.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find(".layernorm_embedding.bias") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         saved_path = saved_dir / f"{prefix}.final_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
     elif (
@@ -118,10 +106,9 @@ def split_and_convert_process(key, val, factor, saved_dir):
         or key.find("self_attn.q_proj.weight") != -1
     ):
         split_vals = np.split(val, factor, axis=0)
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
+        if prefix == "decoder":
+            # will be handled in fuse_decoder_qkv instead
             return
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         qkv = key.split('self_attn.')[1][:1]
@@ -134,10 +121,9 @@ def split_and_convert_process(key, val, factor, saved_dir):
         or key.find("self_attn.q_proj.bias") != -1
     ):
         split_vals = np.split(val, factor, axis=0)
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
+        if prefix == "decoder":
+            # will be handled in fuse_decoder_qkv instead
             return
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         qkv = key.split('self_attn.')[1][:1]
@@ -146,37 +132,25 @@ def split_and_convert_process(key, val, factor, saved_dir):
             split_vals[j].tofile(saved_path.as_posix())
     elif key.find("self_attn.out_proj.weight") != -1:
         split_vals = np.split(val, factor, axis=0)
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         for j in range(factor):
             saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.out_proj.weight.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     elif key.find("self_attn.out_proj.bias") != -1:
         split_vals = np.split(val, factor, axis=0)
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         for j in range(factor):
             saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.out_proj.bias.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     elif key.find("self_attn_layer_norm.weight") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.attn_layer_norm.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("self_attn_layer_norm.bias") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         layer = int(key.split('layers.')[1].split('.self_attn')[0])
         saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.attn_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
@@ -223,10 +197,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
         saved_path = saved_dir / f"decoder.{layer}.layer.CrossAttention.attn_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("fc1.weight") != -1 or key.find("fc2.weight") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         split_vals = np.split(val, factor, axis=0)
         if key.find("fc1.") != -1:
             fc = 'fc1'
@@ -237,10 +208,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
             saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{fc}.weight.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     elif key.find("fc1.bias") != -1 or key.find("fc2.bias") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         if key.find("fc1.") != -1:
             fc = 'fc1'
         else:
@@ -251,18 +219,12 @@ def split_and_convert_process(key, val, factor, saved_dir):
             saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.{fc}.bias.{j:d}.bin"
             split_vals[j].tofile(saved_path.as_posix())
     elif key.find("final_layer_norm.weight") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         layer = int(key.split('layers.')[1].split('.final_layer_norm.')[0])
         saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.final_layer_norm.weight.bin"
         val.tofile(saved_path.as_posix())
     elif key.find("final_layer_norm.bias") != -1:
-        if key.find("encoder") != -1:
-            prefix = "encoder"
-        else:
-            prefix = "decoder"
+        prefix = get_encoder_or_decoder(key)
         layer = int(key.split('layers.')[1].split('.final_layer_norm.')[0])
         saved_path = saved_dir / f"{prefix}.{layer}.layer.SelfAttention.final_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
