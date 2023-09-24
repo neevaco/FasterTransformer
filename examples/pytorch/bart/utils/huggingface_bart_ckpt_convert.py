@@ -39,6 +39,7 @@ def get_weight_data_type(data_type):
 def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
     model_dict = {}
     for name, param in model.named_parameters():
+        print(name)
         if name.find("self_attn") == -1 or name.find("decoder.layers") == -1:
             continue
         if name.find(".q_proj.") != -1 or name.find(".k_proj.") != -1 or name.find(".v_proj.") != -1:
