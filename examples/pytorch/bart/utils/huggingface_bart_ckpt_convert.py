@@ -69,7 +69,6 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
         qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.bias"],
                          model_dict[f"model.decoder.layers.{i}.self_attn.k_proj.bias"],
                          model_dict[f"model.decoder.layers.{i}.self_attn.v_proj.bias"]], dim=-1)
-        # qkv = qkv.reshape([shape[0], 3])
         qkv = qkv.cpu().detach().numpy().astype(np_weight_data_type)
 
         split_vals = np.split(qkv, factor, axis=-1)
@@ -78,11 +77,12 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
             split_vals[j].tofile(saved_path.as_posix())
 
 
+def get_encoder_or_decoder(key):
+    return "encoder" if key.find("encoder") != -1 else "decoder"
+
 def split_and_convert_process(key, val, factor, saved_dir):
     if val.ndim == 2:
         val = val.transpose(1, 0)
-    # LOGGER.debug(f"key: {key}, val.shape: {val.shape}")
-    print(f"key: {key}, val.shape: {val.shape}")
 
     if key.find(".embed_positions.weight") != -1:
         if key.find("encoder") != -1:
