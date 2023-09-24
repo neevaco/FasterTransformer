@@ -46,10 +46,10 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
             model_dict[name] = param
 
     for i in range(model.config.decoder_layers):
-        shape = model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.weight"].T.shape
-        qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.weight"].T,
-                         model_dict[f"model.decoder.layers.{i}.self_attn.k_proj.weight"].T,
-                         model_dict[f"model.decoder.layers.{i}.self_attn.v_proj.weight"].T], dim=-1)
+        shape = model_dict[f"decoder.layers.{i}.self_attn.q_proj.weight"].T.shape
+        qkv = torch.cat([model_dict[f"decoder.layers.{i}.self_attn.q_proj.weight"].T,
+                         model_dict[f"decoder.layers.{i}.self_attn.k_proj.weight"].T,
+                         model_dict[f"decoder.layers.{i}.self_attn.v_proj.weight"].T], dim=-1)
 
         qkv = qkv.reshape([shape[0], 3, shape[1]])
         qkv = qkv.cpu().detach().numpy().astype(np_weight_data_type)
@@ -60,10 +60,10 @@ def fuse_decoder_qkv(model, factor, saved_dir, np_weight_data_type):
             split_vals[j].tofile(saved_path.as_posix())
 
     for i in range(model.config.decoder_layers):
-        shape = model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.bias"].shape
-        qkv = torch.cat([model_dict[f"model.decoder.layers.{i}.self_attn.q_proj.bias"],
-                         model_dict[f"model.decoder.layers.{i}.self_attn.k_proj.bias"],
-                         model_dict[f"model.decoder.layers.{i}.self_attn.v_proj.bias"]], dim=-1)
+        shape = model_dict[f"decoder.layers.{i}.self_attn.q_proj.bias"].shape
+        qkv = torch.cat([model_dict[f"decoder.layers.{i}.self_attn.q_proj.bias"],
+                         model_dict[f"decoder.layers.{i}.self_attn.k_proj.bias"],
+                         model_dict[f"decoder.layers.{i}.self_attn.v_proj.bias"]], dim=-1)
         qkv = qkv.cpu().detach().numpy().astype(np_weight_data_type)
 
         split_vals = np.split(qkv, factor, axis=-1)
@@ -272,8 +272,6 @@ def convert_checkpoint(args):
     np_weight_data_type = get_weight_data_type(args.weight_data_type)
 
     i_gpu_num = args.inference_tensor_para_size
-    # for name, param in bart_model.state_dict().items():
-    #     split_and_convert_process(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
     pool = multiprocessing.Pool(args.processes)
     pool.starmap_async(split_and_convert_process,
                        [(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
