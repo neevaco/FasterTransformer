@@ -91,9 +91,6 @@ int read_start_ids(size_t            batch_size,
             v_start_lengths->push_back(tmp_start_lengths[i]);
         }
     }
-    for (int i : *v_start_lengths) {
-        printf("v_start_lengths %d\n", i);
-    }
     return batch_size;
 }
 
