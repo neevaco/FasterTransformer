@@ -139,7 +139,6 @@ BartTritonModel<T>::createModelInstance(int                                     
                                       std::pair<std::vector<ft::NcclParam>, std::vector<ft::NcclParam>> nccl_params,
                                       std::shared_ptr<ft::AbstractCustomComm> custom_all_reduce_comm)
 {
-    printf("createModelInstance\n");
     ft::check_cuda_error(cudaSetDevice(device_id));
     const int comms_rank = device_id % (tensor_para_size_ * pipeline_para_size_);
 
@@ -257,12 +256,10 @@ BartTritonModel<T>::createModelInstance(int                                     
 template<typename T>
 void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
 {   
-    printf("createSharedWeights\n");
     ft::check_cuda_error(cudaSetDevice(device_id));
     const int tensor_para_rank   = rank % tensor_para_size_;
     const int pipeline_para_rank = rank / tensor_para_size_;
 
-    printf("BartEncoderWeight %d %d\n", encoder_shared_weights_.size(), device_id);
     encoder_shared_weights_[device_id] =
         std::make_shared<ft::BartEncoderWeight<T>>(encoder_head_num_,
                                                  encoder_size_per_head_,
@@ -280,7 +277,6 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                  use_gated_activation_,
                                                  position_embedding_type_);
 
-    printf("BartDecodingWeight\n");
     decoding_shared_weights_[device_id] =
         std::make_shared<ft::BartDecodingWeight<T>>(decoding_head_num_,
                                                   decoding_size_per_head_,
@@ -299,7 +295,6 @@ void BartTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                   use_gated_activation_,
                                                   position_embedding_type_);
 
-    printf("load model\n");
     encoder_shared_weights_[device_id]->loadModel(model_dir_);
     decoding_shared_weights_[device_id]->loadModel(model_dir_);
 }

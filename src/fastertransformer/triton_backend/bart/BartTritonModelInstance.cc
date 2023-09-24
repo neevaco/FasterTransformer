@@ -85,25 +85,15 @@ template<typename T>
 std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>
 BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>> input_tensors)
 {
-    printf("BartTritonModelInstance<T>::forward\n");
-    for (const auto& pair : *input_tensors) {
-        std::cout << "Key: " << pair.first << std::endl;
-        input_tensors->at(pair.first);
-    }
-
-    printf("input_tensors input_ids\n");
-    printf("done\n");
     const size_t request_batch_size = input_tensors->at("input_ids").shape[0];
     const size_t mem_max_seq_len    = input_tensors->at("input_ids").shape[1];
     const size_t max_output_len     = *((uint*)input_tensors->at("max_output_len").data);
     const size_t beam_width =
         input_tensors->count("beam_width") ? (size_t)(*(uint*)input_tensors->at("beam_width").data) : 1;
 
-    printf("allocateBuffer\n");
     allocateBuffer(request_batch_size, beam_width, max_output_len, mem_max_seq_len);
 
     ft::TensorMap encoder_input_tensors(convert_inputs(input_tensors));
-    printf("encoder_input_tensors\n");
     ft::TensorMap encoder_output_tensors(
         {{"output_hidden_state",
           ft::Tensor{ft::MEMORY_GPU,
@@ -186,37 +176,22 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
         bart_encoder_->forward(&encoder_output_tensors, &encoder_input_tensors, bart_encoder_weight_.get());
 
 
-{
-        T* buf;
-        int st = request_batch_size * mem_max_seq_len * bart_encoder_->getDModel();
-        buf = new T[st];
-        cudaMemcpy(buf, d_encoder_outputs_, sizeof(T) * st, cudaMemcpyDeviceToHost);
-        printf("cudaMemcpy\n");
-        for (int i=0; i<10; i++) {
-            printf("%f ", double(buf[i]));
-            if (i % 500 == 10 ) {
-                printf("\n");
-            }
-        }
-        printf("\n");
-}
+// {
+//         T* buf;
+//         int st = request_batch_size * mem_max_seq_len * bart_encoder_->getDModel();
+//         buf = new T[st];
+//         cudaMemcpy(buf, d_encoder_outputs_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+//         printf("cudaMemcpy\n");
+//         for (int i=0; i<10; i++) {
+//             printf("%f ", double(buf[i]));
+//             if (i % 500 == 10 ) {
+//                 printf("\n");
+//             }
+//         }
+//         printf("\n");
+// }
 
         bart_decoding_->forward(&decoding_output_tensors, &decoding_input_tensors, bart_decoding_weight_.get());
-
-{
-        int* buf;
-        int st = request_batch_size * max_output_len;
-        buf = new int[st];
-        cudaMemcpy(buf, d_output_ids_, sizeof(int) * st, cudaMemcpyDeviceToHost);
-        printf("cudaMemcpy d_output_ids_\n");
-        for (int i=0; i<10; i++) {
-            printf("%d ", (buf[i]));
-            if (i % 500 == 10 ) {
-                printf("\n");
-            }
-        }
-        printf("\n");
-}
         if (stream_cb_ != nullptr) {
             bart_decoding_->unRegisterCallback();
         }
