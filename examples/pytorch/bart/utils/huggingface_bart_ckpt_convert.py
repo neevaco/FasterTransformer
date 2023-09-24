@@ -19,12 +19,6 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
-import sys
-import os
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(dir_path + "/../../../../3rdparty/transformers/src/")
-
 from transformers import BartForConditionalGeneration
 
 import numpy as np
