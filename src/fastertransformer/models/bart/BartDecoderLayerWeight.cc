@@ -323,21 +323,6 @@ void BartDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType m
                         model_file_type);
 
     if (bart_with_bias_) {
-        /*
-            layernorm_weights.beta                              = weights_ptr[11];
-            self_attention_weights.query_weight.bias            = weights_ptr[12];
-            self_attention_weights.attention_output_weight.bias = weights_ptr[13];
-            self_attn_layernorm_weights.beta                    = weights_ptr[14];
-
-            cross_attention_weights.query_weight.bias            = weights_ptr[15];
-            cross_attention_weights.key_weight.bias              = weights_ptr[16];
-            cross_attention_weights.value_weight.bias            = weights_ptr[17];
-            cross_attention_weights.attention_output_weight.bias = weights_ptr[18];
-            cross_attn_layernorm_weights.beta                    = weights_ptr[19];
-
-            ffn_weights.intermediate_weight.bias = weights_ptr[20];
-            ffn_weights.output_weight.bias       = weights_ptr[21];
-        */
         loadWeightFromBin<T>(weights_ptr[11],
                             {weights_size[11]},
                             dir_path + "layer.SelfAttention.final_layer_norm.bias.bin",
