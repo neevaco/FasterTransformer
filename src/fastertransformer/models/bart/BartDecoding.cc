@@ -1057,17 +1057,17 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
     // throw errors when detected
     ftNcclStreamSynchronize(tensor_para_, pipeline_para_, stream_);
 
-    {
-        int* buf;
-        int st = 32;
-        buf = new int[st];
-        cudaMemcpy(buf, output_tensors->at("output_ids").data, sizeof(int) * st, cudaMemcpyDeviceToHost);
-        printf("output_ids after finalize: %s %d\n", output_tensors->at("output_ids").toString().c_str(), batch_size);
-        for (int i=0; i<st; i++) {
-            printf("%d ", buf[i]);
-        }
-        printf("\n");
-    }
+    // {
+    //     int* buf;
+    //     int st = 32;
+    //     buf = new int[st];
+    //     cudaMemcpy(buf, output_tensors->at("output_ids").data, sizeof(int) * st, cudaMemcpyDeviceToHost);
+    //     printf("output_ids after finalize: %s %d\n", output_tensors->at("output_ids").toString().c_str(), batch_size);
+    //     for (int i=0; i<st; i++) {
+    //         printf("%d ", buf[i]);
+    //     }
+    //     printf("\n");
+    // }
     if (is_free_buffer_after_forward_) {
         freeBuffer();
     }
