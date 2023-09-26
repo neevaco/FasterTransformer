@@ -23,7 +23,6 @@ namespace ft = fastertransformer;
 
 std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createBartModel(std::string model_dir)
 {
-    printf("createBartModel\n");
     INIReader reader = INIReader(model_dir + "/config.ini");
     if (reader.ParseError() < 0) {
         std::cout << "[ERROR] Can't load '" << model_dir << "/config.ini"
@@ -31,7 +30,7 @@ std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createBartMo
         return nullptr;
     }
 
-    const std::string data_type = "fp16"; //reader.Get("ft_instance_hyperparameter", "data_type");
+    const std::string data_type = reader.Get("ft_instance_hyperparameter", "data_type");
     if (data_type == "fp16") {
         // return std::make_shared<BartTritonModel<half>>(reader, model_dir);
         return std::make_shared<BartTritonModel<half>>(1, 1, 0, model_dir, 0);
