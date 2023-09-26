@@ -154,7 +154,7 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
                      ft::TYPE_INT32,
                      std::vector<size_t>{request_batch_size, beam_width},
                      d_sequence_lengths_}},
-        {"input_sequence_lengths", encoder_input_tensors.at("sequence_length")});
+        {"input_sequence_lengths", encoder_input_tensors.at("sequence_length")}});
     if (input_tensors->count("is_return_log_probs") > 0
         && input_tensors->at("is_return_log_probs").convertTritonTensorToFt().getVal<bool>()) {
         decoding_output_tensors.insert({"output_log_probs",
