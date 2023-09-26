@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
     std::string ini_name   = argc >= 2 ? std::string(argv[1]) : "/notebooks/tmp/FasterTransformer/examples/cpp/bart/";
 
     // step 1: Create model
-    std::shared_ptr<AbstractTransformerModel> model            = AbstractTransformerModel::createBartModel("/notebooks/bart-ft/1-gpu");
+    std::shared_ptr<AbstractTransformerModel> model            = AbstractTransformerModel::createBartModel("/notebooks/summarization-bart_bart_encoder_decoder/1/1-gpu");
     int                                       tensor_para_size = model->getTensorParaSize();
     int                                       pipeline_para_size = model->getPipelineParaSize();
     FT_CHECK_WITH_INFO(world_size == (tensor_para_size * pipeline_para_size),
