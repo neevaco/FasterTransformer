@@ -1330,13 +1330,14 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
                                                    PrefixPromptBatchWeightsParam<T> param,
                                                    T*                               QKV,
                                                    const T* __restrict qkv_bias,
-                                                   const int* padding_offset,
-                                                   const int  batch_size,
-                                                   const int  seq_len,
-                                                   const int  head_num,
-                                                   const int  size_per_head,
-                                                   const int  rotary_embedding_dim,
-                                                   const bool neox_rotary_style)
+                                                   const int*  padding_offset,
+                                                   const int   batch_size,
+                                                   const int   seq_len,
+                                                   const int   head_num,
+                                                   const int   size_per_head,
+                                                   const int   rotary_embedding_dim,
+                                                   const bool  neox_rotary_style
+                                                   const float rope_theta)
 {
     // This kernel add bias to QKV, which has shape [batch_size, seq_len, 3, head_num, size_per_head], and
     // QKV split to 3 split buffer q, k, v and transpose them to [batch_size, head_num, seq_len, size_per_head].
