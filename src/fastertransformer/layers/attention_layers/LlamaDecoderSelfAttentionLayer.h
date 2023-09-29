@@ -41,6 +41,7 @@ private:
     const float  q_scaling_;
     const size_t rotary_embedding_dim_;
     const bool   neox_rotary_style_;
+    const float  rope_theta_;
 
     std::shared_ptr<CutlassFpAIntBGemmRunner<T, uint8_t>> weight_only_int8_fc_runner_;
     std::shared_ptr<CutlassInt8GemmRunner<T>>             int8_fc_runner_;
