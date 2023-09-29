@@ -171,6 +171,7 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
                      num_layer_,
                      vocab_size_,
                      rotary_embedding_dim_,
+                     rope_theta_,
                      layernorm_eps_,
                      start_id_,
                      end_id_,
