@@ -1336,7 +1336,7 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
                                                    const int   head_num,
                                                    const int   size_per_head,
                                                    const int   rotary_embedding_dim,
-                                                   const bool  neox_rotary_style
+                                                   const bool  neox_rotary_style,
                                                    const float rope_theta)
 {
     // This kernel add bias to QKV, which has shape [batch_size, seq_len, 3, head_num, size_per_head], and
