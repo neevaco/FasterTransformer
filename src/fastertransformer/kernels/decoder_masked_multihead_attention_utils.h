@@ -1400,7 +1400,7 @@ inline __device__ void apply_rotary_embedding(float2& q, float2& k, int tid, int
 
 inline __device__ void apply_rotary_embedding(float2& q, float2& k, int tid, int rot_embed_dim, int t_step)
 {
-    apply_rotary_embedding(q, q, tid, rot_embed_dim, DefaultRopeTheta, t_step);
+    apply_rotary_embedding(q, k, tid, rot_embed_dim, DefaultRopeTheta, t_step);
 }
 
 inline __device__ void apply_rotary_embedding(float4& q, int tid, int rot_embed_dim, float rope_theta, int t_step)
