@@ -336,6 +336,7 @@ void LlamaContextAttentionLayer<T>::forward(TensorMap*                output_ten
                                    size_per_head_,
                                    rotary_embedding_dim_,
                                    neox_rotary_style_,
+                                   rope_theta_,
                                    attention_weights->query_weight.scale_out,
                                    int8_mode_,
                                    stream_);
