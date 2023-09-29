@@ -180,7 +180,7 @@ void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
                                    size_per_head,
                                    rotary_embedding_dim,
                                    neox_rotary_style,
-                                   1000.f,  // rope_theta
+                                   10000.f,  // rope_theta
                                    (float*)nullptr,
                                    0,
                                    stream);
