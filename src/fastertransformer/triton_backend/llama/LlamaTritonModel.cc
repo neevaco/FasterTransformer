@@ -90,6 +90,7 @@ LlamaTritonModel<T>::LlamaTritonModel(size_t      tensor_para_size,
     num_layer_            = reader.GetInteger("llama", "num_layer");
     vocab_size_           = reader.GetInteger("llama", "vocab_size");
     rotary_embedding_dim_ = reader.GetInteger("llama", "rotary_embedding");
+    rope_theta_           = reader.GetFloat("llama", "rope_theta", 1000.f);
     layernorm_eps_        = reader.GetFloat("llama", "layernorm_eps");
     start_id_             = reader.GetInteger("llama", "start_id");
     end_id_               = reader.GetInteger("llama", "end_id");
