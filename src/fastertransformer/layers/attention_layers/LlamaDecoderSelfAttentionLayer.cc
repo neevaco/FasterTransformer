@@ -657,6 +657,7 @@ void LlamaDecoderSelfAttentionLayer<T>::forward(TensorMap*           output_tens
         size_per_head_,
         rotary_embedding_dim_,
         neox_rotary_style_,
+        rope_theta_,
         memory_max_len,
         d_prefix_prompt_lengths,
         max_prefix_prompt_length,
