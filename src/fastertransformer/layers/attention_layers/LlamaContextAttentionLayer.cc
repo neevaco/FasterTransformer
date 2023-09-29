@@ -700,6 +700,7 @@ LlamaContextAttentionLayer<T>::LlamaContextAttentionLayer(LlamaContextAttentionL
     local_hidden_units_(attention_layer.local_hidden_units_),
     rotary_embedding_dim_(attention_layer.rotary_embedding_dim_),
     neox_rotary_style_(attention_layer.neox_rotary_style_),
+    rope_theta_(attention_layer.rope_theta_),
     is_qk_buf_float_(attention_layer.is_qk_buf_float_),
     weight_only_int8_fc_runner_(attention_layer.weight_only_int8_fc_runner_),
     int8_fc_runner_(attention_layer.int8_fc_runner_),
