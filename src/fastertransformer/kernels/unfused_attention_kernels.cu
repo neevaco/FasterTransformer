@@ -1513,6 +1513,7 @@ void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
                                     const int                        size_per_head,
                                     const int                        rotary_embedding_dim,
                                     const int                        neox_rotary_style,
+                                    const float                      rope_theta,
                                     const float*                     scale,
                                     const int                        int8_mode,
                                     cudaStream_t                     stream)
@@ -1571,6 +1572,7 @@ void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
                                                  const int                        size_per_head,                       \
                                                  const int                        rotary_embedding_dim,                \
                                                  const int                        neox_rotary_style,                   \
+                                                 const float                      rope_theta,                          \
                                                  const float*                     scale,                               \
                                                  const int                        int8_mode,                           \
                                                  cudaStream_t                     stream)
