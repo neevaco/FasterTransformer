@@ -119,7 +119,6 @@ void fusedQKV_masked_attention_dispatch(const T*     qkv_buf,
     params.rotary_embedding_dim = rotary_embedding_dim;
     params.neox_rotary_style    = neox_rotary_style;
     params.rope_theta           = rope_theta;
-    printf("params.rope_theta_: %f\n", rope_theta);
     // Note: keep norm factor (sqrt(K_dim)) when adopting megatron T5 structure (may adjust)
     params.inv_sqrt_dh = 1.F / (sqrtf((float)params.hidden_size_per_head) * q_scaling);
 
