@@ -1578,7 +1578,7 @@ apply_rotary_embedding(__nv_bfloat162& q, __nv_bfloat162& k, int tid, int rot_em
 inline __device__ void
 apply_rotary_embedding(__nv_bfloat162& q, __nv_bfloat162& k, int tid, int rot_embed_dim, int t_step)
 {
-    apply_rotary_embedding(q, v, tid, rot_embed_dim, DefaultRopeTheta, t_step);
+    apply_rotary_embedding(q, k, tid, rot_embed_dim, DefaultRopeTheta, t_step);
 }
 
 inline __device__ void apply_rotary_embedding(bf16_4_t& q, int tid, int rot_embed_dim, float rope_theta, int t_step)
