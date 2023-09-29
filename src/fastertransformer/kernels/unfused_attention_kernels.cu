@@ -1451,7 +1451,7 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
             mmha::vec_from_smem_transpose(q, q_smem, transpose_idx, smem_pitch);
             mmha::vec_from_smem_transpose(k, k_smem, transpose_idx, smem_pitch);
 
-            mmha::apply_rotary_embedding(q, k, transpose_idx / tidx_factor, rotary_embedding_dim, dst_kv_seq_idx);
+            mmha::apply_rotary_embedding(q, k, transpose_idx / tidx_factor, rotary_embedding_dim, dst_kv_seq_idx, rope_theta);
 
             mmha::write_smem_transpose(q, q_smem, transpose_idx, smem_pitch);
             mmha::write_smem_transpose(k, k_smem, transpose_idx, smem_pitch);
