@@ -1496,7 +1496,8 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
                                                                                              head_num,                 \
                                                                                              size_per_head,            \
                                                                                              rotary_embedding_dim,     \
-                                                                                             neox_rotary_style);
+                                                                                             neox_rotary_style,        \
+                                                                                             rope_theta);
 
 template<typename T>
 void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
