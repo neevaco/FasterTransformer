@@ -80,6 +80,7 @@ public:
                               size_t           local_kv_head_num,
                               size_t           rotary_embedding_dim,
                               bool             neox_rotary_style,
+                              float            rope_theta,
                               size_t           d_model,
                               const float      q_scaling,
                               cudaStream_t     stream,
