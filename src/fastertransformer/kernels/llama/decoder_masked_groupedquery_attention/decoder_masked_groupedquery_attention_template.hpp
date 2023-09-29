@@ -1305,10 +1305,10 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     const int padd_len = (params.total_padding_tokens == nullptr) ? 0 : params.total_padding_tokens[bi];
     if (params.rotary_embedding_dim > 0 && !params.neox_rotary_style) {
         if (handle_kv) {
-            apply_rotary_embedding(q, k, tidx, params.rotary_embedding_dim, params.timestep - padd_len);
+            apply_rotary_embedding(q, k, tidx, params.rotary_embedding_dim, params.rope_theta, params.timestep - padd_len);
         }
         else {
-            apply_rotary_embedding(q, tidx, params.rotary_embedding_dim, params.timestep - padd_len);
+            apply_rotary_embedding(q, tidx, params.rotary_embedding_dim, params.rope_theta, params.timestep - padd_len);
         }
     }
     else if (params.rotary_embedding_dim > 0 && params.neox_rotary_style) {
