@@ -51,6 +51,7 @@ void fusedQKV_masked_attention_dispatch(const T*     qkv_buf,
                                         const int    size_per_head,
                                         const int    rotary_embedding_dim,
                                         const bool   neox_rotary_style,
+                                        const float  rope_theta,
                                         const int    memory_max_len,
                                         const int*   prefix_prompt_lengths,
                                         const int    max_prefix_prompt_length,
@@ -117,6 +118,7 @@ void fusedQKV_masked_attention_dispatch(const T*     qkv_buf,
     params.hidden_size_per_head = size_per_head;
     params.rotary_embedding_dim = rotary_embedding_dim;
     params.neox_rotary_style    = neox_rotary_style;
+    params.rope_theta           = rope_theta;
     // Note: keep norm factor (sqrt(K_dim)) when adopting megatron T5 structure (may adjust)
     params.inv_sqrt_dh = 1.F / (sqrtf((float)params.hidden_size_per_head) * q_scaling);
 
@@ -166,6 +168,7 @@ void fusedQKV_masked_attention_dispatch(const T*     qkv_buf,
                                                      const int    size_per_head,                                       \
                                                      const int    rotary_embedding_dim,                                \
                                                      const bool   neox_rotary_style,                                   \
+                                                     const float  rope_theta,                                          \
                                                      const int    memory_max_len,                                      \
                                                      const int*   prefix_prompt_lengths,                               \
                                                      const int    max_prefix_prompt_length,                            \
