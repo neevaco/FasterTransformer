@@ -1352,17 +1352,17 @@ inline __device__ __nv_bfloat162 rotary_embedding_transform(const __nv_bfloat162
 }
 #endif
 
-inline __device__ void apply_rotary_embedding(float& q, int zid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(float& q, int zid, int rot_embed_dim, float rope_theta, int t_step)
 {
     return;
 }
 
-inline __device__ void apply_rotary_embedding(float& q, float& k, int zid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(float& q, float& k, int zid, int rot_embed_dim, float rope_theta, int t_step)
 {
     return;
 }
 
-inline __device__ void apply_rotary_embedding(float2& q, int tid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(float2& q, int tid, int rot_embed_dim, float rope_theta, int t_step)
 {
     if (2 * tid >= rot_embed_dim) {
         return;
@@ -1371,7 +1371,7 @@ inline __device__ void apply_rotary_embedding(float2& q, int tid, int rot_embed_
     q               = rotary_embedding_transform(q, coef);
 }
 
-inline __device__ void apply_rotary_embedding(float2& q, float2& k, int tid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(float2& q, float2& k, int tid, int rot_embed_dim, float rope_theta, int t_step)
 {
     if (2 * tid >= rot_embed_dim) {
         return;
@@ -1381,7 +1381,7 @@ inline __device__ void apply_rotary_embedding(float2& q, float2& k, int tid, int
     k               = rotary_embedding_transform(k, coef);
 }
 
-inline __device__ void apply_rotary_embedding(float4& q, int tid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(float4& q, int tid, int rot_embed_dim, float rope_theta, int t_step)
 {
     if (4 * tid >= rot_embed_dim) {
         return;
@@ -1394,7 +1394,7 @@ inline __device__ void apply_rotary_embedding(float4& q, int tid, int rot_embed_
     q_.y             = rotary_embedding_transform(q_.y, coef1);
 }
 
-inline __device__ void apply_rotary_embedding(float4& q, float4& k, int tid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(float4& q, float4& k, int tid, int rot_embed_dim, float rope_theta, int t_step)
 {
     if (4 * tid >= rot_embed_dim) {
         return;
