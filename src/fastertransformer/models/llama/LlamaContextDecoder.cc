@@ -33,6 +33,7 @@ void LlamaContextDecoder<T>::initialize()
                                                                           size_per_head_,
                                                                           rotary_embedding_dim_,
                                                                           neox_rotary_style_,
+                                                                          rope_theta_,
                                                                           tensor_para_,
                                                                           stream_,
                                                                           cublas_wrapper_,
