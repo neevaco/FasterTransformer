@@ -1425,7 +1425,7 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
     v = mmha::add(v, v_bias);
 
     if (!neox_rotary_style) {
-        mmha::apply_rotary_embedding(q, k, tidx, rotary_embedding_dim, dst_kv_seq_idx);
+        mmha::apply_rotary_embedding(q, k, tidx, rotary_embedding_dim, dst_kv_seq_idx, rope_theta);
     }
     else {
         const bool do_rotary = !is_masked && vec_size * tidx < rotary_embedding_dim;
