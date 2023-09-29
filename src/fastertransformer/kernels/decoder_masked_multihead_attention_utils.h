@@ -1550,11 +1550,6 @@ inline __device__ void apply_rotary_embedding(uint4& q, uint4& k, int tid, int r
 }
 
 #ifdef ENABLE_BF16
-inline __device__ void apply_rotary_embedding(__nv_bfloat162& q, int tid, int rot_embed_dim, int t_step)
-{
-    apply_rotary_embedding(q, tid, rot_embed_dim, DefaultRopeTheta, t_step);
-}
-
 inline __device__ void apply_rotary_embedding(__nv_bfloat162& q, int tid, int rot_embed_dim, float rope_theta, int t_step)
 {
     if (2 * tid >= rot_embed_dim) {
@@ -1564,10 +1559,9 @@ inline __device__ void apply_rotary_embedding(__nv_bfloat162& q, int tid, int ro
     q               = rotary_embedding_transform(q, coef);
 }
 
-inline __device__ void
-apply_rotary_embedding(__nv_bfloat162& q, __nv_bfloat162& k, int tid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(__nv_bfloat162& q, int tid, int rot_embed_dim, int t_step)
 {
-    apply_rotary_embedding(q, v, tid, rot_embed_dim, DefaultRopeTheta, t_step);
+    apply_rotary_embedding(q, tid, rot_embed_dim, DefaultRopeTheta, t_step);
 }
 
 inline __device__ void
@@ -1581,9 +1575,10 @@ apply_rotary_embedding(__nv_bfloat162& q, __nv_bfloat162& k, int tid, int rot_em
     k               = rotary_embedding_transform(k, coef);
 }
 
-inline __device__ void apply_rotary_embedding(bf16_4_t& q, int tid, int rot_embed_dim, int t_step)
+inline __device__ void
+apply_rotary_embedding(__nv_bfloat162& q, __nv_bfloat162& k, int tid, int rot_embed_dim, int t_step)
 {
-    apply_rotary_embedding(q, tid, rot_embed_dim, DefaultRopeTheta, t_step);
+    apply_rotary_embedding(q, v, tid, rot_embed_dim, DefaultRopeTheta, t_step);
 }
 
 inline __device__ void apply_rotary_embedding(bf16_4_t& q, int tid, int rot_embed_dim, float rope_theta, int t_step)
@@ -1597,10 +1592,9 @@ inline __device__ void apply_rotary_embedding(bf16_4_t& q, int tid, int rot_embe
     q.y              = rotary_embedding_transform(q.y, coef1);
 }
 
-
-inline __device__ void apply_rotary_embedding(bf16_4_t& q, bf16_4_t& k, int tid, int rot_embed_dim, int t_step)
+inline __device__ void apply_rotary_embedding(bf16_4_t& q, int tid, int rot_embed_dim, int t_step)
 {
-    apply_rotary_embedding(q, k, tid, rot_embed_dim, DefaultRopeTheta, t_step);
+    apply_rotary_embedding(q, tid, rot_embed_dim, DefaultRopeTheta, t_step);
 }
 
 inline __device__ void apply_rotary_embedding(bf16_4_t& q, bf16_4_t& k, int tid, int rot_embed_dim, float rope_theta, int t_step)
@@ -1614,6 +1608,11 @@ inline __device__ void apply_rotary_embedding(bf16_4_t& q, bf16_4_t& k, int tid,
     const auto coef1 = rotary_embedding_coefficient(4 * tid + 2, rot_embed_dim, t_step);
     q.y              = rotary_embedding_transform(q.y, coef1);
     k.y              = rotary_embedding_transform(k.y, coef1);
+}
+
+inline __device__ void apply_rotary_embedding(bf16_4_t& q, bf16_4_t& k, int tid, int rot_embed_dim, int t_step)
+{
+    apply_rotary_embedding(q, k, tid, rot_embed_dim, DefaultRopeTheta, t_step);
 }
 
 inline __device__ void apply_rotary_embedding(bf16_8_t& q, int tid, int rot_embed_dim, float rope_theta, int t_step)
