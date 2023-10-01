@@ -1396,7 +1396,8 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
 
     const int prefix_prompt_length = PREFIX_PROMPT ? param.d_prefix_prompt_lengths[batch_idx] : 0;
     const int hidden_idx           = head_idx * size_per_head + tidx * vec_size;
-    const int kv_hidden_idx        = head_idx / 8 * size_per_head + tidx * vec_size;
+    const int kv_repeat_num        = head_num / kv_head_num;
+    const int kv_hidden_idx        = head_idx / kv_repeat_num * size_per_head + tidx * vec_size;
     const int qkv_size             = head_num * size_per_head + 2 * kv_head_num * size_per_head;
     const int k_offset             = head_num * size_per_head;
     const int v_offset             = k_offset + kv_head_num * size_per_head;
