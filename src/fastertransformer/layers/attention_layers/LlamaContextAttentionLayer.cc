@@ -318,7 +318,6 @@ void LlamaContextAttentionLayer<T>::forward(TensorMap*                output_ten
                                            (size_t)layer_id * 2 * local_head_num_ * size_per_head_};
 
     if (padding_offset != nullptr) {
-        printf("padding_offset is not null\n");
         // q_buf_2_, k_buf_2_ and v_buf_2_ are continuous
         cudaMemsetAsync(
             q_buf_2_, 0, request_batch_size * request_seq_len * 3 * local_hidden_units_ * sizeof(T), stream_);
