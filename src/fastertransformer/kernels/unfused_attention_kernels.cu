@@ -1409,8 +1409,8 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
     // NOTE: q has seq len excluding prefix prompt
     // src QKV: [batch, time, head+2*kv_head, hidden]
     const int src_q_idx = token_idx * qkv_size + hidden_idx;
-    const int src_k_idx = token_idx * qkv_size + hidden_idx + k_offset;
-    const int src_v_idx = token_idx * qkv_size + hidden_idx + v_offset;
+    const int src_k_idx = token_idx * qkv_size + kv_hidden_idx + k_offset;
+    const int src_v_idx = token_idx * qkv_size + kv_hidden_idx + v_offset;
 
     Vec_t q, k, v;
     Vec_t q_bias, k_bias, v_bias;
