@@ -1572,6 +1572,7 @@ void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
                                                  const int                        seq_len,                             \
                                                  const int                        token_num,                           \
                                                  const int                        head_num,                            \
+                                                 const int                        kv_head_num,                         \
                                                  const int                        size_per_head,                       \
                                                  const int                        rotary_embedding_dim,                \
                                                  const int                        neox_rotary_style,                   \
