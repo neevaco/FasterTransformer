@@ -1415,14 +1415,12 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
     Vec_t q_bias, k_bias, v_bias;
     if (!is_masked) {
         q = *reinterpret_cast<const Vec_t*>(&QKV[src_q_idx]);
-        q_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx]);
+        k = *reinterpret_cast<const Vec_t*>(&QKV[src_k_idx]);
+        v = *reinterpret_cast<const Vec_t*>(&QKV[src_v_idx]);
 
-        if (head_idx < kv_head_num) {
-            k = *reinterpret_cast<const Vec_t*>(&QKV[src_k_idx]);
-            v = *reinterpret_cast<const Vec_t*>(&QKV[src_v_idx]);
-            k_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx + n]);
-            v_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx + 2 * n]);
-        }
+        q_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx]);
+        k_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx + k_offset]);
+        v_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx + v_offset]);
     }
 
     q = mmha::add(q, q_bias);
@@ -1481,9 +1479,7 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
     const int dest_kv_idx = batch_idx * size_per_head * total_seq_len * head_num
                             + head_idx * size_per_head * total_seq_len + dst_kv_seq_idx * size_per_head
                             + tidx * vec_size;
-    const int dest_kv_idx = batch_idx * size_per_head * total_seq_len * kv_head_num
-                            + head_idx * size_per_head * total_seq_len + dst_kv_seq_idx * size_per_head
-                            + tidx * vec_size;
+
     if (!is_masked) {
         *reinterpret_cast<Vec_t*>(&q_buf[dest_q_idx])  = q;
         *reinterpret_cast<Vec_t*>(&k_buf[dest_kv_idx]) = k;
