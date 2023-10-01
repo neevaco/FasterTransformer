@@ -144,7 +144,7 @@ void LlamaDecoderLayerWeight<T>::copyFrom(const LlamaDecoderLayerWeight& other)
             cudaD2Dcpy(weight_only_scale_ptr[1], other.weight_only_scale_ptr[1], hidden_units_);
             cudaD2Dcpy(weight_only_scale_ptr[2], other.weight_only_scale_ptr[2], inter_size_ / tensor_para_size_);
 
-            // TODO: 不太清楚这里存的缩放因子对应的是gate_pro_weight 还是给 up_proj/down_proj用的，后面做一下验证，回来再改一下
+            // TODO: not sure gate_pro_weight corresponds to up_proj or down_proj
             cudaD2Dcpy(weight_only_scale_ptr[3], other.weight_only_scale_ptr[3], inter_size_ / tensor_para_size_);
             cudaD2Dcpy(weight_only_scale_ptr[4], other.weight_only_scale_ptr[4], hidden_units_);
         }
