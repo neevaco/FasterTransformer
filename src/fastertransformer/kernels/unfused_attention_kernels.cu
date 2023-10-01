@@ -1334,6 +1334,7 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
                                                    const int   batch_size,
                                                    const int   seq_len,
                                                    const int   head_num,
+                                                   const int   kv_head_num,
                                                    const int   size_per_head,
                                                    const int   rotary_embedding_dim,
                                                    const bool  neox_rotary_style,
@@ -1495,6 +1496,7 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
                                                                                              batch_size,               \
                                                                                              seq_len,                  \
                                                                                              head_num,                 \
+                                                                                             kv_head_num,              \
                                                                                              size_per_head,            \
                                                                                              rotary_embedding_dim,     \
                                                                                              neox_rotary_style,        \
