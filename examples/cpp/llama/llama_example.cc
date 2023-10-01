@@ -164,7 +164,7 @@ void llama_example(const INIReader reader)
 
     // Handle bad_words dictionary
     std::vector<int> bad_words;
-    read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/bad_words.csv", bad_words);
+    read_word_list("./bad_words.csv", bad_words);
 
     int* d_bad_words = nullptr;
     deviceMalloc(&d_bad_words, bad_words.size(), false);
