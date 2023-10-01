@@ -333,6 +333,7 @@ void LlamaContextAttentionLayer<T>::forward(TensorMap*                output_ten
                                    request_seq_len,
                                    m,
                                    local_head_num_,
+                                   local_kv_head_num_,
                                    size_per_head_,
                                    rotary_embedding_dim_,
                                    neox_rotary_style_,
