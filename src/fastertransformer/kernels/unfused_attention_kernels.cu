@@ -1548,7 +1548,6 @@ void invokeAddFusedQKVBiasTranspose(T*                               q_buf,
                                                                        int8_mode);
     }
     else {
-        printf("head_num: %d kv_head_num: %d\n", head_num, kv_head_num);
         FT_CHECK_WITH_INFO(int8_mode != 2, "w8a8 not yet implemented with prefix prompt");  // TODO(mseznec)
         // To implement rotary embeddings, each thread processes two QKV elems:
         dim3   block((size_per_head / Vec_t<T>::size + 31) / 32 * 32);
