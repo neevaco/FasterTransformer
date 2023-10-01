@@ -172,7 +172,7 @@ void llama_example(const INIReader reader)
 
     // Handle stop_words dictionary
     std::vector<int> stop_words;
-    read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/stop_words.csv", stop_words);
+    read_word_list("./stop_words.csv", stop_words);
 
     const size_t stop_words_len = stop_words.size() / 2;
     // Tile with same dict for each element
@@ -196,7 +196,7 @@ void llama_example(const INIReader reader)
                    max_input_len,
                    end_id,
                    1,
-                   "/notebooks/FasterTransformer/examples/cpp/llama/start_ids.csv");
+                   "./start_ids.csv");
 
 
     int* d_input_ids;
