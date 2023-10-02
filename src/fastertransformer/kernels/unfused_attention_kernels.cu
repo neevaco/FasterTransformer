@@ -1421,8 +1421,8 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
         v = *reinterpret_cast<const Vec_t*>(&QKV[src_v_idx]);
 
         q_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx]);
-        k_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx + k_offset]);
-        v_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx + v_offset]);
+        k_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[kv_hidden_idx + k_offset]);
+        v_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[kv_hidden_idx + v_offset]);
     }
 
     q = mmha::add(q, q_bias);
