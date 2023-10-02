@@ -1420,14 +1420,17 @@ __global__ void add_fusedQKV_bias_transpose_kernel(T*                           
         k = *reinterpret_cast<const Vec_t*>(&QKV[src_k_idx]);
         v = *reinterpret_cast<const Vec_t*>(&QKV[src_v_idx]);
 
-        q_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx]);
-        k_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[kv_hidden_idx + k_offset]);
-        v_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[kv_hidden_idx + v_offset]);
+        if (qkv_bias) {
+            q_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[hidden_idx]);
+            k_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[kv_hidden_idx + k_offset]);
+            v_bias = *reinterpret_cast<const Vec_t*>(&qkv_bias[kv_hidden_idx + v_offset]);
+        }
     }
-
-    q = mmha::add(q, q_bias);
-    k = mmha::add(k, k_bias);
-    v = mmha::add(v, v_bias);
+    if (qkv_bias) {
+        q = mmha::add(q, q_bias);
+        k = mmha::add(k, k_bias);
+        v = mmha::add(v, v_bias);
+    }
 
     if (!neox_rotary_style) {
         mmha::apply_rotary_embedding(q, k, tidx, rotary_embedding_dim, rope_theta, dst_kv_seq_idx);
