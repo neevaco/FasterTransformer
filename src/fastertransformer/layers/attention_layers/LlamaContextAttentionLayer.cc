@@ -327,7 +327,7 @@ void LlamaContextAttentionLayer<T>::forward(TensorMap*                output_ten
                                    v_buf_2_,
                                    param,  // prefix prompt
                                    qkv_buf_,
-                                   nullptr,
+                                   (T*)(nullptr),
                                    padding_offset,
                                    request_batch_size,
                                    request_seq_len,
