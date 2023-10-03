@@ -513,14 +513,14 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
             }
 
             // BART/mBART has a layernorm after word + positional embedding
-            // invokeGeneralT5LayerNorm(decoder_input_buf_ + d_model_offset,
-            //                          decoder_input_buf_ + d_model_offset,
-            //                          decoding_weights->pre_decoder_layernorm.gamma,
-            //                          decoding_weights->pre_decoder_layernorm.beta,
-            //                          layernorm_eps_,
-            //                          local_batch_size * beam_width,
-            //                          d_model_,
-            //                          stream_);
+            invokeGeneralT5LayerNorm(decoder_input_buf_ + d_model_offset,
+                                     decoder_input_buf_ + d_model_offset,
+                                     decoding_weights->pre_decoder_layernorm.gamma,
+                                     decoding_weights->pre_decoder_layernorm.beta,
+                                     layernorm_eps_,
+                                     local_batch_size * beam_width,
+                                     d_model_,
+                                     stream_);
             sync_check_cuda_error();
 
             std::vector<Tensor> decoder_input_tensors{
