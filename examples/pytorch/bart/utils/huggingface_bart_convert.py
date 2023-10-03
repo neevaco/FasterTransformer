@@ -248,7 +248,9 @@ def convert_checkpoint(args):
     saved_dir.mkdir(parents=True, exist_ok=True)
 
     config = AutoConfig.from_pretrained(args.in_file)
+    mbart = "false"
     if config.model_type == 'mbart':
+        mbart = "true"
         model = MBartForConditionalGeneration.from_pretrained(args.in_file)
     else:
         model = BartForConditionalGeneration.from_pretrained(args.in_file)
@@ -266,7 +268,7 @@ def convert_checkpoint(args):
     config["encoder"]["max_pos_seq_len"] = str(hf_config["max_position_embeddings"])
     config["encoder"]["feed_forward_proj"] = str(hf_config["activation_function"])
     config["encoder"]["weight_data_type"] = args.weight_data_type
-    config["encoder"]["mbart"] = str(config.model_type == 'mbart')
+    config["encoder"]["mbart"] = mbart
 
     config["decoder"] = {}
     config["decoder"]["num_heads"] = str(hf_config["decoder_attention_heads"])
