@@ -559,7 +559,6 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
                        stream_);
         }
         {
-    {
                     T* buf;
                     int st = local_batch_size * d_model_;
                     buf = new T[st];
@@ -574,7 +573,6 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
                         printf("buf last: %f\n", double(buf[st-1]));
                         printf("\n");
                     }
-    }
         }
     }
 
