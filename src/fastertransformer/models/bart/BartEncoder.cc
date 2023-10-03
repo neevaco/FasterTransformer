@@ -613,6 +613,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
                 }
             }
             if (layernorm_type_ == LayerNormType::pre_layernorm) {
+                printf("LayerNormType::pre_layernorm\n");
                 invokeGeneralT5LayerNorm(normed_from_tensor_,
                                          from_tensor,
                                          layer_weight->attn_layernorm_weights_.gamma,
