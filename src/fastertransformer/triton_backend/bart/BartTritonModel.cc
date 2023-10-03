@@ -114,6 +114,7 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
     encoder_max_pos_seq_len_ =
         reader.GetInteger("encoder", "max_pos_seq_len");
+    mbart_para_              = reader.GetBoolean("encoder", "mbart", false);
 
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
