@@ -278,7 +278,7 @@ def convert_checkpoint(args):
     pool = multiprocessing.Pool(args.processes)
     pool.starmap_async(split_and_convert_process,
                        [(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
-                        for name, param in bart_model.state_dict().items()])
+                        for name, param in model.state_dict().items()])
 
     pool.close()
     pool.join()
