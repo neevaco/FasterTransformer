@@ -19,7 +19,7 @@ from datetime import datetime
 import logging
 from pathlib import Path
 
-from transformers import BartForConditionalGeneration
+from transformers import BartForConditionalGeneration, MBartForConditionalGeneration, AutoConfig
 
 import numpy as np
 import torch  # pytype: disable=import-error
@@ -238,6 +238,8 @@ def convert_checkpoint(args):
     saved_dir = Path(args.saved_dir) / f"{args.inference_tensor_para_size:d}-gpu"
     saved_dir.mkdir(parents=True, exist_ok=True)
 
+    config = AutoConfig.from_pretrained(args.in_file)
+    print('model type: ', config.model_type)
     bart_model = BartForConditionalGeneration.from_pretrained(args.in_file)
     hf_config = vars(bart_model.config)
     config = configparser.ConfigParser()
