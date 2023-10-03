@@ -266,6 +266,7 @@ def convert_checkpoint(args):
     config["encoder"]["max_pos_seq_len"] = str(hf_config["max_position_embeddings"])
     config["encoder"]["feed_forward_proj"] = str(hf_config["activation_function"])
     config["encoder"]["weight_data_type"] = args.weight_data_type
+    config["encoder"]["mbart"] = str(config.model_type == 'mbart')
 
     config["decoder"] = {}
     config["decoder"]["num_heads"] = str(hf_config["decoder_attention_heads"])
