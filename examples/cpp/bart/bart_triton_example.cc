@@ -385,7 +385,7 @@ int main(int argc, char* argv[])
     const int  beam_width   = output_tensors_lists[0].get()->at("output_ids").shape[1];
     const int  seq_len      = output_tensors_lists[0].get()->at("output_ids").shape[2];
     const int* d_input_lengths = (const int*)output_tensors_lists[0].get()->at("input_sequence_lengths").data;
-    printf("here\n");
+    printf("batch_size: %d beam_width: %d seq_len: %d\n", batch_size, beam_width, seq_len);
     // step 6: check results
     if (node_id == 0) {
 
