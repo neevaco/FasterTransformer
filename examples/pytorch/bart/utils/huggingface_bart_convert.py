@@ -79,7 +79,7 @@ def get_fc(key):
     return "fc1" if key.find("fc1.") != -1 else "fc2"
 
 
-def split_and_convert_process(key, val, factor, saved_dir):
+def split_and_convert_process(key, val, factor, saved_dir, scale):
     print(key, val.shape)
     if val.ndim == 2:
         val = val.transpose(1, 0)
@@ -91,7 +91,7 @@ def split_and_convert_process(key, val, factor, saved_dir):
     elif key.find(".embed_tokens.weight") != -1:
         prefix = get_encoder_or_decoder(key)
         saved_path = saved_dir / f"{prefix}.embed_tokens.weight.bin"
-        val *= np.sqrt(1024)
+        val = val * scale
         val.T.tofile(saved_path.as_posix())
     elif key.find(".layernorm_embedding.weight") != -1:
         prefix = get_encoder_or_decoder(key)
@@ -250,11 +250,14 @@ def convert_checkpoint(args):
 
     config = AutoConfig.from_pretrained(args.in_file)
     mbart = "false"
+    scale = 1.0
     if config.model_type == 'mbart':
         mbart = "true"
         model = MBartForConditionalGeneration.from_pretrained(args.in_file)
     else:
         model = BartForConditionalGeneration.from_pretrained(args.in_file)
+    if config.scale_embedding:
+        scale = np.sqrt(config.d_model)
     hf_config = vars(model.config)
     config = configparser.ConfigParser()
 
@@ -290,7 +293,7 @@ def convert_checkpoint(args):
     i_gpu_num = args.inference_tensor_para_size
 
     for name, param in model.state_dict().items():
-        split_and_convert_process(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
+        split_and_convert_process(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir, scale)
     # pool = multiprocessing.Pool(args.processes)
     # pool.starmap_async(split_and_convert_process,
     #                    [(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
