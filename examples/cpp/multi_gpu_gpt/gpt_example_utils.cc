@@ -88,6 +88,7 @@ int read_start_ids(size_t            batch_size,
             for (int j = 0; j < (int)tmp_start_ids[i].size(); j++) {
                 v_start_ids->push_back(tmp_start_ids[i][j]);
             }
+            printf("tmp_start_lengths[i]: %d\n", tmp_start_lengths[i]);
             v_start_lengths->push_back(tmp_start_lengths[i]);
         }
     }
