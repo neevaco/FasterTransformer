@@ -283,8 +283,8 @@ def convert_checkpoint(args):
     #                    [(name, param.cpu().detach().numpy().astype(np_weight_data_type), i_gpu_num, saved_dir)
     #                     for name, param in model.state_dict().items()])
 
-    pool.close()
-    pool.join()
+    # pool.close()
+    # pool.join()
 
     fuse_decoder_qkv(bart_model, i_gpu_num, saved_dir, np_weight_data_type)
 
