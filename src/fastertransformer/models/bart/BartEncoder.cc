@@ -83,6 +83,7 @@ void BartEncoder<T>::initialize()
                                                        enable_custom_all_reduce_);
     }
     else if (activation_type_ == ActivationType::Relu || activation_type_ == ActivationType::ReGLU) {
+        printf("Relu\n");
         ffn_layer_ = new TensorParallelReluFfnLayer<T>(max_batch_size_,
                                                        max_seq_len_,
                                                        1,
