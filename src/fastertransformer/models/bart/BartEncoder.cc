@@ -678,17 +678,17 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
                     stream_);
             }
             else if (layernorm_type_ == LayerNormType::pre_layernorm) {
-                invokeGeneralAddBiasResidualT5PreLayerNorm(
-                    attn_out_buf_,
-                    normed_attn_out_buf_,
-                    from_tensor,
-                    layer_weight->ffn_layernorm_weights_.gamma,
-                    layer_weight->ffn_layernorm_weights_.beta,
-                    layer_weight->attention_weights_.attention_output_weight.bias,
-                    layernorm_eps_,
-                    h_token_num,
-                    d_model_,
-                    stream_);
+                // invokeGeneralAddBiasResidualT5PreLayerNorm(
+                //     attn_out_buf_,
+                //     normed_attn_out_buf_,
+                //     from_tensor,
+                //     layer_weight->ffn_layernorm_weights_.gamma,
+                //     layer_weight->ffn_layernorm_weights_.beta,
+                //     layer_weight->attention_weights_.attention_output_weight.bias,
+                //     layernorm_eps_,
+                //     h_token_num,
+                //     d_model_,
+                //     stream_);
             }
 
             // FFN
