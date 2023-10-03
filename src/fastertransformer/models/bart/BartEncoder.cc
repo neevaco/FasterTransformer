@@ -737,7 +737,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
             }
             if (i ==0) {
                 T* buf;
-                print("h_token_num: %d\n", h_token_num);
+                printf("h_token_num: %d\n", h_token_num);
                 int st = h_token_num * d_model_;
                 buf = new T[st];
                 cudaMemcpy(buf, out_tensor, sizeof(T) * st, cudaMemcpyDeviceToHost);
