@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
     const int   gpu_count  = ft::getDeviceCount();
     std::cout << "gpu_count: " << gpu_count << std::endl;
     const int   world_size = node_num * gpu_count;
-    std::string ini_name   = argc >= 2 ? std::string(argv[1]) : "/notebooks/FasterTransformer/examples/cpp/llama/llama_config.ini";
+    std::string ini_name   = argc >= 2 ? std::string(argv[1]) : "/notebooks/bart-ft/1-gpu/config.ini" ;//"/notebooks/FasterTransformer/examples/cpp/llama/llama_config.ini";
 
     // step 1: Create model
     std::shared_ptr<AbstractTransformerModel> model            = AbstractTransformerModel::createLlamaModel(ini_name);
