@@ -464,7 +464,8 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
         printf("bart_encoder_emb_buf_\n");
         for (int i=0; i < seq_len; i++) {
             for (int j=0; j<d_model_; j++) {
-                printf("%f ", double(buf[i+j*seq_len]));
+                // printf("%f ", double(buf[i+j*seq_len]));
+                printf("%f ", double(buf[i * d_model_+ j]));
                 if (j > 10) {
                     break;
                 }
