@@ -381,7 +381,7 @@ int main(int argc, char* argv[])
     }
 
     const int* d_output_ids = (const int*)output_tensors_lists[0].get()->at("output_ids").data;
-    const int  batch_size   = output_tensors_lists[0].get()->at("output_ids").shape[0];
+    const int  batch_size   = 1; // output_tensors_lists[0].get()->at("output_ids").shape[0];
     const int  beam_width   = output_tensors_lists[0].get()->at("output_ids").shape[1];
     const int  seq_len      = output_tensors_lists[0].get()->at("output_ids").shape[2];
     const int* d_input_lengths = (const int*)output_tensors_lists[0].get()->at("input_sequence_lengths").data;
