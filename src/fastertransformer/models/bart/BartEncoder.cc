@@ -735,7 +735,7 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
                            pipeline_para_,
                            stream_);
             }
-            {
+            if (i ==0) {
                 T* buf;
                 print("h_token_num: %d\n", h_token_num);
                 int st = h_token_num * d_model_;
