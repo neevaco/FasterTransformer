@@ -60,6 +60,7 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     encoder_num_layer_     = reader.GetInteger("encoder", "num_layers");
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
     encoder_max_pos_seq_len_ = reader.GetInteger("encoder", "max_pos_seq_len");
+    mbart_para_              = reader.GetBoolean("encoder", "mbart", false);
 
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
