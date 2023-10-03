@@ -265,7 +265,7 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
                                 model_file_type);
             loadWeightFromBin<T>(weights_ptr[5],
                                 {(size_t)weights_size[5]},
-                                dir_path + "/encoder.layer_norm.weight.bin",
+                                dir_path + "/encoder.layer_norm.weight.bin2",
                                 model_file_type);
             loadWeightFromBin<T>(weights_ptr[4],
                                 {(size_t)weights_size[4]},
