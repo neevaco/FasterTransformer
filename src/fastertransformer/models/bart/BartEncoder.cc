@@ -735,6 +735,28 @@ void BartEncoder<T>::forward(TensorMap*                  output_tensors,
                            pipeline_para_,
                            stream_);
             }
+            {
+                T* buf;
+                print("h_token_num: %d\n", h_token_num);
+                int st = h_token_num * d_model_;
+                buf = new T[st];
+                cudaMemcpy(buf, out_tensor, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                printf("out_tensor\n");
+                // for (int i=0; i < h_token_num; i++) {
+                //     for (int j=0; j<d_model_; j++) {
+                //         printf("%f ", double(buf[i * d_model_+ j]));
+                //         if (j > 10) {
+                //             break;
+                //         }
+                //     }
+                //     printf("\n");
+                // }
+                for (int i=0; i<50; i++) {
+                    printf("%f ", double(buf[i]));
+                }
+                printf("buf last: %f\n", double(buf[st-1]));
+                printf("\n");
+            }
         }
 
         if (pipeline_para_.rank_ == pipeline_para_.world_size_ - 1) {
