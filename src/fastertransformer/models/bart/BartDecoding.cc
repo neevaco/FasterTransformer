@@ -578,6 +578,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
 
             bool bart_with_bias = decoding_weights->bart_with_bias;
             bool mbart          = decoding_weights->mbart;
+            printf("mbart: %d\n", mbart);
 
             const cudaDataType_t gemm_data_type = getCudaDataType<T>();
 
