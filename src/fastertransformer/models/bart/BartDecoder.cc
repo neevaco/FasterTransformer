@@ -342,6 +342,7 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
     const bool output_cross_attention = output_tensors->size() == 6;
     const uint max_seq_len            = output_cross_attention ? output_tensors->at(5).shape[4] : 0;
 
+    printf("num_layer_: %d\n", num_layer_);
     for (uint l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l) == false) {
             continue;
