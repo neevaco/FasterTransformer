@@ -101,14 +101,14 @@ def split_and_convert_process(key, val, factor, saved_dir, scale):
         prefix = get_encoder_or_decoder(key)
         saved_path = saved_dir / f"{prefix}.final_layer_norm.bias.bin"
         val.tofile(saved_path.as_posix())
-    # elif key.find(".layer_norm.weight") != -1:
-    #     prefix = get_encoder_or_decoder(key)
-    #     saved_path = saved_dir / f"{prefix}.layer_norm.weight.bin"
-    #     val.tofile(saved_path.as_posix())
-    # elif key.find(".layer_norm.bias") != -1:
-    #     prefix = get_encoder_or_decoder(key)
-    #     saved_path = saved_dir / f"{prefix}.layer_norm.bias.bin"
-    #     val.tofile(saved_path.as_posix())
+    elif key.find(".layer_norm.weight") != -1:
+        prefix = get_encoder_or_decoder(key)
+        saved_path = saved_dir / f"{prefix}.layer_norm.weight.bin"
+        val.tofile(saved_path.as_posix())
+    elif key.find(".layer_norm.bias") != -1:
+        prefix = get_encoder_or_decoder(key)
+        saved_path = saved_dir / f"{prefix}.layer_norm.bias.bin"
+        val.tofile(saved_path.as_posix())
     elif (
         key.find("self_attn.k_proj.weight") != -1
         or key.find("self_attn.v_proj.weight") != -1
