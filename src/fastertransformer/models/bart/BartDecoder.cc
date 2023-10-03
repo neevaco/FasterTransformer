@@ -348,7 +348,8 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
         }
 
         T* decoder_input  = (l == 0) ? input_tensors->at(0).getPtr<T>() : decoder_layer_output_;
-        T* decoder_output = (l == num_layer_ - 1) ? output_tensors->at(0).getPtr<T>() : decoder_layer_output_;
+        // T* decoder_output = (l == num_layer_ - 1) ? output_tensors->at(0).getPtr<T>() : decoder_layer_output_;
+        T* decoder_output = decoder_layer_output_;
 
         if (isFirstLayerParallelId(l) == true && pipeline_para_.rank_ != 0 && pipeline_para_.world_size_ > 1) {
             // ftNcclRecv(decoder_input, local_batch_size * d_model_, pipeline_para_.rank_ - 1,
