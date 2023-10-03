@@ -95,7 +95,7 @@ private:
     bool                      use_gated_activation_ = false;
     ft::PositionEmbeddingType position_embedding_type_ = ft::PositionEmbeddingType::absolute;
     ft::ActivationType        activation_type_;
-    ft::LayerNormType         layernorm_type_ = ft::LayerNormType::pre_layernorm;   // TODO(zhwang): config this.
+    ft::LayerNormType         layernorm_type_ = ft::LayerNormType::post_layernorm;   // TODO(zhwang): config this.
 
     bool is_fp16_;
     int  int8_mode_;
