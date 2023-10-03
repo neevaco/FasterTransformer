@@ -23,6 +23,7 @@ namespace ft = fastertransformer;
 
 std::shared_ptr<AbstractTransformerModel> AbstractTransformerModel::createBartModel(std::string model_dir)
 {
+    printf("createBartModel\n");
     INIReader reader = INIReader(model_dir + "/config.ini");
     if (reader.ParseError() < 0) {
         std::cout << "[ERROR] Can't load '" << model_dir << "/config.ini"
