@@ -239,9 +239,11 @@ def convert_checkpoint(args):
     saved_dir.mkdir(parents=True, exist_ok=True)
 
     config = AutoConfig.from_pretrained(args.in_file)
-    print('model type: ', config.model_type)
-    bart_model = BartForConditionalGeneration.from_pretrained(args.in_file)
-    hf_config = vars(bart_model.config)
+    if config.model_type == 'mbart':
+        model = MBartForConditionalGeneration.from_pretrained(args.in_file)
+    else:
+        model = BartForConditionalGeneration.from_pretrained(args.in_file)
+    hf_config = vars(model.config)
     config = configparser.ConfigParser()
 
     config["encoder"] = {}
