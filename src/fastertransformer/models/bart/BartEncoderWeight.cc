@@ -258,6 +258,7 @@ void BartEncoderWeight<T>::loadModel(std::string dir_path)
         weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/encoder.final_layer_norm.weight.bin", model_file_type);
     if (bart_with_bias) {
         if (mbart) {
+            printf("encoder mbart\n");
             loadWeightFromBin<T>(weights_ptr[3],
                                 {(size_t)weights_size[3]},
                                 dir_path + "/encoder.final_layer_norm.bias.bin",
