@@ -565,6 +565,7 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
                     cudaMemcpy(buf, decoder_output, sizeof(T) * st, cudaMemcpyDeviceToHost);
                     auto step_ptr = input_tensors->at(4).data;
                     int step = ((int*)step_ptr)[0];
+                    printf("step: %d\n", step);
                     if (step == 1 && l == 0) {
                         printf("decoder_output at layer %d step %d\n", l, step);
                         for (int i=0; i<50; i++) {
