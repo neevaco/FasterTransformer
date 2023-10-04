@@ -262,7 +262,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
     param.presence_penalty           = reader.GetFloat("request", "presence_penalty", 0.0f);
     param.min_length                 = reader.GetInteger("request", "min_length", 0);
     param.random_seed                = (unsigned long long int)0;
-    param.start_id                   = start_id;
+    param.start_id                   = 250025;
     param.end_id                     = end_id;
 
     auto request_list =
