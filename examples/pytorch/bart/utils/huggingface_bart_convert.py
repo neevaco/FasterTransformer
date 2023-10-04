@@ -80,7 +80,6 @@ def get_fc(key):
 
 
 def split_and_convert_process(key, val, factor, saved_dir, scale):
-    print(key, val.shape)
     if val.ndim == 2:
         val = val.transpose(1, 0)
 
