@@ -834,7 +834,9 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
     }
 
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
-
+                for (string kkey : dynamic_decode_output_tensors.keys()) {
+                    printf("%s ", kkey.c_str());
+                }
             }
         }
 
