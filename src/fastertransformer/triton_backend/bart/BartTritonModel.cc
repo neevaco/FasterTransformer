@@ -127,6 +127,7 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
         reader.GetInteger("decoder", "max_pos_seq_len");
 
     start_id_            = reader.GetInteger("decoder", "decoder_start_token_id");
+    start_id_            = 250025;
     end_id_              = reader.GetInteger("decoder", "eos_token_id");
 
     // common settings
