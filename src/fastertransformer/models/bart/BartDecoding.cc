@@ -715,7 +715,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     T* buf;
                     int st = d_model_;
                     buf = new T[st];
-                    cudaMemcpy(buf, logits_buf_, sizeof(DynamicDecodeType) * batchxbeam * vocab_size_padded_, cudaMemcpyDeviceToHost);
+                    cudaMemcpy(buf, logits_buf_, sizeof(DynamicDecodeType) * 1 * vocab_size_padded_, cudaMemcpyDeviceToHost);
                     {
                         printf("logits_buf_\n");
                         for (int i=0; i<50; i++) {
