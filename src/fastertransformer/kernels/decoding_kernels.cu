@@ -40,8 +40,7 @@ __global__ void decodingInitialize(bool*      finished,
         finished[index]        = false;
         sequence_length[index] = max_input_length;
         if (word_ids != nullptr) {
-            word_ids[index*2] = sentence_ids[index / beam_width];
-            word_ids[index*2+1] = 250025;
+            word_ids[index] = sentence_ids[index / beam_width];
         }
         cum_log_probs[index] = (index % beam_width == 0) ? (T)0.0f : (T)-MAX_T_VAL;
     }
