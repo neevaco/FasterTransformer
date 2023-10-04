@@ -140,8 +140,8 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                      triton::MEMORY_GPU, triton::TYPE_INT32, {2, v_input_bad_words.size() / 2}, d_input_bad_words}},
                 {"start_id",
                  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, start_ids_ptr}},
-                {"end_id",
-                 triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, end_ids_ptr}}
+                // {"end_id",
+                //  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, end_ids_ptr}}
                  }));
 
         int* beam_width_ptr = new int(param.beam_width);
