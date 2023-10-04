@@ -228,7 +228,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
         ft::FT_CHECK(false);
     }
 
-    const size_t request_batch_size = reader.GetInteger("request", "request_batch_size");
+    const size_t request_batch_size = 1; //reader.GetInteger("request", "request_batch_size");
 
     const int start_id = reader.GetInteger("decoder", "start_id");
     const int end_id   = reader.GetInteger("decoder", "end_id");
