@@ -356,7 +356,7 @@ int main(int argc, char* argv[])
     std::vector<void*> pointer_record;  // Used to prevent the pointers are release after leaving functions
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list =
         prepareRequest(ini_name + "/config.ini", node_id, gpu_count, &pointer_record);
-    auto shape = request_list[0]["input_ids"].shape;
+    auto shape = (*request_list[0])["input_ids"].shape;
     for (int i=0; i<shape.size(); i++) {
         printf("shape %d: %d\n", i, shape[i]);
     }
