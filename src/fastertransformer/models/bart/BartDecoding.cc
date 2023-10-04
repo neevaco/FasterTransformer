@@ -805,6 +805,10 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                         printf("%d ", buf[i]);
                                     }
                                     printf("\n");
+                            if (step == 1 && t->first == "output_ids") {
+                                buf[1] = 250025;
+                                cudaMemcpy(t->second.data, buf, sizeof(int) * t->second.size(), cudaMemcpyHostToDevice);
+                            }
                         }
                     }
                     printf("\n\n");
