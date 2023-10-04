@@ -177,23 +177,23 @@ BartTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::stri
         bart_encoder_->forward(&encoder_output_tensors, &encoder_input_tensors, bart_encoder_weight_.get());
 
 
-{
-        T* buf;
-        int st = request_batch_size * mem_max_seq_len * bart_encoder_->getDModel();
-        buf = new T[st];
-        cudaMemcpy(buf, d_encoder_outputs_, sizeof(T) * st, cudaMemcpyDeviceToHost);
-        printf("cudaMemcpy\n");
-        for (int i=0; i<mem_max_seq_len; i++) {
-            for (int j=0; j<bart_encoder_->getDModel(); j++) {
-                if (j<10 || j >bart_encoder_->getDModel()-10) {
-                    printf("%f ", double(buf[i*bart_encoder_->getDModel()+j]));
-                }
-            }
-            printf("\n");
+// {
+//         T* buf;
+//         int st = request_batch_size * mem_max_seq_len * bart_encoder_->getDModel();
+//         buf = new T[st];
+//         cudaMemcpy(buf, d_encoder_outputs_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+//         printf("cudaMemcpy\n");
+//         for (int i=0; i<mem_max_seq_len; i++) {
+//             for (int j=0; j<bart_encoder_->getDModel(); j++) {
+//                 if (j<10 || j >bart_encoder_->getDModel()-10) {
+//                     printf("%f ", double(buf[i*bart_encoder_->getDModel()+j]));
+//                 }
+//             }
+//             printf("\n");
 
-        }
-        printf("\n");
-}
+//         }
+//         printf("\n");
+// }
 
         bart_decoding_->forward(&decoding_output_tensors, &decoding_input_tensors, bart_decoding_weight_.get());
         if (stream_cb_ != nullptr) {
