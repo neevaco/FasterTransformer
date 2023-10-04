@@ -251,7 +251,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
 
     RequestParam param;
     param.beam_width                 = reader.GetInteger("request", "beam_width");
-    param.beam_width                 = 5;
+    // param.beam_width                 = 5;
     param.request_output_len         = reader.GetInteger("request", "request_output_len");
     param.beam_search_diversity_rate = reader.GetFloat("request", "beam_search_diversity_rate");
     param.runtime_top_k              = reader.GetInteger("request", "top_k");
