@@ -795,7 +795,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                 {
                     for (auto t = output_tensors->begin(); t != output_tensors->end(); ++t) {
                         printf("step: %d, t->first: %s\n", step, t->first.c_str());
-                        printf("%s\n", t->second.toString().c_str());
+                        // printf("%s\n", t->second.toString().c_str());
                         {
                                     int* buf;
                                     int st = t->second.size();
