@@ -962,18 +962,18 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
         }
     }
 
-    // {
-    //     int* buf;
-    //     int st = batch_size * (max_seq_len+1);
-    //     buf = new int[st];
-    //     cudaMemcpy(buf, output_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
-    //     printf("output_ids_buf_ after finalize: %d\n", batch_size);
-    //     for (int i=0; i<st; i++) {
-    //         printf("%d ", buf[i]);
-    //     }
-    //     printf("\n");
+    {
+        int* buf;
+        int st = batch_size * (max_seq_len+1);
+        buf = new int[st];
+        cudaMemcpy(buf, output_ids_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+        printf("output_ids_buf_ after finalize: %d\n", batch_size);
+        for (int i=0; i<st; i++) {
+            printf("%d ", buf[i]);
+        }
+        printf("\n");
         
-    // }
+    }
 
     if (pipeline_para_.world_size_ > 1) {
         ftNcclGroupStart();
