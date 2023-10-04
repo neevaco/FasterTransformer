@@ -62,7 +62,11 @@ BartTritonModel<T>::BartTritonModel(INIReader reader, std::string model_dir): mo
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
     encoder_max_pos_seq_len_ = reader.GetInteger("encoder", "max_pos_seq_len");
     mbart_para_              = reader.GetBoolean("encoder", "mbart", false);
-    printf("mbart_para_\n");
+    if (mbart_para_) {
+        layernorm_type_ = ft::LayerNormType::pre_layernorm;
+    } else {
+        layernorm_type_ = ft::LayerNormType::post_layernorm;
+    }
 
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
@@ -115,7 +119,12 @@ BartTritonModel<T>::BartTritonModel(size_t      tensor_para_size,
     encoder_max_pos_seq_len_ =
         reader.GetInteger("encoder", "max_pos_seq_len");
     mbart_para_              = reader.GetBoolean("encoder", "mbart", false);
-
+    if (mbart_para_) {
+        layernorm_type_ = ft::LayerNormType::pre_layernorm;
+    } else {
+        layernorm_type_ = ft::LayerNormType::post_layernorm;
+    }
+    
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
     decoding_size_per_head_ = reader.GetInteger("decoder", "d_kv");
