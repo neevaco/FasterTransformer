@@ -662,6 +662,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                 }
                 else {
                     const int local_vocab_size = vocab_size_padded_ / tensor_para_.world_size_;
+                    printf("tie_word_embeddings_: %d\n", tie_word_embeddings_);
                     float     alpha = (!bart_with_bias && tie_word_embeddings_) ? 1.0f / sqrt(d_model_) : 1.0f;
                     float     beta  = 0.0f;
 #ifdef ENABLE_BF16
