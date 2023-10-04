@@ -551,7 +551,7 @@ void BartDecoder<T>::forward(std::vector<Tensor>*                           outp
             && pipeline_para_.world_size_ > 1) {
             // ftNcclSend(decoder_output, local_batch_size * d_model_, pipeline_para_.rank_ + 1,
             // pipeline_para_, stream_);
-
+            printf("ftNcclSend\n");
             ftNcclSend(decoder_output + local_batch_size * d_model_ / tensor_para_.world_size_ * tensor_para_.rank_,
                        local_batch_size * d_model_ / tensor_para_.world_size_,
                        pipeline_para_.rank_ + 1,
