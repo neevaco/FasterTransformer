@@ -594,6 +594,21 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                              local_batch_size * beam_width,
                                              d_model_,
                                              stream_);
+
+        {
+                    T* buf;
+                    int st = local_batch_size * d_model_;
+                    buf = new T[st];
+                    cudaMemcpy(buf, normed_decoder_output_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                    {
+                        printf("normed_decoder_output_buf_\n");
+                        for (int i=0; i<50; i++) {
+                            printf("%f ", double(buf[i]));
+                        }
+                        printf("buf last: %f\n", double(buf[st-1]));
+                        printf("\n");
+                    }
+        }
                 }
 
                 sync_check_cuda_error();
