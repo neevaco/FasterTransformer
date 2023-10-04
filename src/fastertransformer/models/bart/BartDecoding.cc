@@ -807,6 +807,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                     printf("\n");
                         }
                     }
+                    printf("\n\n");
                 }
             }
         }
