@@ -115,7 +115,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
             forced_bos_id_buf[i] = i==0? 250025 : 250051; //param.start_id; 
             end_ids_ptr[i]   = param.end_id;
         }
-        pointer_record->push_back(start_ids_ptr);
+        pointer_record->push_back(forced_bos_id_buf);
         pointer_record->push_back(end_ids_ptr);
 
         request_list.push_back(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>(
