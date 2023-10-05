@@ -112,7 +112,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         int* forced_bos_id_buf = (int*)malloc(request_batch_size * sizeof(int));
         int* end_ids_ptr   = (int*)malloc(request_batch_size * sizeof(int));
         for (int i = 0; i < request_batch_size; i++) {
-            forced_bos_id_buf[i] = i==0? 250025 : 250051; //param.start_id; 
+            forced_bos_id_buf[i] = i==0? 250025 : 250004; //param.start_id; 
             end_ids_ptr[i]   = param.end_id;
         }
         pointer_record->push_back(forced_bos_id_buf);
