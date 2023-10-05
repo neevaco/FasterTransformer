@@ -89,7 +89,7 @@ void invokeForceId(int*         word_ids,
     dim3 grid((int)ceil(batch_size * beam_width * 1.0 / 256));
     dim3 block(256);
 
-    forceId<T><<<grid, block, 0, stream>>>(
+    forceId<<<grid, block, 0, stream>>>(
         word_ids, force_bos_ids, batch_size, beam_width, step);
 }
 
