@@ -93,7 +93,7 @@ void invokeForceBosId(int*         word_ids,
     dim3 block(256);
 
     forceBosId<T><<<grid, block, 0, stream>>>(
-        finished, sequence_length, word_ids, cum_log_probs, sentence_ids, batch_size, beam_width, max_input_length);
+        word_ids, force_bos_ids, batch_size, beam_width);
 }
 
 template void invokeDecodingInitialize(bool*        finished,
