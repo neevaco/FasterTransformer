@@ -112,7 +112,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         int* start_ids_ptr = (int*)malloc(request_batch_size * sizeof(int));
         int* end_ids_ptr   = (int*)malloc(request_batch_size * sizeof(int));
         for (int i = 0; i < request_batch_size; i++) {
-            start_ids_ptr[i] = param.start_id;
+            start_ids_ptr[i] = 250025; //param.start_id;
             end_ids_ptr[i]   = param.end_id;
         }
         pointer_record->push_back(start_ids_ptr);
@@ -138,8 +138,8 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                 {"bad_words_list",
                  triton::Tensor{
                      triton::MEMORY_GPU, triton::TYPE_INT32, {2, v_input_bad_words.size() / 2}, d_input_bad_words}},
-                // {"start_id",
-                //  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, start_ids_ptr}},
+                {"forced_bos_id",
+                 triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, start_ids_ptr}},
                 // {"end_id",
                 //  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, end_ids_ptr}}
                  }));
