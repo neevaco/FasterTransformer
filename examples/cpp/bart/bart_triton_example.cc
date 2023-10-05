@@ -109,13 +109,13 @@ broadCastRequest(const std::vector<int>& v_start_ids,
             request_output_len_ptr[i] = param.request_output_len;
         }
 
-        int* forced_bos_id_buf = (int*)malloc(request_batch_size * sizeof(int));
+        int* start_ids_ptr = (int*)malloc(request_batch_size * sizeof(int));
         int* end_ids_ptr   = (int*)malloc(request_batch_size * sizeof(int));
         for (int i = 0; i < request_batch_size; i++) {
-            forced_bos_id_buf[i] = i==0? 250025 : 250004; //param.start_id; 
+            start_ids_ptr[i] = param.start_id;
             end_ids_ptr[i]   = param.end_id;
         }
-        pointer_record->push_back(forced_bos_id_buf);
+        pointer_record->push_back(start_ids_ptr);
         pointer_record->push_back(end_ids_ptr);
 
         request_list.push_back(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>(
@@ -138,8 +138,8 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                 {"bad_words_list",
                  triton::Tensor{
                      triton::MEMORY_GPU, triton::TYPE_INT32, {2, v_input_bad_words.size() / 2}, d_input_bad_words}},
-                {"forced_bos_id",
-                 triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, forced_bos_id_buf}},
+                // {"start_id",
+                //  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, start_ids_ptr}},
                 // {"end_id",
                 //  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, end_ids_ptr}}
                  }));
@@ -228,7 +228,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
         ft::FT_CHECK(false);
     }
 
-    const size_t request_batch_size = 1; //reader.GetInteger("request", "request_batch_size");
+    const size_t request_batch_size = reader.GetInteger("request", "request_batch_size");
 
     const int start_id = reader.GetInteger("decoder", "start_id");
     const int end_id   = reader.GetInteger("decoder", "end_id");
@@ -251,7 +251,6 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
 
     RequestParam param;
     param.beam_width                 = reader.GetInteger("request", "beam_width");
-    // param.beam_width                 = 2;
     param.request_output_len         = reader.GetInteger("request", "request_output_len");
     param.beam_search_diversity_rate = reader.GetFloat("request", "beam_search_diversity_rate");
     param.runtime_top_k              = reader.GetInteger("request", "top_k");
@@ -262,7 +261,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
     param.presence_penalty           = reader.GetFloat("request", "presence_penalty", 0.0f);
     param.min_length                 = reader.GetInteger("request", "min_length", 0);
     param.random_seed                = (unsigned long long int)0;
-    param.start_id                   = 250025;
+    param.start_id                   = start_id;
     param.end_id                     = end_id;
 
     auto request_list =
@@ -356,10 +355,6 @@ int main(int argc, char* argv[])
     std::vector<void*> pointer_record;  // Used to prevent the pointers are release after leaving functions
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list =
         prepareRequest(ini_name + "/config.ini", node_id, gpu_count, &pointer_record);
-    auto shape = request_list[0]->at("input_ids").shape;
-    for (int i=0; i<shape.size(); i++) {
-        printf("shape %d: %d\n", i, shape[i]);
-    }
     printf("[INFO] request is created \n");
 
     // step 5: Forward
@@ -390,7 +385,6 @@ int main(int argc, char* argv[])
     const int  beam_width   = output_tensors_lists[0].get()->at("output_ids").shape[1];
     const int  seq_len      = output_tensors_lists[0].get()->at("output_ids").shape[2];
     const int* d_input_lengths = (const int*)output_tensors_lists[0].get()->at("input_sequence_lengths").data;
-    printf("batch_size: %d beam_width: %d seq_len: %d\n", batch_size, beam_width, seq_len);
     // step 6: check results
     if (node_id == 0) {
 
