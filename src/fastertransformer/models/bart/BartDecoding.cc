@@ -795,6 +795,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     }
                     dynamic_decode_output_tensors.insert(*t);
                 }
+                dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
                 if (step == 1 && input_tensors->isExist("forced_bos_id")) {
                     invokeForceId(output_ids_buf_,
                                   forced_bos_ids_buf_,
@@ -803,29 +804,6 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                   step,
                                   stream_);
                     sync_check_cuda_error();
-                } else {
-                    dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
-                }
-                {
-                    for (auto t = dynamic_decode_output_tensors.begin(); t != dynamic_decode_output_tensors.end(); ++t) {
-                        printf("step: %d, t->first: %s\n", step, t->first.c_str());
-                        // printf("%s\n", t->second.toString().c_str());
-                        {
-                                    int* buf;
-                                    int st = t->second.size();
-                                    buf = new int[st];
-                                    cudaMemcpy(buf, t->second.data, sizeof(int) * t->second.size(), cudaMemcpyDeviceToHost);
-                                    for (int i=0; i<st; i++) {
-                                        printf("%d ", buf[i]);
-                                    }
-                                    printf("\n");
-                            // if (step == 1 && t->first == "output_ids") {
-                            //     buf[1] = 250025;
-                            //     cudaMemcpy(output_ids_buf_, buf, sizeof(int) * t->second.size(), cudaMemcpyHostToDevice);
-                            // }
-                        }
-                    }
-                    printf("\n\n");
                 }
             }
         }
