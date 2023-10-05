@@ -116,7 +116,7 @@ void BartDecoding<T>::allocateBuffer(
 
     start_ids_buf_ = (int*)(allocator_->reMalloc(start_ids_buf_, sizeof(int) * batch_size, false));
     end_ids_buf_   = (int*)(allocator_->reMalloc(end_ids_buf_, sizeof(int) * batch_size, false));
-    forced_bos_ids_buf_ = (int*)(allocator_->reMalloc(end_ids_buf_, sizeof(int) * batch_size, false));
+    forced_bos_ids_buf_ = (int*)(allocator_->reMalloc(forced_bos_ids_buf_, sizeof(int) * batch_size, false));
 
     output_ids_buf_ =
         (int*)(allocator_->reMalloc(output_ids_buf_, sizeof(int) * batchxbeam * (max_seq_len + 1), false));
