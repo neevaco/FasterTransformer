@@ -78,7 +78,6 @@ __global__ void forceId(int*       word_ids,
     }
 }
 
-template<typename T>
 void invokeForceId(int*         word_ids,
                    const int*   force_bos_ids,
                    const int    batch_size,
