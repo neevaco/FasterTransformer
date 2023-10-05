@@ -64,6 +64,38 @@ void invokeDecodingInitialize(bool*        finished,
         finished, sequence_length, word_ids, cum_log_probs, sentence_ids, batch_size, beam_width, max_input_length);
 }
 
+__global__ void forceBosId(int*       word_ids,
+                           const int* force_bos_ids,
+                           const int  batch_size,
+                           const int  beam_width)
+{
+    const bool IS_FP16   = std::is_same<T, half>::value;
+    const T    MAX_T_VAL = (IS_FP16) ? (T)HALF_FLT_MAX : (T)1e20f;  // BF16 and FP32 have the same dynamic range
+    for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < batch_size * beam_width;
+         index += blockDim.x * gridDim.x) {
+        finished[index]        = false;
+        sequence_length[index] = max_input_length;
+        if (word_ids != nullptr) {
+            word_ids[index] = sentence_ids[index / beam_width];
+        }
+        cum_log_probs[index] = (index % beam_width == 0) ? (T)0.0f : (T)-MAX_T_VAL;
+    }
+}
+
+template<typename T>
+void invokeForceBosId(int*         word_ids,
+                      const int*   force_bos_ids,
+                      const int    batch_size,
+                      const int    beam_width,
+                      cudaStream_t stream)
+{
+    dim3 grid((int)ceil(batch_size * beam_width * 1.0 / 256));
+    dim3 block(256);
+
+    forceBosId<T><<<grid, block, 0, stream>>>(
+        finished, sequence_length, word_ids, cum_log_probs, sentence_ids, batch_size, beam_width, max_input_length);
+}
+
 template void invokeDecodingInitialize(bool*        finished,
                                        int*         sequence_length,
                                        int*         word_ids,
