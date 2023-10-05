@@ -116,6 +116,7 @@ void BartDecoding<T>::allocateBuffer(
 
     start_ids_buf_ = (int*)(allocator_->reMalloc(start_ids_buf_, sizeof(int) * batch_size, false));
     end_ids_buf_   = (int*)(allocator_->reMalloc(end_ids_buf_, sizeof(int) * batch_size, false));
+    forced_bos_ids_buf_ = (int*)(allocator_->reMalloc(end_ids_buf_, sizeof(int) * batch_size, false));
 
     output_ids_buf_ =
         (int*)(allocator_->reMalloc(output_ids_buf_, sizeof(int) * batchxbeam * (max_seq_len + 1), false));
@@ -182,6 +183,7 @@ void BartDecoding<T>::freeBuffer()
         allocator_->free((void**)(&tiled_encoder_sequence_length_));
 
         allocator_->free((void**)(&start_ids_buf_));
+        allocator_->free((void**)(&forced_bos_ids_buf_));
         allocator_->free((void**)(&end_ids_buf_));
 
         allocator_->free((void**)(&output_ids_buf_));
@@ -343,6 +345,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
     //      stop_words_list [batch_size, 2, stop_words_length], optional
     //      bad_words_list [batch_size, 2, stop_words_length], optional
     //      start_id [batch_size] on cpu, optional
+    //      forced_bos_id [batch_size] on cpu, optional
     //      end_id [batch_size] on cpu, optional
     //      runtime_top_k [1] or [batch_size] on cpu, optional, uint.
     //      runtime_top_p [1] or [batch_size] on cpu, optional, float.
@@ -382,6 +385,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
         dynamic_decode_layer_->setup(batch_size, beam_width, &input_map);
         handleOptArg(&input_map, "start_id", start_ids_buf_, start_id_, batch_size);
         handleOptArg(&input_map, "end_id", end_ids_buf_, end_id_, batch_size);
+        handleOptArg(&input_map, "forced_bos_id", forced_bos_ids_buf_, -1, batch_size);
     }
 
     FT_CHECK_WITH_INFO(input_tensors->at("encoder_output").shape[2] == d_model_,
