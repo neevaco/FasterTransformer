@@ -73,7 +73,7 @@ __global__ void forceId(int*       word_ids,
     for (int index = blockIdx.x * blockDim.x + threadIdx.x; index < batch_size * beam_width;
          index += blockDim.x * gridDim.x) {
         if (word_ids != nullptr) {
-            word_ids[index+step] = force_bos_ids[index / beam_width];
+            word_ids[index+step*batch_size*beam_width] = force_bos_ids[index / beam_width];
         }
     }
 }

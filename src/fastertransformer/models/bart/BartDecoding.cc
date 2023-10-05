@@ -817,15 +817,15 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     }
                     printf("\n\n");
                 }
-                // if (step == 1 && input_tensors->isExist("forced_bos_id")) {
-                //     invokeForceId(output_ids_buf_,
-                //                   forced_bos_ids_buf_,
-                //                   batch_size,
-                //                   beam_width,
-                //                   step,
-                //                   stream_);
-                //     sync_check_cuda_error();
-                // }
+                if (step == 1 && input_tensors->isExist("forced_bos_id")) {
+                    invokeForceId(output_ids_buf_,
+                                  forced_bos_ids_buf_,
+                                  batch_size,
+                                  beam_width,
+                                  step,
+                                  stream_);
+                    sync_check_cuda_error();
+                }
             }
         }
 
