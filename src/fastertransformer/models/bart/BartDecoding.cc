@@ -809,13 +809,16 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                         printf("%d ", buf[i]);
                                     }
                                     printf("\n");
-                            if (step == 1 && t->first == "output_ids") {
-                                buf[1] = 250025;
-                                cudaMemcpy(output_ids_buf_, buf, sizeof(int) * t->second.size(), cudaMemcpyHostToDevice);
-                            }
+                            // if (step == 1 && t->first == "output_ids") {
+                            //     buf[1] = 250025;
+                            //     cudaMemcpy(output_ids_buf_, buf, sizeof(int) * t->second.size(), cudaMemcpyHostToDevice);
+                            // }
                         }
                     }
                     printf("\n\n");
+                }
+                if (step == 1 && input_map->isExist("forced_bos_id")) {
+                    printf("forced_bos_id");
                 }
             }
         }
