@@ -805,6 +805,23 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                   stream_);
                     sync_check_cuda_error();
                 }
+                // {
+                // for (auto t = dynamic_decode_output_tensors.begin(); t != dynamic_decode_output_tensors.end(); ++t) {
+                //         printf("step: %d, t->first: %s\n", step, t->first.c_str());
+                //         // printf("%s\n", t->second.toString().c_str());
+                //         {
+                //                     int* buf;
+                //                     int st = t->second.size();
+                //                     buf = new int[st];
+                //                     cudaMemcpy(buf, t->second.data, sizeof(int) * t->second.size(), cudaMemcpyDeviceToHost);
+                //                     for (int i=0; i<st; i++) {
+                //                         printf("%d ", buf[i]);
+                //                     }
+                //                     printf("\n");
+                //         }
+                //     }
+                //     printf("\n\n");
+                // }
             }
         }
 
