@@ -818,7 +818,6 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     printf("\n\n");
                 }
                 if (step == 1 && input_tensors->isExist("forced_bos_id")) {
-                    printf("forced_bos_id\n");
                     invokeForceId(output_ids_buf_,
                                  forced_bos_ids_buf_,
                                  batch_size,
