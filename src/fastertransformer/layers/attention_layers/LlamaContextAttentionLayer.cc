@@ -748,6 +748,8 @@ void LlamaContextAttentionLayer<T>::allocateBuffer(size_t batch_size, size_t seq
     // save memory usage when using fmha
     if (allocate_qk_buf) {
         printf("allocate_qk_buf\n");
+        auto x = sizeof(T) * batch_size * local_head_num_ * seq_len * seq_len;
+        printf("%ld\n", x);
         qk_buf_ = (T*)allocator_->reMalloc(qk_buf_, sizeof(T) * batch_size * local_head_num_ * seq_len * seq_len, true);
     }
     else {
