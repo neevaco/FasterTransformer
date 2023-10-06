@@ -728,6 +728,8 @@ void LlamaContextAttentionLayer<T>::allocateBuffer(size_t batch_size, size_t seq
     FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     // const auto type_size = int8_mode_ == 2 ? sizeof(int8_t) : sizeof(T);
     // NOTE (perkzz): use sizeof(T) here for cutlass int8 kernels.
+    printf("local_hidden_units_: %d\n", local_hidden_units_);
+    printf("%d\n", type_size * 3 * batch_size * seq_len * local_hidden_units_);
     const auto type_size = sizeof(T);
     qkv_buf_ = (T*)allocator_->reMalloc(qkv_buf_, type_size * 3 * batch_size * seq_len * local_hidden_units_, true);
     if (local_kv_head_num_ != local_head_num_) {
@@ -747,7 +749,6 @@ void LlamaContextAttentionLayer<T>::allocateBuffer(size_t batch_size, size_t seq
     else {
         allocator_->free((void**)(&qk_buf_));
     }
-    printf("local_hidden_units_: %d\n", local_hidden_units_);
     qkv_buf_2_ = (T*)allocator_->reMalloc(qkv_buf_2_, sizeof(T) * batch_size * seq_len * local_hidden_units_, true);
     qkv_buf_3_ = (T*)allocator_->reMalloc(qkv_buf_3_, type_size * batch_size * seq_len * local_hidden_units_, true);
 
