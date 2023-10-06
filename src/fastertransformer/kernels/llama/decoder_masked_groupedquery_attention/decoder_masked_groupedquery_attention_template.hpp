@@ -1388,7 +1388,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         // int offset = bhi * params.memory_max_len * Dh + co * params.memory_max_len * QK_ELTS_IN_16B +
         //              // params.timestep*QK_ELTS_IN_16B +
         //              tlength_circ * QK_ELTS_IN_16B + ci;
-        int offset = bkvhi * params.memory_max_len * Dh + co * params.memory_max_len * QK_ELTS_IN_16B +
+        size_t offset = bkvhi * params.memory_max_len * Dh + co * params.memory_max_len * QK_ELTS_IN_16B +
                      // params.timestep*QK_ELTS_IN_16B +
                      tlength_circ * QK_ELTS_IN_16B + ci;
 
