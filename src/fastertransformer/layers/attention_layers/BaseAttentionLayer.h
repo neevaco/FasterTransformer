@@ -70,7 +70,7 @@ AttentionType getAttentionType(size_t     size_per_head,
         else {
            // FMHA_ENABLE only affects gpt-style models (causal-mask)
             char * fused_qkv = std::getenv("FMHA_ENABLE");
-            if (fused_qkv != nullptr && std::string(fused_qkv) == "ON" || true) {
+            if (fused_qkv != nullptr && std::string(fused_qkv) == "ON") {
                 printf("flash attention");
                 if ((sm == kSM_70 || sm == kSM_72 || sm == kSM_75 || sm == kSM_80 || sm == kSM_86 || sm == kSM_89)
                     && (size_per_head == 32 || size_per_head == 40 || size_per_head == 64 || size_per_head == 80
