@@ -1168,6 +1168,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     // The number of elements per vector.
     constexpr int QK_VEC_SIZE = sizeof(Qk_vec_m) / sizeof(T);
+    printf("QK_VEC_SIZE: %d\n", QK_VEC_SIZE);
     // Make sure the hidden size per head is a multiple of the vector size.
     static_assert(Dh_MAX % QK_VEC_SIZE == 0, "");
     // We will use block wide reduction if needed
