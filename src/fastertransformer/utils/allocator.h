@@ -74,6 +74,7 @@ public:
     template<typename T>
     void* reMalloc(T* ptr, size_t size, const bool is_set_zero = true, bool is_host = false)
     {
+        printf("reMalloc: %ld\n", size);
         FT_LOG_DEBUG(__PRETTY_FUNCTION__);
         size              = ((size + 31) / 32) * 32;  // make the buffer align with 32 bytes
         void* void_ptr    = (void*)ptr;
