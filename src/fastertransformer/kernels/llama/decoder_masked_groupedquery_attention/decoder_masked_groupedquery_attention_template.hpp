@@ -1220,19 +1220,19 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     const size_t bi_seq_len_offset = bi * params.memory_max_len;
 
-    int       tlength      = (params.length_per_sample == nullptr) ?
+    size_t       tlength      = (params.length_per_sample == nullptr) ?
                                                     params.timestep :
                                                     params.length_per_sample[bi] + params.max_prefix_prompt_length;
     const int first_step   = max(0, tlength + 1 - params.memory_max_len);
-    const int tlength_circ = tlength % params.memory_max_len;
+    const size_t tlength_circ = tlength % params.memory_max_len;
 
     // First QK_VECS_PER_WARP load Q and K + the bias values for the current timestep.
     const bool is_masked = tidx >= QK_VECS_PER_WARP;
 
     // The offset in the Q and K buffer also accounts for the batch.
-    int qk_offset = qkv_base_offset + tidx * QK_VEC_SIZE;
+    size_t qk_offset = qkv_base_offset + tidx * QK_VEC_SIZE;
     // The offset in the bias buffer.
-    int qk_bias_offset = hi * Dh + tidx * QK_VEC_SIZE;
+    size_t qk_bias_offset = hi * Dh + tidx * QK_VEC_SIZE;
 
     const bool do_ia3      = handle_kv && params.ia3_tasks != nullptr;
     const int  ia3_task_id = do_ia3 ? params.ia3_tasks[bbi] : 0;
