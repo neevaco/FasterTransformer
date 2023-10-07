@@ -1605,7 +1605,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     // Normalize the logits.
     float inv_sum = __fdividef(1.f, sum + 1.e-6f);
-    for (int ti = first_step + tidx; ti <= tlength; ti += THREADS_PER_BLOCK) {
+    for (size_t ti = first_step + tidx; ti <= tlength; ti += THREADS_PER_BLOCK) {
         float logit = qk_smem[ti - first_step] * inv_sum;
         convert_from_float(logits_smem[ti - first_step], logit);
     }
@@ -1627,9 +1627,9 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // if (bkvhi == 63) {
     //     printf("%d %d %d %d %d\n", bkvhi, params.memory_max_len, Dh, vi, (bkvhi * params.memory_max_len * Dh + vi));
     // }
-    T* v_cache = &params.v_cache[bkvhi * params.memory_max_len * Dh + vi];
+    T* v_cache = &params.v_cache[(size_t)bkvhi * (size_t)params.memory_max_len * Dh + (size_t)vi];
     // Base pointer for the beam's batch, before offsetting with indirection buffer
-    T* v_cache_batch = &params.v_cache[bbkvhi * params.memory_max_len * Dh + vi];
+    T* v_cache_batch = &params.v_cache[(size_t)bbkvhi * (size_t)params.memory_max_len * Dh + (size_t)vi];
 
     // The number of values processed per iteration of the loop.
     constexpr int V_PER_ITER = THREADS_PER_BLOCK / THREADS_PER_VALUE;
