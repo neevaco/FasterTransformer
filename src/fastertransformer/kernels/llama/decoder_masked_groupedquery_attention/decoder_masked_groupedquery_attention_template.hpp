@@ -1852,7 +1852,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         }
 #else   // MMHA_USE_FP32_ACUM_FOR_OUT
         // TODO: support int8_mode?
-        *reinterpret_cast<V_vec_m*>(&params.out[bhi * Dh + vi]) = vec_conversion<V_vec_m, V_vec_acum>(out);
+        *reinterpret_cast<V_vec_m*>(&params.out[bhi * (size_t)Dh + vi]) = vec_conversion<V_vec_m, V_vec_acum>(out);
 #endif  // MMHA_USE_FP32_ACUM_FOR_OUT
     }
 }
