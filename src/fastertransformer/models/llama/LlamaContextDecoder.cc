@@ -601,7 +601,7 @@ void LlamaContextDecoder<T>::forward(std::unordered_map<std::string, Tensor>*   
         cudaMemcpy(buf, output_tensors->at("decoder_output").getPtr<T>(), sizeof(T) * st, cudaMemcpyDeviceToHost);
         printf("decoder_output at step\n");
         for (int i=0; i<20; i++) {
-            printf("%f ", buf[i]);
+            printf("%f ", double(buf[i]));
         }
         printf("\n");
     }
