@@ -761,6 +761,20 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
 
         gpt_context_decoder_->forward(
             &decoder_output_tensors, &decoder_input_tensors, &gpt_weights->decoder_layer_weights);
+        {
+            T* buf;
+            int st = 1;
+            for (int k=0; k<self_k_cache_shape.size(); k++) {
+                st *= self_k_cache_shape[k];
+            }
+            buf = new T[st];
+            cudaMemcpy(buf, key_cache_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+            printf("key_cache_ at step: %d\n", step);
+            for (int i=0; i<st; i++) {
+                printf("%f ", double(buf[i]));
+            }
+            printf("\n");
+        }
         sync_check_cuda_error();
         invokeDecodingInitialize(finished_buf_,
                                  sequence_lengths_,
