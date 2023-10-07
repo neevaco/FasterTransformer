@@ -958,17 +958,17 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                                          stream_);
                 sync_check_cuda_error();
 
-                if (step == max_input_length) {
-                        T* buf;
-                        int st = hidden_units_;
-                        buf = new T[st];
-                        cudaMemcpy(buf, normed_decoder_output_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
-                        printf("normed_decoder_output_buf_ at step: %d\n", step);
-                        for (int i=0; i<st; i++) {
-                            printf("%f ", double(buf[i]));
-                        }
-                        printf("\n");
-                }
+                // if (step == max_input_length) {
+                //         T* buf;
+                //         int st = hidden_units_;
+                //         buf = new T[st];
+                //         cudaMemcpy(buf, normed_decoder_output_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                //         printf("normed_decoder_output_buf_ at step: %d\n", step);
+                //         for (int i=0; i<st; i++) {
+                //             printf("%f ", double(buf[i]));
+                //         }
+                //         printf("\n");
+                // }
 
                 
                 if (tensor_para_.world_size_ == 1) {
