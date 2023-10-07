@@ -1541,7 +1541,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
                 //   ti   : 0 1 2 3 4 5 6 7 8 9(tlength)
                 //   token: i i i i p p p o o o where i=input, p=pad, o=output.
                 // e.g. ti = 2, dist = (9 - 3) - 2 = 4.
-                int   max_context_length = params.max_prefix_prompt_length + params.max_input_length;
+                size_t   max_context_length = params.max_prefix_prompt_length + params.max_input_length;
                 float dist               = (ti < max_context_length ? ti + padd_len : ti) - tlength;
 
                 qk += mul<float, T, float>(params.linear_bias_slopes[hi], dist);

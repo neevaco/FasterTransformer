@@ -242,9 +242,14 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*          
     Tensor&             v_cache = output_tensors->at("value_cache");
     std::vector<size_t> self_k_cache_size;
     self_k_cache_size.push_back(local_batch_size);
+    size_t a = 1;
+    int b = 1;
     for (auto t = k_cache.shape.begin() + 2; t != k_cache.shape.end(); ++t) {
         self_k_cache_size.push_back(*t);
+        a *= *t;
+        b *= *t;
     }
+    printf("a b: %ld %d\n", a, b);
     std::vector<size_t> self_v_cache_size;
     self_v_cache_size.push_back(local_batch_size);
     for (auto t = v_cache.shape.begin() + 2; t != v_cache.shape.end(); ++t) {
