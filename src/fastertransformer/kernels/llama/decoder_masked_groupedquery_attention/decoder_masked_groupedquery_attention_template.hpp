@@ -1169,7 +1169,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     // The number of elements per vector.
     constexpr int QK_VEC_SIZE = sizeof(Qk_vec_m) / sizeof(T);
-    printf("QK_VEC_SIZE: %d\n", QK_VEC_SIZE);
+    // printf("QK_VEC_SIZE: %d\n", QK_VEC_SIZE);
     // Make sure the hidden size per head is a multiple of the vector size.
     static_assert(Dh_MAX % QK_VEC_SIZE == 0, "");
     // We will use block wide reduction if needed
@@ -1392,7 +1392,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         size_t offset = bkvhi * params.memory_max_len * Dh + co * params.memory_max_len * QK_ELTS_IN_16B +
                      // params.timestep*QK_ELTS_IN_16B +
                      tlength_circ * QK_ELTS_IN_16B + ci;
-        printf("offset: %ld\n", offset);
+        // printf("offset: %ld\n", offset);
 
         if (handle_kv && bhi%head_n_rep==0) {
             // Trigger the stores to global memory.
