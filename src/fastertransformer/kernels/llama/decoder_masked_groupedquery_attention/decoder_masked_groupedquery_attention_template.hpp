@@ -1064,7 +1064,7 @@ inline size_t smem_size_in_bytes(const GroupedQuery_attention_params<T>&        
     using Tk = typename kernel_type_t<T>::Type;
     // The amount of shared memory needed to store the Q*K^T values in float.
     printf("params.memory_max_len: %d\n", params.memory_max_len);
-    const int max_timesteps = min(params.timestep, params.memory_max_len);
+    const size_t max_timesteps = min(params.timestep, params.memory_max_len);
     size_t qk_sz = div_up(max_timesteps + 1, 4) * 16;
 
     // The extra memory needed if we are not using floats for the final logits.
