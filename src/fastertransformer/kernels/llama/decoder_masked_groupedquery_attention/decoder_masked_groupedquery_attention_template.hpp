@@ -1508,7 +1508,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
                 else {
                     if (HAS_BEAMS) {
                         // const int beam_offset = beam_indices[ti_circ] * params.num_heads * params.memory_max_len * Dh;
-                        const int beam_offset = beam_indices[ti_circ] * params.num_kv_heads * params.memory_max_len * Dh;
+                        const int beam_offset = beam_indices[ti_circ] * params.num_kv_heads * (size_t)params.memory_max_len * Dh;
                         k[ii]                 = vec_conversion<K_vec_k, K_vec_m>(
                             (*reinterpret_cast<const K_vec_m*>(&k_cache_batch[beam_offset + jj * QK_ELTS_IN_16B])));
                     }
