@@ -1677,7 +1677,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
             const size_t beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * (size_t)params.memory_max_len * Dh : (size_t)0;
             // Load the values from the cache.
             V_vec_k v = vec_conversion<V_vec_k, V_vec_m>(
-                *reinterpret_cast<const V_vec_m*>(&v_cache_batch[beam_offset + ti * Dh]));
+                *reinterpret_cast<const V_vec_m*>(&v_cache_batch[beam_offset + (size_t)ti * Dh]));
             // Load the logits from shared memory.
 #if defined(MMHA_USE_FP32_ACUM_FOR_LOGITS)
             float logit = logits_smem[ti - first_step];
