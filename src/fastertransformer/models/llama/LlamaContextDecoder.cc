@@ -603,7 +603,7 @@ void LlamaContextDecoder<T>::forward(std::unordered_map<std::string, Tensor>*   
         for (int s=0; s<seq_len; s++) {
             printf("seq at %d:\n", s);
             for (int i=0; i<20; i++) {
-                printf("%f ", double(buf[s*seq_len+i]));
+                printf("%f ", double(buf[s*8192+i]));
             }
         }
         printf("\n");
