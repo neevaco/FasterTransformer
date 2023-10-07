@@ -607,6 +607,7 @@ void LlamaContextDecoder<T>::forward(std::unordered_map<std::string, Tensor>*   
             }
             printf("\n");
         }
+        printf("last: %f\n", double(buf[st-1]));
         printf("\n");
     }
     sync_check_cuda_error();
