@@ -1669,7 +1669,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         // Separate the ti < memory_max_len and ti > memory_max_len
         // to prevent ti % memory_len when ti < memory_len, and
         // the compiler cannot optimize the codes automatically.
-        const size_t min_length = min(tlength, params.memory_max_len);
+        const size_t min_length = min(tlength, (size_t)params.memory_max_len);
         for (size_t ti = first_step + vo; ti < min_length; ti += V_PER_ITER) {
             // Fetch offset based on cache_indir when beam sampling
             const size_t beam_src    = HAS_BEAMS ? (size_t)params.cache_indir[bi_seq_len_offset + ti] : (size_t)0;
