@@ -1471,7 +1471,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // The number of timesteps loaded per iteration.
     constexpr int K_PER_ITER = THREADS_PER_BLOCK / THREADS_PER_KEY;
     // The number of keys per warp.
-    constexpr int K_PER_WARP = WARP_SIZE / THREADS_PER_KEY;
+    constexpr size_t K_PER_WARP = WARP_SIZE / THREADS_PER_KEY;
 
     // The base pointer for the key in the cache buffer.
     // T* k_cache = &params.k_cache[bkvhi * params.memory_max_len * Dh + ki];
