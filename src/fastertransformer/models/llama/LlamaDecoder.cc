@@ -304,6 +304,7 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*          
             ite_cache_offset *= *t;
         }
         cache_offset += ite_cache_offset;
+        printf("%ld %ld\n", cache_offset, ite_cache_offset))
 
         TensorMap self_attention_output_tensors{
             {"hidden_features", Tensor{MEMORY_GPU, data_type, {local_batch_size, hidden_units_}, self_attn_output_}},
