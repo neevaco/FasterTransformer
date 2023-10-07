@@ -940,6 +940,9 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                 printf("key_cache_\n");
                 for (int i=0; i<1280; i++) {
                     printf("%f ", double(buf[i]));
+                    if ((i+1)%8 == 0) {
+                        printf("\n");
+                    }
                 }
                 printf("\n");
             }
