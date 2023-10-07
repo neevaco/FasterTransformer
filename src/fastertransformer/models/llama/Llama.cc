@@ -1064,7 +1064,17 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                     }
                     dynamic_decode_output_tensors.insert(*t);
                 }
-
+                {
+                        float* buf;
+                        int st = vocab_size_padded_;
+                        buf = new T[st];
+                        cudaMemcpy(buf, logits_buf_, sizeof(float) * st, cudaMemcpyDeviceToHost);
+                        printf("cudaMemcpy\n");
+                        for (int i=0; i<st; i++) {
+                            printf("%f ", double(buf[i]));
+                        }
+                        printf("\n");
+                }
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
                 *generation_should_stop_ &= subbatch_should_stop;
             }
