@@ -1669,12 +1669,12 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         // Separate the ti < memory_max_len and ti > memory_max_len
         // to prevent ti % memory_len when ti < memory_len, and
         // the compiler cannot optimize the codes automatically.
-        const int min_length = min(tlength, params.memory_max_len);
-        for (int ti = first_step + vo; ti < min_length; ti += V_PER_ITER) {
+        const size_t min_length = min(tlength, params.memory_max_len);
+        for (size_t ti = first_step + vo; ti < min_length; ti += V_PER_ITER) {
             // Fetch offset based on cache_indir when beam sampling
-            const int beam_src    = HAS_BEAMS ? params.cache_indir[bi_seq_len_offset + ti] : 0;
+            const size_t beam_src    = HAS_BEAMS ? (size_t)params.cache_indir[bi_seq_len_offset + ti] : (size_t)0;
             // const int beam_offset = HAS_BEAMS ? beam_src * params.num_heads * params.memory_max_len * Dh : 0;
-            const int beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * params.memory_max_len * Dh : 0;
+            const size_t beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * (size_t)params.memory_max_len * Dh : (size_t)0;
             // Load the values from the cache.
             V_vec_k v = vec_conversion<V_vec_k, V_vec_m>(
                 *reinterpret_cast<const V_vec_m*>(&v_cache_batch[beam_offset + ti * Dh]));
