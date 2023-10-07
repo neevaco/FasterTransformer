@@ -1064,7 +1064,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                     }
                     dynamic_decode_output_tensors.insert(*t);
                 }
-                if (step == 1) {
+                if (step == max_input_length) {
                         float* buf;
                         int st = vocab_size_padded_;
                         buf = new float[st];
