@@ -298,6 +298,7 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*          
         size_t cache_offset = l - getFirstLayerParallelId();
         for (auto t = k_cache.shape.begin() + 1; t != k_cache.shape.end(); ++t) {
             cache_offset *= *t;
+            printf("cache_offset: %d\n", cache_offset);
         };
         size_t ite_cache_offset = ite * local_batch_size;
         for (auto t = k_cache.shape.begin() + 2; t != k_cache.shape.end(); ++t) {
