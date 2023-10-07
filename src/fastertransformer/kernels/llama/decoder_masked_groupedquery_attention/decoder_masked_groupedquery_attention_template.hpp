@@ -1844,11 +1844,11 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         else if (params.int8_mode == 2) {
             using Packed_Int8_t = typename packed_type<int8_t, num_elems<V_vec_acum>::value>::type;
             out                 = mul<V_vec_acum, float>(*params.attention_out_scale, out);
-            *reinterpret_cast<Packed_Int8_t*>(&(reinterpret_cast<int8_t*>(params.out)[bhi * Dh + vi])) =
+            *reinterpret_cast<Packed_Int8_t*>(&(reinterpret_cast<int8_t*>(params.out)[bhi * (size_t)Dh + vi])) =
                 cast_to_int8(out);
         }
         else {
-            convert_from_float(*reinterpret_cast<V_vec_m*>(&params.out[bhi * Dh + vi]), out);
+            convert_from_float(*reinterpret_cast<V_vec_m*>(&params.out[bhi * (size_t)Dh + vi]), out);
         }
 #else   // MMHA_USE_FP32_ACUM_FOR_OUT
         // TODO: support int8_mode?
