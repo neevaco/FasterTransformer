@@ -1498,7 +1498,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         zero(k_vec_zero);
 #pragma unroll
         for (int ii = 0; ii < K_VECS_PER_THREAD; ++ii) {
-            int jj = ii * params.memory_max_len + ti_circ;
+            size_t jj = ii * (size_t)params.memory_max_len + ti_circ;
             // if( ti < params.timestep ) {
             const bool within_bounds = (Dh == Dh_MAX || jj * QK_ELTS_IN_16B < Dh * params.memory_max_len);
             if (ti < tlength) {
