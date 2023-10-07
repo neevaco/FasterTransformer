@@ -1221,7 +1221,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     int qkv_base_offset = (params.stride == 0) ? bhi * Dh : bi * params.stride + hi * Dh;
 
-    const size_t bi_seq_len_offset = bi * params.memory_max_len;
+    const size_t bi_seq_len_offset = bi * (size_t)params.memory_max_len;
 
     int       tlength      = (params.length_per_sample == nullptr) ?
                                                     params.timestep :
