@@ -1701,16 +1701,16 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 #endif  // FP8_MHA
 #endif  // MMHA_USE_FP32_ACUM_FOR_LOGITS
         }
-        for (int ti = first_step + vo; ti < tlength; ti += V_PER_ITER) {
+        for (size_t ti = first_step + vo; ti < tlength; ti += V_PER_ITER) {
             if (ti < params.memory_max_len) {
                 // handled by previous loop
                 continue;
             }
-            const int ti_circ = ti % params.memory_max_len;
+            const size_t ti_circ = ti % params.memory_max_len;
 
             // Fetch offset based on cache_indir when beam sampling
-            const int beam_src    = HAS_BEAMS ? params.cache_indir[bi_seq_len_offset + ti_circ] : 0;
-            const int beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * params.memory_max_len * Dh : 0;
+            const size_t beam_src    = HAS_BEAMS ? (size_t)params.cache_indir[bi_seq_len_offset + ti_circ] : 0;
+            const size_t beam_offset = HAS_BEAMS ? beam_src * (size_t)params.num_kv_heads * (size_t)params.memory_max_len * (size_t)Dh : 0;
             // Load the values from the cache.
             V_vec_k v = vec_conversion<V_vec_k, V_vec_m>(
                 *reinterpret_cast<const V_vec_m*>(&v_cache_batch[beam_offset + ti_circ * Dh]));
