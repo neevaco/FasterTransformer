@@ -769,7 +769,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
             }
             buf = new T[st];
             cudaMemcpy(buf, key_cache_, sizeof(T) * st, cudaMemcpyDeviceToHost);
-            printf("key_cache_ at step: %d\n", step);
+            printf("key_cache_\n");
             for (int i=0; i<st; i++) {
                 printf("%f ", double(buf[i]));
             }
