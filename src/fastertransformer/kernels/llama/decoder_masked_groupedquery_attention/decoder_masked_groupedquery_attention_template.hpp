@@ -1631,9 +1631,9 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // if (bkvhi == 63) {
     //     printf("%d %d %d %d %d\n", bkvhi, params.memory_max_len, Dh, vi, (bkvhi * params.memory_max_len * Dh + vi));
     // }
-    T* v_cache = &params.v_cache[bkvhi * params.memory_max_len * Dh + vi];
+    T* v_cache = &params.v_cache[bkvhi * (size_t)params.memory_max_len * Dh + vi];
     // Base pointer for the beam's batch, before offsetting with indirection buffer
-    T* v_cache_batch = &params.v_cache[bbkvhi * params.memory_max_len * Dh + vi];
+    T* v_cache_batch = &params.v_cache[bbkvhi * (size_t)params.memory_max_len * Dh + vi];
 
     // The number of values processed per iteration of the loop.
     constexpr int V_PER_ITER = THREADS_PER_BLOCK / THREADS_PER_VALUE;
