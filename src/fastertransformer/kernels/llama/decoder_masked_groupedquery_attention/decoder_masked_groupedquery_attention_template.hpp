@@ -1205,7 +1205,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     const int bbhi      = bbi * params.beam_width * params.num_heads + hi;
     const int bbkvhi    = bbi * params.beam_width * params.num_kv_heads + kvhi;
     // The thread in the block.
-    const int tidx = threadIdx.x;
+    const size_t tidx = threadIdx.x;
 
     constexpr bool handle_kv = true;
 
@@ -1620,9 +1620,9 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     using V_vec_m = typename V_vec_m_<T, V_VEC_SIZE>::Type;
 
     // The value computed by this thread.
-    int vo = tidx / THREADS_PER_VALUE;
+    size_t vo = tidx / THREADS_PER_VALUE;
     // The hidden dimensions computed by this particular thread.
-    int vi = tidx % THREADS_PER_VALUE * V_VEC_SIZE;
+    size_t vi = tidx % THREADS_PER_VALUE * V_VEC_SIZE;
     // The base pointer for the value in the cache buffer.
     // if (bkvhi == 63) {
     //     printf("%d %d %d %d %d\n", bkvhi, params.memory_max_len, Dh, vi, (bkvhi * params.memory_max_len * Dh + vi));
@@ -1773,7 +1773,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         if (bhi % head_n_rep == 0) {
             // Store the values with bias back to global memory in the cache for V.
             //*reinterpret_cast<V_vec_k*>(&v_cache[params.timestep*Dh]) = v;
-            *reinterpret_cast<V_vec_m*>(&v_cache[tlength_circ * Dh]) = vec_conversion<V_vec_m, V_vec_k>(v);
+            *reinterpret_cast<V_vec_m*>(&v_cache[tlength_circ * (size_t)Dh]) = vec_conversion<V_vec_m, V_vec_k>(v);
         }
 
         // Initialize the output value with the current timestep.
