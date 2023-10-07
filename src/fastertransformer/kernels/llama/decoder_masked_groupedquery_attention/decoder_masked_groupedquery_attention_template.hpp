@@ -1223,7 +1223,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     const size_t bi_seq_len_offset = bi * (size_t)params.memory_max_len;
 
-    int       tlength      = (params.length_per_sample == nullptr) ?
+    size_t       tlength      = (params.length_per_sample == nullptr) ?
                                                     params.timestep :
                                                     params.length_per_sample[bi] + params.max_prefix_prompt_length;
     const int first_step   = max(0, tlength + 1 - params.memory_max_len);
