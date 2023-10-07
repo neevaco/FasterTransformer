@@ -1581,7 +1581,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // Compute the logits and start the sum.
     float sum = 0.f;
     // for( int ti = tidx; ti <= params.timestep; ti += THREADS_PER_BLOCK ) {
-    for (int ti = first_step + tidx; ti <= tlength; ti += THREADS_PER_BLOCK) {
+    for (size_t ti = first_step + tidx; ti <= tlength; ti += THREADS_PER_BLOCK) {
         bool is_mask = (params.masked_tokens != nullptr) && params.masked_tokens[bi_seq_len_offset + ti];
 #ifdef FP8_MHA
         float logit = 0.f;
