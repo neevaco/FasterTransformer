@@ -929,7 +929,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                     &decoder_output_tensors, &decoder_input_tensors, &gpt_weights->decoder_layer_weights);
             }
 
-            if (step == max_input_length) {
+            if (step <= max_input_length + 1) {
                 T* buf;
                 int st = 1;
                 for (int k=0; k<self_k_cache_shape.size(); k++) {
@@ -937,8 +937,8 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                 }
                 buf = new T[st];
                 cudaMemcpy(buf, key_cache_, sizeof(T) * st, cudaMemcpyDeviceToHost);
-                printf("key_cache_\n");
-                for (int i=0; i<1280; i++) {
+                printf("key_cache_ at step: %d\n", step);
+                for (int i=0; i<13 * 8; i++) {
                     printf("%f ", double(buf[i]));
                     if ((i+1)%8 == 0) {
                         printf("\n");
