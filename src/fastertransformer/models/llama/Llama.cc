@@ -922,6 +922,9 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                 for (int i=0; i< self_k_cache_shape.size(); i++) {
                     printf("self_k_cache_shape: %d\n", self_k_cache_shape[i]);
                 }
+                for (int i=0; i< self_v_cache_shape.size(); i++) {
+                    printf("self_v_cache_shape: %d\n", self_v_cache_shape[i]);
+                }
                 gpt_decoder_->forward(
                     &decoder_output_tensors, &decoder_input_tensors, &gpt_weights->decoder_layer_weights);
             }
