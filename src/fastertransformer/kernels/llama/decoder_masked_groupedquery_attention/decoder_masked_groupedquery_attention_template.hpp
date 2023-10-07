@@ -1216,7 +1216,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     float qk = 0.0F;
 
-    int qkv_base_offset = (params.stride == 0) ? bhi * Dh : bi * params.stride + hi * Dh;
+    size_t qkv_base_offset = (params.stride == 0) ? bhi * Dh : bi * params.stride + hi * Dh;
 
     const size_t bi_seq_len_offset = bi * params.memory_max_len;
 
@@ -1745,7 +1745,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
         V_vec_k v;
         // Trigger the loads from the V buffer.
-        const auto v_offset = qkv_base_offset + vi;
+        const size_t v_offset = qkv_base_offset + vi;
         if (params.int8_mode == 2) {
             using Packed_Int8_t  = typename packed_type<int8_t, num_elems<V_vec_k>::value>::type;
             using Packed_Float_t = typename packed_type<float, num_elems<V_vec_k>::value>::type;
