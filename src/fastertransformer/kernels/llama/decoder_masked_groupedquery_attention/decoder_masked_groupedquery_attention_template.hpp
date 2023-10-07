@@ -1063,7 +1063,6 @@ inline size_t smem_size_in_bytes(const GroupedQuery_attention_params<T>&        
 {
     using Tk = typename kernel_type_t<T>::Type;
     // The amount of shared memory needed to store the Q*K^T values in float.
-    // printf("params.memory_max_len: %d\n", params.memory_max_len);
     const int max_timesteps = min(params.timestep, params.memory_max_len);
     size_t qk_sz = div_up(max_timesteps + 1, 4) * 16;
 
@@ -1169,7 +1168,6 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     // The number of elements per vector.
     constexpr int QK_VEC_SIZE = sizeof(Qk_vec_m) / sizeof(T);
-    // printf("QK_VEC_SIZE: %d\n", QK_VEC_SIZE);
     // Make sure the hidden size per head is a multiple of the vector size.
     static_assert(Dh_MAX % QK_VEC_SIZE == 0, "");
     // We will use block wide reduction if needed
@@ -1205,8 +1203,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     const int bkvhi = bi * params.num_kv_heads + kvhi;
     // Combine the "beam-aware" batch idx and the head indices.
     const int bbhi      = bbi * params.beam_width * params.num_heads + hi;
-    const size_t bbkvhi    = bbi * params.beam_width * params.num_kv_heads + kvhi;
-    // printf("bbkvhi: %ld\n", bbkvhi);
+    const int bbkvhi    = bbi * params.beam_width * params.num_kv_heads + kvhi;
     // The thread in the block.
     const int tidx = threadIdx.x;
 
@@ -1219,15 +1216,15 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     float qk = 0.0F;
 
-    size_t qkv_base_offset = (params.stride == 0) ? bhi * Dh : bi * params.stride + hi * Dh;
+    int qkv_base_offset = (params.stride == 0) ? bhi * Dh : bi * params.stride + hi * Dh;
 
-    const size_t bi_seq_len_offset = bi * (size_t)params.memory_max_len;
+    const size_t bi_seq_len_offset = bi * params.memory_max_len;
 
-    size_t       tlength      = (params.length_per_sample == nullptr) ?
+    int       tlength      = (params.length_per_sample == nullptr) ?
                                                     params.timestep :
                                                     params.length_per_sample[bi] + params.max_prefix_prompt_length;
-    const size_t first_step   = max((size_t)0, tlength + 1 - params.memory_max_len);
-    const size_t tlength_circ = tlength % params.memory_max_len;
+    const int first_step   = max(0, tlength + 1 - params.memory_max_len);
+    const int tlength_circ = tlength % params.memory_max_len;
 
     // First QK_VECS_PER_WARP load Q and K + the bias values for the current timestep.
     const bool is_masked = tidx >= QK_VECS_PER_WARP;
@@ -1389,10 +1386,9 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         // int offset = bhi * params.memory_max_len * Dh + co * params.memory_max_len * QK_ELTS_IN_16B +
         //              // params.timestep*QK_ELTS_IN_16B +
         //              tlength_circ * QK_ELTS_IN_16B + ci;
-        size_t offset = bkvhi * params.memory_max_len * Dh + co * params.memory_max_len * QK_ELTS_IN_16B +
+        int offset = bkvhi * params.memory_max_len * Dh + co * params.memory_max_len * QK_ELTS_IN_16B +
                      // params.timestep*QK_ELTS_IN_16B +
                      tlength_circ * QK_ELTS_IN_16B + ci;
-        // printf("offset: %ld\n", offset);
 
         if (handle_kv && bhi%head_n_rep==0) {
             // Trigger the stores to global memory.
@@ -1471,12 +1467,12 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // The number of timesteps loaded per iteration.
     constexpr int K_PER_ITER = THREADS_PER_BLOCK / THREADS_PER_KEY;
     // The number of keys per warp.
-    constexpr size_t K_PER_WARP = WARP_SIZE / THREADS_PER_KEY;
+    constexpr int K_PER_WARP = WARP_SIZE / THREADS_PER_KEY;
 
     // The base pointer for the key in the cache buffer.
     // T* k_cache = &params.k_cache[bkvhi * params.memory_max_len * Dh + ki];
     // Base pointer for the beam's batch, before offsetting with indirection buffer
-    T* k_cache_batch = &params.k_cache[bbkvhi * (size_t)params.memory_max_len * Dh + ki];
+    T* k_cache_batch = &params.k_cache[bbkvhi * params.memory_max_len * Dh + ki];
 
     // Pick a number of keys to make sure all the threads of a warp enter (due to shfl_sync).
     // int ti_end = div_up(params.timestep, K_PER_WARP) * K_PER_WARP;
@@ -1498,7 +1494,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         zero(k_vec_zero);
 #pragma unroll
         for (int ii = 0; ii < K_VECS_PER_THREAD; ++ii) {
-            size_t jj = ii * (size_t)params.memory_max_len + ti_circ;
+            int jj = ii * params.memory_max_len + ti_circ;
             // if( ti < params.timestep ) {
             const bool within_bounds = (Dh == Dh_MAX || jj * QK_ELTS_IN_16B < Dh * params.memory_max_len);
             if (ti < tlength) {
@@ -1508,7 +1504,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
                 else {
                     if (HAS_BEAMS) {
                         // const int beam_offset = beam_indices[ti_circ] * params.num_heads * params.memory_max_len * Dh;
-                        const size_t beam_offset = beam_indices[ti_circ] * params.num_kv_heads * (size_t)params.memory_max_len * Dh;
+                        const int beam_offset = beam_indices[ti_circ] * params.num_kv_heads * params.memory_max_len * Dh;
                         k[ii]                 = vec_conversion<K_vec_k, K_vec_m>(
                             (*reinterpret_cast<const K_vec_m*>(&k_cache_batch[beam_offset + jj * QK_ELTS_IN_16B])));
                     }
@@ -1541,7 +1537,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
                 //   ti   : 0 1 2 3 4 5 6 7 8 9(tlength)
                 //   token: i i i i p p p o o o where i=input, p=pad, o=output.
                 // e.g. ti = 2, dist = (9 - 3) - 2 = 4.
-                size_t   max_context_length = params.max_prefix_prompt_length + params.max_input_length;
+                int   max_context_length = params.max_prefix_prompt_length + params.max_input_length;
                 float dist               = (ti < max_context_length ? ti + padd_len : ti) - tlength;
 
                 qk += mul<float, T, float>(params.linear_bias_slopes[hi], dist);
@@ -1585,7 +1581,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // Compute the logits and start the sum.
     float sum = 0.f;
     // for( int ti = tidx; ti <= params.timestep; ti += THREADS_PER_BLOCK ) {
-    for (size_t ti = first_step + tidx; ti <= tlength; ti += THREADS_PER_BLOCK) {
+    for (int ti = first_step + tidx; ti <= tlength; ti += THREADS_PER_BLOCK) {
         bool is_mask = (params.masked_tokens != nullptr) && params.masked_tokens[bi_seq_len_offset + ti];
 #ifdef FP8_MHA
         float logit = 0.f;
@@ -1631,9 +1627,9 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // if (bkvhi == 63) {
     //     printf("%d %d %d %d %d\n", bkvhi, params.memory_max_len, Dh, vi, (bkvhi * params.memory_max_len * Dh + vi));
     // }
-    T* v_cache = &params.v_cache[bkvhi * (size_t)params.memory_max_len * Dh + vi];
+    T* v_cache = &params.v_cache[bkvhi * params.memory_max_len * Dh + vi];
     // Base pointer for the beam's batch, before offsetting with indirection buffer
-    T* v_cache_batch = &params.v_cache[bbkvhi * (size_t)params.memory_max_len * Dh + vi];
+    T* v_cache_batch = &params.v_cache[bbkvhi * params.memory_max_len * Dh + vi];
 
     // The number of values processed per iteration of the loop.
     constexpr int V_PER_ITER = THREADS_PER_BLOCK / THREADS_PER_VALUE;
@@ -1673,12 +1669,12 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
         // Separate the ti < memory_max_len and ti > memory_max_len
         // to prevent ti % memory_len when ti < memory_len, and
         // the compiler cannot optimize the codes automatically.
-        const size_t min_length = min(tlength, (size_t)params.memory_max_len);
+        const int min_length = min(tlength, params.memory_max_len);
         for (int ti = first_step + vo; ti < min_length; ti += V_PER_ITER) {
             // Fetch offset based on cache_indir when beam sampling
-            const size_t beam_src    = HAS_BEAMS ? params.cache_indir[bi_seq_len_offset + ti] : 0;
+            const int beam_src    = HAS_BEAMS ? params.cache_indir[bi_seq_len_offset + ti] : 0;
             // const int beam_offset = HAS_BEAMS ? beam_src * params.num_heads * params.memory_max_len * Dh : 0;
-            const size_t beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * params.memory_max_len * Dh : 0;
+            const int beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * params.memory_max_len * Dh : 0;
             // Load the values from the cache.
             V_vec_k v = vec_conversion<V_vec_k, V_vec_m>(
                 *reinterpret_cast<const V_vec_m*>(&v_cache_batch[beam_offset + ti * Dh]));
@@ -1713,8 +1709,8 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
             const int ti_circ = ti % params.memory_max_len;
 
             // Fetch offset based on cache_indir when beam sampling
-            const size_t beam_src    = HAS_BEAMS ? params.cache_indir[bi_seq_len_offset + ti_circ] : 0;
-            const size_t beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * params.memory_max_len * Dh : 0;
+            const int beam_src    = HAS_BEAMS ? params.cache_indir[bi_seq_len_offset + ti_circ] : 0;
+            const int beam_offset = HAS_BEAMS ? beam_src * params.num_kv_heads * params.memory_max_len * Dh : 0;
             // Load the values from the cache.
             V_vec_k v = vec_conversion<V_vec_k, V_vec_m>(
                 *reinterpret_cast<const V_vec_m*>(&v_cache_batch[beam_offset + ti_circ * Dh]));
