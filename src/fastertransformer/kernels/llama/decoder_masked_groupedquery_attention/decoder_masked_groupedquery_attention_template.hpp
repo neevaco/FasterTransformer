@@ -1206,7 +1206,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     // Combine the "beam-aware" batch idx and the head indices.
     const int bbhi      = bbi * params.beam_width * params.num_heads + hi;
     const size_t bbkvhi    = bbi * params.beam_width * params.num_kv_heads + kvhi;
-    printf("bbkvhi: %ld\n", bbkvhi);
+    // printf("bbkvhi: %ld\n", bbkvhi);
     // The thread in the block.
     const int tidx = threadIdx.x;
 
