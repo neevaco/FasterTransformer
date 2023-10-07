@@ -1067,7 +1067,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                 {
                         float* buf;
                         int st = vocab_size_padded_;
-                        buf = new T[st];
+                        buf = new float[st];
                         cudaMemcpy(buf, logits_buf_, sizeof(float) * st, cudaMemcpyDeviceToHost);
                         printf("cudaMemcpy\n");
                         for (int i=0; i<st; i++) {
