@@ -1223,7 +1223,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
     size_t       tlength      = (params.length_per_sample == nullptr) ?
                                                     params.timestep :
                                                     params.length_per_sample[bi] + params.max_prefix_prompt_length;
-    const int first_step   = max(0, tlength + 1 - params.memory_max_len);
+    const size_t first_step   = max((size_t)0, tlength + 1 - params.memory_max_len);
     const size_t tlength_circ = tlength % params.memory_max_len;
 
     // First QK_VECS_PER_WARP load Q and K + the bias values for the current timestep.
