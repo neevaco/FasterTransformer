@@ -477,7 +477,7 @@ void llama_example(const INIReader reader)
                     if ((i + 1) % (total_output_len) == 0) {
                         outFile << std::endl;
                     }
-                    if (i+32 > outCount) {
+                    if (i+32 >= outCount) {
                         printf("%d, ", hBuf[i]);
                     }
                     // if (i < 10) {
