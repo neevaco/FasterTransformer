@@ -246,6 +246,8 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*          
     int b = 1;
     for (auto t = k_cache.shape.begin() + 2; t != k_cache.shape.end(); ++t) {
         self_k_cache_size.push_back(*t);
+    }
+    for (auto t = k_cache.shape.begin(); t != k_cache.shape.end(); ++t) {
         a *= *t;
         b *= *t;
     }
