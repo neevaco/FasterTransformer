@@ -1134,14 +1134,14 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
              * total_padding_count += (max_input_length - input_lengths)
              * if has prefix prompts, += (max_prefix_prompt_length - prompt_length)
              */
-            // invokeUpdatePaddingCount(tiled_total_padding_count_,
-            //                          input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
-            //                          has_prefix_prompt_ ? tiled_prompt_lengths_buf_ : (const int*)nullptr,
-            //                          max_input_length,
-            //                          has_prefix_prompt_ ? max_prefix_prompt_length : 0,
-            //                          batch_size,
-            //                          beam_width,
-            //                          stream_);
+            invokeUpdatePaddingCount(tiled_total_padding_count_,
+                                     input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
+                                     has_prefix_prompt_ ? tiled_prompt_lengths_buf_ : (const int*)nullptr,
+                                     max_input_length,
+                                     has_prefix_prompt_ ? max_prefix_prompt_length : 0,
+                                     batch_size,
+                                     beam_width,
+                                     stream_);
         }
     }
 
