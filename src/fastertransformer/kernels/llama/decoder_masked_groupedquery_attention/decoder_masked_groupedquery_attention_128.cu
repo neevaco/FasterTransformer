@@ -46,11 +46,10 @@ void mgqa_launch_kernel(const KERNEL_PARAMS_TYPE& params, const cudaStream_t& st
     // printf("tlength, CROSS_ATTENTION = %d, %d\n", tlength);
     printf("mgqa_launch_kernel, tlength: %d params.cache_indir: %d\n", tlength, params.cache_indir == nullptr);
     if (params.cache_indir == nullptr) {
-        if (tlength < 22048) {
-            printf("here\n");
+        if (tlength < 32) {
             MGQA_LAUNCH_KERNEL(T, Dh, Dh_MAX, 4, THREADS_PER_VALUE, 64, false, stream);
         }
-        else if (tlength < 22048) {
+        else if (tlength < 2048) {
             MGQA_LAUNCH_KERNEL(T, Dh, Dh_MAX, 2, THREADS_PER_VALUE, 128, false, stream);
         }
         else {
