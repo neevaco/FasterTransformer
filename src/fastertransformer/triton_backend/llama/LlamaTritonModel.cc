@@ -156,6 +156,13 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
     ft::NcclParam tensor_para   = nccl_params.first[comms_rank];
     ft::NcclParam pipeline_para = nccl_params.second[comms_rank];
 
+    ft::AttentionType attention_type = ft::getAttentionType<T>(size_per_head_,
+                                                               ft::getSMVersion(),
+                                                               true,   // remove_padding
+                                                               0,      // gpt supports any-seq-length fmha
+                                                               true,   // is_fuse
+                                                               false,  // with_relative_position_bias
+                                                               true);  // causal_mask
     auto              gpt            = std::make_unique<ft::Llama<T>>(
         ft::Llama<T>(head_num_,
                      kv_head_num_,
@@ -185,7 +192,7 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
                      allocator.get(),
                      false,
                      cuda_device_prop_ptr.get(),
-                     ft::AttentionType::FUSED_MHA,
+                     attention_type,
                      int8_mode_,
                      custom_all_reduce_comm,
                      enable_custom_all_reduce_));
