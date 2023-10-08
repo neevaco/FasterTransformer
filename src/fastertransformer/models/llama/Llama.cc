@@ -955,11 +955,11 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                 buf = new T[st];
                 cudaMemcpy(buf, key_cache_, sizeof(T) * st, cudaMemcpyDeviceToHost);
                 printf("key_cache_ at step: %d\n", step);
-                for (int i=0; i<13 * 8; i++) {
-                    printf("%f ", double(buf[i]));
-                    if ((i+1)%8 == 0) {
-                        printf("\n");
+                for (int i=max_input_length-10; i<max_input_length+1; i++) {
+                    for (int j=0; j<8; j++) {
+                        printf("%f ", double(buf[i*8+j]));
                     }
+                    printf("\n");
                 }
                 printf("\n");
             }
