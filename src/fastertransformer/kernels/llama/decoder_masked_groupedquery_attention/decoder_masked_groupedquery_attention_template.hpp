@@ -1116,7 +1116,7 @@ template<
     bool HAS_BEAMS>
 __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_params<T> params)
 {
-    printf("masked_groupedquery_attention_kernel\n");
+    // printf("masked_groupedquery_attention_kernel\n");
     using Tk = typename kernel_type_t<T>::Type;
 #ifdef ENABLE_FP8
     // FP8 MHA Scales
@@ -1229,7 +1229,7 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
 
     // First QK_VECS_PER_WARP load Q and K + the bias values for the current timestep.
     const bool is_masked = tidx >= QK_VECS_PER_WARP;
-    printf("is_masked: %d\n", is_masked);
+    // printf("is_masked: %d\n", is_masked);
 
     // The offset in the Q and K buffer also accounts for the batch.
     size_t qk_offset = qkv_base_offset + tidx * QK_VEC_SIZE;
