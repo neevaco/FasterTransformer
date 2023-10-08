@@ -1116,6 +1116,7 @@ template<
     bool HAS_BEAMS>
 __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_params<T> params)
 {
+    printf("masked_groupedquery_attention_kernel\n");
     using Tk = typename kernel_type_t<T>::Type;
 #ifdef ENABLE_FP8
     // FP8 MHA Scales
