@@ -25,12 +25,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define MGQA_LAUNCH_KERNEL(                                                                                            \
-    T, Dh, Dh_MAX, THDS_PER_KEY, THDS_PER_VALUE, THDS_PER_BLOCK, HAS_BEAMS, stream)                \
-    size_t smem_sz = mmha::smem_size_in_bytes<T>(params, THDS_PER_VALUE, THDS_PER_BLOCK);          \
-    printf("smem_sz: %d\n", smem_sz);   \
+    T, Dh, Dh_MAX, THDS_PER_KEY, THDS_PER_VALUE, THDS_PER_BLOCK, HAS_BEAMS, stream)                                    \
+    size_t smem_sz = mmha::smem_size_in_bytes<T>(params, THDS_PER_VALUE, THDS_PER_BLOCK);                              \
     dim3   grid(params.num_heads, params.batch_size);                                                                  \
-    cudaFuncSetAttribute(mmha::masked_groupedquery_attention_kernel<T, Dh, Dh_MAX, THDS_PER_KEY, THDS_PER_VALUE, THDS_PER_BLOCK, HAS_BEAMS>, \cudaFuncAttributeMaxDynamicSharedMemorySize, smem_sz);           \
-    mmha::masked_groupedquery_attention_kernel<T,                                                                         \
+    cudaFuncSetAttribute(mmha::masked_groupedquery_attention_kernel<T, Dh, Dh_MAX, THDS_PER_KEY, THDS_PER_VALUE, THDS_PER_BLOCK, HAS_BEAMS>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem_sz); \
+    mmha::masked_groupedquery_attention_kernel<T,                                                                      \
                                             Dh,                                                                        \
                                             Dh_MAX,                                                                    \
                                             THDS_PER_KEY,                                                              \
@@ -48,7 +47,6 @@ void mgqa_launch_kernel(const KERNEL_PARAMS_TYPE& params, const cudaStream_t& st
     // printf("tlength, CROSS_ATTENTION = %d, %d\n", tlength);
     if (params.cache_indir == nullptr) {
         if (tlength < 32) {
-            printf("mgqa_launch_kernel, tlength: %d params.cache_indir: %d\n", tlength, params.cache_indir == nullptr);
             MGQA_LAUNCH_KERNEL(T, Dh, Dh_MAX, 4, THREADS_PER_VALUE, 64, false, stream);
         }
         else if (tlength < 2048) {
