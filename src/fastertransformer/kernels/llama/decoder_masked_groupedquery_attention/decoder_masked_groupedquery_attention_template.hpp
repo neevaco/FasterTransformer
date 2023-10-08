@@ -1390,7 +1390,6 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
                      // params.timestep*QK_ELTS_IN_16B +
                      tlength_circ * QK_ELTS_IN_16B + ci;
         printf("offset: %d\n", offset);
-        printf("offset: %d\n", offset);
 
         if (handle_kv && bhi%head_n_rep==0) {
             // Trigger the stores to global memory.
