@@ -29,7 +29,6 @@
     size_t smem_sz = mmha::smem_size_in_bytes<T>(params, THDS_PER_VALUE, THDS_PER_BLOCK);          \
     printf("smem_sz: %d\n", smem_sz);   \
     dim3   grid(params.num_heads, params.batch_size);                                                                  \
-    
     cudaFuncSetAttribute(mmha::masked_multihead_attention_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, smem_sz);           \
     mmha::masked_groupedquery_attention_kernel<T,                                                                         \
                                             Dh,                                                                        \
