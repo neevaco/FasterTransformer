@@ -762,7 +762,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         gpt_context_decoder_->forward(
             &decoder_output_tensors, &decoder_input_tensors, &gpt_weights->decoder_layer_weights);
         sync_check_cuda_error();
-        if {
+        {
                 T* buf;
                 int st = 1;
                 for (int k=0; k<self_k_cache_shape.size(); k++) {
