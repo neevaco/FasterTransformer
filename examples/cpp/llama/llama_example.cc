@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
         ini_name = std::string(argv[1]);
     }
     else {
-        ini_name = "/notebooks/FasterTransformer/examples/cpp/llama/llama_config.ini";
+        ini_name = "/notebooks/tmp/FasterTransformer/examples/cpp/llama/llama_config.ini";
     }
 
     INIReader reader = INIReader(ini_name);
@@ -90,6 +90,7 @@ void llama_example(const INIReader reader)
     const size_t decoder_layers       = reader.GetInteger(model_name, "num_layer");
     const size_t rotary_embedding_dim = reader.GetInteger(model_name, "rotary_embedding");
     const float  rope_theta           = reader.GetFloat(model_name, "rope_theta", 10000.f);
+    printf("rope_theta: %f\n", rope_theta);
     const float  layernorm_eps        = reader.GetFloat(model_name, "layernorm_eps");
     const int    start_id             = reader.GetInteger(model_name, "start_id");
     const int    end_id               = reader.GetInteger(model_name, "end_id");
@@ -196,7 +197,8 @@ void llama_example(const INIReader reader)
                    max_input_len,
                    end_id,
                    1,
-                   "/notebooks/FasterTransformer/examples/cpp/llama/start_ids.csv");
+                   "/notebooks/tmp/FasterTransformer/examples/cpp/llama/start_ids_real.csv");
+                   // "/notebooks/tmp/FasterTransformer/examples/cpp/llama/start_ids_real.csv");
 
 
     int* d_input_ids;
@@ -475,7 +477,9 @@ void llama_example(const INIReader reader)
                     if ((i + 1) % (total_output_len) == 0) {
                         outFile << std::endl;
                     }
-                    printf("%5d ", hBuf[i]);
+                    if (i+32 >= outCount) {
+                        printf("%d, ", hBuf[i]);
+                    }
                     // if (i < 10) {
                     //     printf("%5d ", hBuf[i]);
                     // }

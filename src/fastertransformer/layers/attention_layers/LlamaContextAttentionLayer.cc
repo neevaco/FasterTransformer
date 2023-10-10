@@ -728,8 +728,12 @@ void LlamaContextAttentionLayer<T>::allocateBuffer(size_t batch_size, size_t seq
     FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     // const auto type_size = int8_mode_ == 2 ? sizeof(int8_t) : sizeof(T);
     // NOTE (perkzz): use sizeof(T) here for cutlass int8 kernels.
+    printf("local_hidden_units_: %d\n", local_hidden_units_);
     const auto type_size = sizeof(T);
+    printf("%ld\n", type_size * 30 * batch_size * seq_len * local_hidden_units_);
+    printf("%ld\n", type_size * 3 * batch_size * seq_len * local_hidden_units_);
     qkv_buf_ = (T*)allocator_->reMalloc(qkv_buf_, type_size * 3 * batch_size * seq_len * local_hidden_units_, true);
+    printf("qkv_buf_\n");
     if (local_kv_head_num_ != local_head_num_) {
         size_t local_qkv_size = local_hidden_units_ + 2 * local_kv_head_num_ * size_per_head_;
         qkv_buf_tmp_ = (T*)allocator_->reMalloc(qkv_buf_tmp_, type_size * batch_size * seq_len * local_qkv_size, true);
@@ -737,18 +741,25 @@ void LlamaContextAttentionLayer<T>::allocateBuffer(size_t batch_size, size_t seq
         qkv_buf_tmp_ = qkv_buf_;
     }
     q_buf_2_ = (T*)allocator_->reMalloc(q_buf_2_, sizeof(T) * batch_size * seq_len * 3 * local_hidden_units_, true);
+    printf("q_buf_2_\n");
     k_buf_2_ = q_buf_2_ + batch_size * seq_len * local_hidden_units_;
     v_buf_2_ = k_buf_2_ + batch_size * seq_len * local_hidden_units_;
 
     // save memory usage when using fmha
     if (allocate_qk_buf) {
+        printf("allocate_qk_buf\n");
+        auto x = sizeof(T) * batch_size * local_head_num_ * seq_len * seq_len;
+        printf("%ld\n", x);
         qk_buf_ = (T*)allocator_->reMalloc(qk_buf_, sizeof(T) * batch_size * local_head_num_ * seq_len * seq_len, true);
     }
     else {
         allocator_->free((void**)(&qk_buf_));
     }
+    printf("qkv_buf_2_\n");
     qkv_buf_2_ = (T*)allocator_->reMalloc(qkv_buf_2_, sizeof(T) * batch_size * seq_len * local_hidden_units_, true);
+    printf("qkv_buf_2_\n");
     qkv_buf_3_ = (T*)allocator_->reMalloc(qkv_buf_3_, type_size * batch_size * seq_len * local_hidden_units_, true);
+    printf("qkv_buf_3_\n");
 
     if (is_qk_buf_float_ == true) {
         if (allocate_qk_buf) {

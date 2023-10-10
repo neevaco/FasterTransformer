@@ -762,6 +762,23 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         gpt_context_decoder_->forward(
             &decoder_output_tensors, &decoder_input_tensors, &gpt_weights->decoder_layer_weights);
         sync_check_cuda_error();
+        {
+                T* buf;
+                int st = 1;
+                for (int k=0; k<self_k_cache_shape.size(); k++) {
+                    st *= self_k_cache_shape[k];
+                }
+                buf = new T[st];
+                cudaMemcpy(buf, key_cache_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                printf("key_cache_ at gpt_context_decoder_\n");
+                for (int i=max_input_length-10; i<max_input_length+2; i++) {
+                    for (int j=0; j<8; j++) {
+                        printf("%f ", double(buf[i*8+j]));
+                    }
+                    printf("\n");
+                }
+                printf("\n");
+        }
         invokeDecodingInitialize(finished_buf_,
                                  sequence_lengths_,
                                  nullptr,
@@ -919,8 +936,32 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                             decoder_output_buf_ + hidden_units_offset}},
                     {"key_cache", Tensor{MEMORY_GPU, data_type, self_k_cache_shape, key_cache_}},
                     {"value_cache", Tensor{MEMORY_GPU, data_type, self_v_cache_shape, value_cache_}}};
+                // for (int i=0; i< self_k_cache_shape.size(); i++) {
+                //     printf("self_k_cache_shape: %d\n", self_k_cache_shape[i]);
+                // }
+                // for (int i=0; i< self_v_cache_shape.size(); i++) {
+                //     printf("self_v_cache_shape: %d\n", self_v_cache_shape[i]);
+                // }
                 gpt_decoder_->forward(
                     &decoder_output_tensors, &decoder_input_tensors, &gpt_weights->decoder_layer_weights);
+            }
+
+            if (step <= max_input_length + 1) {
+                T* buf;
+                int st = 1;
+                for (int k=0; k<self_k_cache_shape.size(); k++) {
+                    st *= self_k_cache_shape[k];
+                }
+                buf = new T[st];
+                cudaMemcpy(buf, key_cache_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                printf("key_cache_ at step: %d\n", step);
+                for (int i=max_input_length-10; i<max_input_length+2; i++) {
+                    for (int j=0; j<8; j++) {
+                        printf("%f ", double(buf[i*8+j]));
+                    }
+                    printf("\n");
+                }
+                printf("\n");
             }
 
             if (pipeline_para_.rank_ == pipeline_para_.world_size_ - 1) {
@@ -933,6 +974,18 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                                          hidden_units_,
                                          stream_);
                 sync_check_cuda_error();
+
+                // if (step == max_input_length) {
+                //         T* buf;
+                //         int st = hidden_units_;
+                //         buf = new T[st];
+                //         cudaMemcpy(buf, normed_decoder_output_buf_, sizeof(T) * st, cudaMemcpyDeviceToHost);
+                //         printf("normed_decoder_output_buf_ at step: %d\n", step);
+                //         for (int i=0; i<st; i++) {
+                //             printf("%f ", double(buf[i]));
+                //         }
+                //         printf("\n");
+                // }
 
                 
                 if (tensor_para_.world_size_ == 1) {
@@ -1064,7 +1117,17 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                     }
                     dynamic_decode_output_tensors.insert(*t);
                 }
-
+                if (step == max_input_length && 0) {
+                        float* buf;
+                        int st = vocab_size_padded_;
+                        buf = new float[st];
+                        cudaMemcpy(buf, logits_buf_, sizeof(float) * st, cudaMemcpyDeviceToHost);
+                        printf("logits_buf_ at step: %d\n", step);
+                        for (int i=0; i<10; i++) {
+                            printf("%f ", double(buf[i]));
+                        }
+                        printf("\n");
+                }
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
                 *generation_should_stop_ &= subbatch_should_stop;
             }

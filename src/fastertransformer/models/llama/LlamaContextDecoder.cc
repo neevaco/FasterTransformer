@@ -593,6 +593,23 @@ void LlamaContextDecoder<T>::forward(std::unordered_map<std::string, Tensor>*   
                                        request_batch_size,
                                        hidden_units_,
                                        stream_);
+
+    // {
+    //     T* buf;
+    //     int st = seq_len*8192;
+    //     buf = new T[st];
+    //     cudaMemcpy(buf, output_tensors->at("decoder_output").getPtr<T>(), sizeof(T) * st, cudaMemcpyDeviceToHost);
+    //     printf("decoder_output at step\n");
+    //     for (int s=0; s<seq_len; s++) {
+    //         printf("seq at %d:\n", s);
+    //         for (int i=0; i<10; i++) {
+    //             printf("%f ", double(buf[s*8192+i]));
+    //         }
+    //         printf("\n");
+    //     }
+    //     printf("last: %f\n", double(buf[st-1]));
+    //     printf("\n");
+    // }
     sync_check_cuda_error();
     if (is_free_buffer_after_forward_ == true) {
         freeBuffer();

@@ -242,9 +242,16 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*          
     Tensor&             v_cache = output_tensors->at("value_cache");
     std::vector<size_t> self_k_cache_size;
     self_k_cache_size.push_back(local_batch_size);
+    size_t a = 1;
+    int b = 1;
     for (auto t = k_cache.shape.begin() + 2; t != k_cache.shape.end(); ++t) {
         self_k_cache_size.push_back(*t);
     }
+    for (auto t = k_cache.shape.begin(); t != k_cache.shape.end(); ++t) {
+        a *= *t;
+        b *= *t;
+    }
+    // printf("a b: %ld %d\n", a, b);
     std::vector<size_t> self_v_cache_size;
     self_v_cache_size.push_back(local_batch_size);
     for (auto t = v_cache.shape.begin() + 2; t != v_cache.shape.end(); ++t) {
@@ -297,6 +304,7 @@ void LlamaDecoder<T>::forward(std::unordered_map<std::string, Tensor>*          
             ite_cache_offset *= *t;
         }
         cache_offset += ite_cache_offset;
+        // printf("cache_offset %ld ite_cache_offset %ld\n", cache_offset, ite_cache_offset);
 
         TensorMap self_attention_output_tensors{
             {"hidden_features", Tensor{MEMORY_GPU, data_type, {local_batch_size, hidden_units_}, self_attn_output_}},
