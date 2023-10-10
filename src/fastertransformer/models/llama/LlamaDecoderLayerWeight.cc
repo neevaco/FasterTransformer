@@ -193,6 +193,7 @@ void LlamaDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType 
 {
     FT_CHECK(is_maintain_buffer == true);
     const std::string rank_spec = std::to_string(tensor_para_rank_);
+    FT_LOG_INFO("loading llama model weight rank %s from %s", rank_spec, dir_path);
 
     // fill all bias to zeros
     deviceFill(weights_ptr[0], (size_t)hidden_units_, (T)0.0);
@@ -285,6 +286,7 @@ void LlamaDecoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType 
                                                      model_file_type);
 
     }
+    FT_LOG_INFO("finished loading llama model weight rank %s from %s", rank_spec, dir_path);
 }
 
 template<typename T>
