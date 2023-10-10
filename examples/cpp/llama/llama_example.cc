@@ -463,7 +463,12 @@ void llama_example(const INIReader reader)
             cudaD2Hcpy(seqlBuf, d_sequence_lengths, seqLCount);
             cudaD2Hcpy(inlBuf, d_sequence_lengths, seqLCount);
             printf("seqlBuf: %d\n", seqlBuf[0]);
-
+/*
+golden request:
+1, 18637, 29892, 526, 366, 1136, 455, 2470, 29973, 1815, 366, 5193, 304, 592, 29973
+golden result:
+1 18637 29892   526   366  1136   455  2470 29973  1815   366  5193   304   592 29973 31489 25709 29251 25143  9777 24957 12623 29013 25302 11973   886 29457  6626 13638 10893 26609 25049 15066 29013  1927 27436 28754  1740   698 24551 25482 31552 22617  1140   293 10146   912
+*/
             {
                 std::cout << "Writing " << outCount << " elements\n";
                 int zeroCount = 0;
