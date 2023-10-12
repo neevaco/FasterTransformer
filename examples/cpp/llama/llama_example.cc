@@ -214,6 +214,10 @@ void llama_example(const INIReader reader)
         cudaH2Dcpy(d_input_ids, v_start_ids.data(), request_batch_size * max_input_len);
         cudaH2Dcpy(d_input_lengths, v_start_lengths.data(), request_batch_size);
     }
+    for (int i=0; i< v_start_lengths.size(); i++) {
+        printf("%d ", v_start_lengths[i]);
+    }
+    printf("\n");
     std::vector<int> start_ids(request_batch_size, start_id);
     std::vector<int> end_ids(request_batch_size, end_id);
 
