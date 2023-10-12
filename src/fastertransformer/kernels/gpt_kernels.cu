@@ -588,7 +588,7 @@ void invokeCalculateNewTokenLength(int*         output_lengths,
     dim3 block(256);
 
     calculateNewTokenLength<<<grid, block, 0, stream>>>(
-        word_ids, force_bos_ids, batch_size, beam_width, step);
+        output_lengths, input_lengths, batch_size, beam_width);
 }
 
 
