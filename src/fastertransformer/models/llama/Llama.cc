@@ -1080,6 +1080,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                     for (int i=0; i < seq_len; i++) {
                         printf("%d ", buf[i]);
                     }
+                    printf("\n");
                     for (int i=0; i < seq_len; i++) {
                         printf("%d ", finish[i]);
                     }
