@@ -1176,6 +1176,7 @@ void Llama<T>::setOutputTensors(std::unordered_map<std::string, Tensor>*       o
     const size_t batch_size       = output_tensors->at("output_ids").shape[0];
     const size_t beam_width       = output_tensors->at("output_ids").shape[1];
     int*         sequence_lengths = output_tensors->at("sequence_length").getPtr<int>();
+    int*         input_lengths    = input_tensors->at("input_lengths").getPtr<int>();
     const size_t max_prefix_soft_prompt_length =
         has_prefix_soft_prompt_ ? input_tensors->at("request_prompt_embedding").shape[1] : 0;
 
