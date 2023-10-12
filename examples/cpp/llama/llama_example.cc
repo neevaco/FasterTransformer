@@ -93,6 +93,7 @@ void llama_example(const INIReader reader)
     const float  layernorm_eps        = reader.GetFloat(model_name, "layernorm_eps");
     const int    start_id             = reader.GetInteger(model_name, "start_id");
     const int    end_id               = reader.GetInteger(model_name, "end_id");
+    printf("end_id: %d\n", end_id);
 
     const size_t hidden_units = head_num * size_per_head;
     const size_t inter_size   = reader.GetInteger(model_name, "inter_size");
