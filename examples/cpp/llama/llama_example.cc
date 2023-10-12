@@ -367,7 +367,7 @@ void llama_example(const INIReader reader)
         {"input_ids",
          Tensor{MEMORY_GPU, TYPE_INT32, std::vector<size_t>{request_batch_size, (size_t)max_input_len}, d_input_ids}},
          {"beam_width",
-             triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, std::vector<size_t>{1}, &beam_width2}},
+             Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{1}, &beam_width2}},
         {"input_lengths", Tensor{MEMORY_GPU, TYPE_INT32, std::vector<size_t>{request_batch_size}, d_input_lengths}},
         // NOTE: if you need prefix prompts, remember to add prefix_prompt_task_ids here
         // {"prompt_learning_task_name_ids", Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{request_batch_size},
