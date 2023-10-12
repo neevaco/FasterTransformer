@@ -93,7 +93,6 @@ void llama_example(const INIReader reader)
     const float  layernorm_eps        = reader.GetFloat(model_name, "layernorm_eps");
     const int    start_id             = reader.GetInteger(model_name, "start_id");
     const int    end_id               = reader.GetInteger(model_name, "end_id");
-    printf("end_id: %d\n", end_id);
 
     const size_t hidden_units = head_num * size_per_head;
     const size_t inter_size   = reader.GetInteger(model_name, "inter_size");
@@ -214,10 +213,6 @@ void llama_example(const INIReader reader)
         cudaH2Dcpy(d_input_ids, v_start_ids.data(), request_batch_size * max_input_len);
         cudaH2Dcpy(d_input_lengths, v_start_lengths.data(), request_batch_size);
     }
-    for (int i=0; i< v_start_lengths.size(); i++) {
-        printf("%d ", v_start_lengths[i]);
-    }
-    printf("\n");
     std::vector<int> start_ids(request_batch_size, start_id);
     std::vector<int> end_ids(request_batch_size, end_id);
 
@@ -362,12 +357,9 @@ void llama_example(const INIReader reader)
     deviceMalloc(&d_sequence_lengths, request_batch_size * beam_width, false);
 
     std::vector<uint32_t>                   output_seq_len(request_batch_size, total_output_len);
-    int beam_width2 = 2;
     std::unordered_map<std::string, Tensor> input_tensors = std::unordered_map<std::string, Tensor>{
         {"input_ids",
          Tensor{MEMORY_GPU, TYPE_INT32, std::vector<size_t>{request_batch_size, (size_t)max_input_len}, d_input_ids}},
-         {"beam_width",
-             Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{1}, &beam_width2}},
         {"input_lengths", Tensor{MEMORY_GPU, TYPE_INT32, std::vector<size_t>{request_batch_size}, d_input_lengths}},
         // NOTE: if you need prefix prompts, remember to add prefix_prompt_task_ids here
         // {"prompt_learning_task_name_ids", Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{request_batch_size},
@@ -380,8 +372,7 @@ void llama_example(const INIReader reader)
         {"len_penalty", Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &len_penalty}},
         {"min_length", Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{1}, &min_length}},
         {"start_id", Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{request_batch_size}, start_ids.data()}},
-        {"end_id", Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{request_batch_size}, end_ids.data()}},
-    };
+        {"end_id", Tensor{MEMORY_CPU, TYPE_INT32, std::vector<size_t>{request_batch_size}, end_ids.data()}}};
 
     if (repetition_penalty != 1.0f) {
         input_tensors.insert(
@@ -465,9 +456,14 @@ void llama_example(const INIReader reader)
             size_t seqLCount = request_batch_size * beam_width;
             int* seqlBuf = new int[seqLCount];
 
+            size_t inLCount = request_batch_size * beam_width;
+            int* inlBuf = new int[inLCount];
+
             cudaD2Hcpy(hBuf, d_output_ids, outCount);
             cudaD2Hcpy(seqlBuf, d_sequence_lengths, seqLCount);
+            cudaD2Hcpy(inlBuf, d_sequence_lengths, seqLCount);
             printf("seqlBuf: %d\n", seqlBuf[0]);
+
             {
                 std::cout << "Writing " << outCount << " elements\n";
                 int zeroCount = 0;
@@ -488,9 +484,6 @@ void llama_example(const INIReader reader)
                     }
                 }
                 std::cout << std::endl << "zeroCount = " << zeroCount << std::endl;
-            }
-            for (int i=0; i<seqLCount; i++) {
-                std::cout << "seq len:" << seqlBuf[i] << std::endl;
             }
             delete[] hBuf;
         }
