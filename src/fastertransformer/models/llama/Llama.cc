@@ -1068,13 +1068,20 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
                 {
                     int* buf;
-                    int seq_len = 8;
+                    bool* finish;
+                    int seq_len = batch_size * beam_width;
                     int st = seq_len;
                     buf = new int[st];
+                    finish = new bool[st];
                     cudaMemcpy(buf, sequence_lengths_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+                    cudaMemcpy(finish, finished_buf_, sizeof(bool) * st, cudaMemcpyDeviceToHost);
+                    
                     printf("seq_len at step: %d\n", step);
                     for (int i=0; i < seq_len; i++) {
                         printf("%d ", buf[i]);
+                    }
+                    for (int i=0; i < seq_len; i++) {
+                        printf("%d ", finish[i]);
                     }
                     printf("\n");
                 }
