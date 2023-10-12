@@ -39,6 +39,7 @@ __global__ void decodingInitialize(bool*      finished,
          index += blockDim.x * gridDim.x) {
         finished[index]        = false;
         sequence_length[index] = max_input_length;
+        printf("index %d length: %d\n", index, max_input_length);
         if (word_ids != nullptr) {
             word_ids[index] = sentence_ids[index / beam_width];
         }
