@@ -245,7 +245,7 @@ __global__ void topk_stage2_sampling(const int* __restrict topk_tmp_id_buf,
         s_sum = 0.0f;
     }
     TopK_2<float> partial;
-    printf("end id: %d\n", end_ids[batch_id]);
+    // printf("end id: %d\n", end_ids[batch_id]);
     if (finished != nullptr && finished[batch_id] == true) {
         printf("batch id: %d", batch_id);
         ids[batch_id] = end_ids[batch_id];
