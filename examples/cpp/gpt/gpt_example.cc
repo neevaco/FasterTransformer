@@ -343,20 +343,20 @@ void gpt_example(const INIReader reader)
         input_tensors.insert(
             {"presence_penalty", Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &presence_penalty}});
     }
-    if (top_k == 0 && top_p == 0.0f) {
-        FT_CHECK(beam_width > 1);
-        input_tensors.insert({"beam_search_diversity_rate",
-                              Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &beam_search_diversity_rate}});
-    }
-    else {
-        input_tensors.insert({"random_seed", Tensor{MEMORY_CPU, TYPE_UINT64, std::vector<size_t>{1}, &random_seed}});
-        if (top_p != 0.0f) {
-            input_tensors.insert({"runtime_top_p", Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &top_p}});
-        }
-        if (top_k != 0) {
-            input_tensors.insert({"runtime_top_k", Tensor{MEMORY_CPU, TYPE_UINT32, std::vector<size_t>{1}, &top_k}});
-        }
-    }
+    // if (top_k == 0 && top_p == 0.0f) {
+    //     FT_CHECK(beam_width > 1);
+    //     input_tensors.insert({"beam_search_diversity_rate",
+    //                           Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &beam_search_diversity_rate}});
+    // }
+    // else {
+    //     input_tensors.insert({"random_seed", Tensor{MEMORY_CPU, TYPE_UINT64, std::vector<size_t>{1}, &random_seed}});
+    //     if (top_p != 0.0f) {
+    //         input_tensors.insert({"runtime_top_p", Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &top_p}});
+    //     }
+    //     if (top_k != 0) {
+    //         input_tensors.insert({"runtime_top_k", Tensor{MEMORY_CPU, TYPE_UINT32, std::vector<size_t>{1}, &top_k}});
+    //     }
+    // }
 
     std::unordered_map<std::string, Tensor> output_tensors = std::unordered_map<std::string, Tensor>{
         {"output_ids",
