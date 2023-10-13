@@ -1285,6 +1285,7 @@ void Llama<T>::setOutputTensors(std::unordered_map<std::string, Tensor>*       o
                            "The shape of cum_log_probs does not match with batch_size x beam_width.");
         cudaAutoCpy(cum_log_probs.getPtr<float>(), cum_log_probs_, cum_log_probs.size(), stream_);
     }
+    printf("max_input_length: %d\n", max_input_length);
     invokeCalculateNewTokenLength(sequence_lengths,
                                   input_lengths,
                                   batch_size,
