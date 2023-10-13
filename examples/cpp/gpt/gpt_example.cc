@@ -343,20 +343,20 @@ void gpt_example(const INIReader reader)
         input_tensors.insert(
             {"presence_penalty", Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &presence_penalty}});
     }
-    if (top_k == 0 && top_p == 0.0f) {
-        FT_CHECK(beam_width > 1);
-        input_tensors.insert({"beam_search_diversity_rate",
-                              Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &beam_search_diversity_rate}});
-    }
-    else {
-        input_tensors.insert({"random_seed", Tensor{MEMORY_CPU, TYPE_UINT64, std::vector<size_t>{1}, &random_seed}});
-        if (top_p != 0.0f) {
-            input_tensors.insert({"runtime_top_p", Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &top_p}});
-        }
-        if (top_k != 0) {
-            input_tensors.insert({"runtime_top_k", Tensor{MEMORY_CPU, TYPE_UINT32, std::vector<size_t>{1}, &top_k}});
-        }
-    }
+    // if (top_k == 0 && top_p == 0.0f) {
+    //     FT_CHECK(beam_width > 1);
+    //     input_tensors.insert({"beam_search_diversity_rate",
+    //                           Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &beam_search_diversity_rate}});
+    // }
+    // else {
+    //     input_tensors.insert({"random_seed", Tensor{MEMORY_CPU, TYPE_UINT64, std::vector<size_t>{1}, &random_seed}});
+    //     if (top_p != 0.0f) {
+    //         input_tensors.insert({"runtime_top_p", Tensor{MEMORY_CPU, TYPE_FP32, std::vector<size_t>{1}, &top_p}});
+    //     }
+    //     if (top_k != 0) {
+    //         input_tensors.insert({"runtime_top_k", Tensor{MEMORY_CPU, TYPE_UINT32, std::vector<size_t>{1}, &top_k}});
+    //     }
+    // }
 
     std::unordered_map<std::string, Tensor> output_tensors = std::unordered_map<std::string, Tensor>{
         {"output_ids",
@@ -439,9 +439,16 @@ void gpt_example(const INIReader reader)
             size_t outCount = total_output_len * request_batch_size * beam_width;
             int*   hBuf     = new int[outCount];
             cudaD2Hcpy(hBuf, d_output_ids, outCount);
+            size_t seqLenCount = request_batch_size * beam_width;
+            int*   hBuf2     = new int[seqLenCount];
+            cudaD2Hcpy(hBuf2, d_sequence_lengths, seqLenCount);
 
             {
                 std::cout << "Writing " << outCount << " elements\n";
+                for (int i=0; i<seqLenCount; i++) {
+                    printf("%d ", hBuf2[i]);
+                }
+                printf("\n");
                 int zeroCount = 0;
                 for (size_t i = 0; i < outCount; i++) {
                     if (hBuf[i] == int(0)) {
@@ -452,10 +459,8 @@ void gpt_example(const INIReader reader)
                         outFile << std::endl;
                     }
 
-                    if (i < 10) {
-                        printf("%5d ", hBuf[i]);
-                    }
-                    if ((i + 1) % (total_output_len) == 0 && i < 10) {
+                    printf("%5d ", hBuf[i]);
+                    if ((i + 1) % (total_output_len) == 0) {
                         std::cout << std::endl;
                     }
                 }

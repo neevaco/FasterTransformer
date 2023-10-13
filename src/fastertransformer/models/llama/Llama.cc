@@ -1066,6 +1066,37 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                 }
 
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
+                {
+                    int* buf;
+                    bool* finish;
+                    int* id_buf;
+                    int seq_len = batch_size * beam_width;
+                    int st = seq_len;
+                    int st2 = max_seq_len * batch_size * beam_width;
+                    buf = new int[st];
+                    id_buf = new int[st2];
+                    finish = new bool[st];
+                    cudaMemcpy(buf, sequence_lengths_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+                    cudaMemcpy(id_buf, output_ids_buf_, sizeof(int) * st2, cudaMemcpyDeviceToHost);
+                    cudaMemcpy(finish, finished_buf_, sizeof(bool) * st, cudaMemcpyDeviceToHost);
+
+                    printf("seq_len at step: %d\n", step);
+                    for (int i=0; i < seq_len; i++) {
+                        printf("%d ", buf[i]);
+                    }
+                    printf("\n");
+                    for (int i=0; i < seq_len; i++) {
+                        printf("%d ", finish[i]);
+                    }
+                    printf("\n");
+                    printf("ids: \n");
+                    for (int i=0; i < batch_size; i++) {
+                        for (int j=0; j<max_seq_len; j++) {
+                            printf("%5d ", id_buf[j*batch_size+i]);
+                        }
+                        printf("\n");
+                    }
+                }
                 *generation_should_stop_ &= subbatch_should_stop;
             }
         }

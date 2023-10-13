@@ -225,6 +225,7 @@ __global__ void topk_stage2_sampling(const int* __restrict topk_tmp_id_buf,
     const int tid      = threadIdx.x;
     const int batch_id = blockIdx.x;
     if (skip_decode != nullptr && skip_decode[batch_id]) {
+        printf("skip decode\n");
         return;
     }
 
@@ -245,8 +246,9 @@ __global__ void topk_stage2_sampling(const int* __restrict topk_tmp_id_buf,
         s_sum = 0.0f;
     }
     TopK_2<float> partial;
-
+    // printf("end id: %d\n", end_ids[batch_id]);
     if (finished != nullptr && finished[batch_id] == true) {
+        printf("batch id: %d", batch_id);
         ids[batch_id] = end_ids[batch_id];
         return;
     }
@@ -307,6 +309,7 @@ __global__ void topk_stage2_sampling(const int* __restrict topk_tmp_id_buf,
         if (sequence_length != nullptr && finished != nullptr) {
             sequence_length[batch_id] = finished[batch_id] ? sequence_length[batch_id] : sequence_length[batch_id] + 1;
             finished[batch_id]        = ids[batch_id] == end_ids[batch_id] ? true : false;
+            printf("batch %d: %d %d %d\n", batch_id, finished[batch_id], ids[batch_id], end_ids[batch_id]);
         }
     }
 }
