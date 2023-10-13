@@ -1092,7 +1092,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                     printf("ids: \n");
                     for (int i=0; i < batch_size; i++) {
                         for (int j=0; j<max_seq_len; j++) {
-                            printf("%05d ", id_buf[j*batch_size+i]);
+                            printf("%5d ", id_buf[j*batch_size+i]);
                         }
                         printf("\n");
                     }
