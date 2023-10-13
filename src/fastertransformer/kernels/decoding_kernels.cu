@@ -528,6 +528,7 @@ __global__ void gatherTree(gatherTreeParam param)
                 tmp_len - param.max_prefix_soft_prompt_length
                 - (param.max_input_length - param.max_input_without_prompt_length);
             printf("a: %d b: %d\n", param.max_sequence_lengths[batch * param.beam_width + j], tmp_len);
+            printf("%d %d\n", param.max_input_length, param.max_input_without_prompt_length);
             // update the response input length
             if (update_response_input_length) {
                 param.response_input_lengths[batch * param.beam_width + j] = input_len - prompt_len;
