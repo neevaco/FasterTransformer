@@ -225,6 +225,7 @@ __global__ void topk_stage2_sampling(const int* __restrict topk_tmp_id_buf,
     const int tid      = threadIdx.x;
     const int batch_id = blockIdx.x;
     if (skip_decode != nullptr && skip_decode[batch_id]) {
+        printf("skip decode\n");
         return;
     }
 
