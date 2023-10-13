@@ -123,6 +123,7 @@ void invokeTileGptInputs(int*         tiled_input_ids,
 
 void invokeCalculateNewTokenLength(int*         output_lengths,
                                    const int*   input_lengths,
+                                   const int    max_input_length,
                                    const int    batch_size,
                                    const int    beam_width,
                                    cudaStream_t stream);

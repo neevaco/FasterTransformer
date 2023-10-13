@@ -1288,6 +1288,7 @@ void Llama<T>::setOutputTensors(std::unordered_map<std::string, Tensor>*       o
     printf("max_input_length: %d\n", max_input_length);
     invokeCalculateNewTokenLength(sequence_lengths,
                                   input_lengths,
+                                  max_input_length,
                                   batch_size,
                                   beam_width,
                                   stream_);
