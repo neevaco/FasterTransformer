@@ -196,7 +196,7 @@ void llama_example(const INIReader reader)
                    max_input_len,
                    end_id,
                    1,
-                   "/notebooks/FasterTransformer/examples/cpp/llama/start_ids.csv");
+                   "/notebooks/tmp/FasterTransformer/examples/cpp/llama/start_ids.csv");
 
 
     int* d_input_ids;
