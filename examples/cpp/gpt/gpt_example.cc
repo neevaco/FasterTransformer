@@ -439,9 +439,16 @@ void gpt_example(const INIReader reader)
             size_t outCount = total_output_len * request_batch_size * beam_width;
             int*   hBuf     = new int[outCount];
             cudaD2Hcpy(hBuf, d_output_ids, outCount);
+            size_t seqLenCount = request_batch_size * beam_width;
+            int*   hBuf2     = new int[seqLenCount];
+            cudaD2Hcpy(hBuf2, d_sequence_lengths, seqLenCount);
 
             {
                 std::cout << "Writing " << outCount << " elements\n";
+                for (int i=0; i<seqLenCount; i++) {
+                    printf("%d ", hBuf2[i]);
+                }
+                printf("\n");
                 int zeroCount = 0;
                 for (size_t i = 0; i < outCount; i++) {
                     if (hBuf[i] == int(0)) {
