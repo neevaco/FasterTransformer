@@ -309,7 +309,7 @@ __global__ void topk_stage2_sampling(const int* __restrict topk_tmp_id_buf,
         if (sequence_length != nullptr && finished != nullptr) {
             sequence_length[batch_id] = finished[batch_id] ? sequence_length[batch_id] : sequence_length[batch_id] + 1;
             finished[batch_id]        = ids[batch_id] == end_ids[batch_id] ? true : false;
-            printf("%d %d %d\n", finished[batch_id], ids[batch_id], end_ids[batch_id]);
+            printf("batch %d: %d %d %d\n", batch_id, finished[batch_id], ids[batch_id], end_ids[batch_id]);
         }
     }
 }
