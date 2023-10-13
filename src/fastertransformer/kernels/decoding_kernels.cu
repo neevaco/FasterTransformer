@@ -39,7 +39,6 @@ __global__ void decodingInitialize(bool*      finished,
          index += blockDim.x * gridDim.x) {
         finished[index]        = false;
         sequence_length[index] = max_input_length;
-        // printf("index %d length: %d\n", index, max_input_length);
         if (word_ids != nullptr) {
             word_ids[index] = sentence_ids[index / beam_width];
         }
@@ -528,6 +527,7 @@ __global__ void gatherTree(gatherTreeParam param)
             param.max_sequence_lengths[batch * param.beam_width + j] =
                 tmp_len - param.max_prefix_soft_prompt_length
                 - (param.max_input_length - param.max_input_without_prompt_length);
+            printf("a: %d b: %d\n", param.max_sequence_lengths[batch * param.beam_width + j], tmp_len);
             // update the response input length
             if (update_response_input_length) {
                 param.response_input_lengths[batch * param.beam_width + j] = input_len - prompt_len;
