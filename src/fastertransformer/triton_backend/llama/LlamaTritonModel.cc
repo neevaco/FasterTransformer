@@ -157,6 +157,11 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
     ft::NcclParam pipeline_para = nccl_params.second[comms_rank];
     float shared_contexts_ratio = 1.f;
 
+    char * ft_shared_contexts_ratio = std::getenv("FT_SHARED_CONTEXTS_RATIO");
+    if (ft_shared_contexts_ratio != nullptr) {
+        shared_contexts_ratio = atof(ft_shared_contexts_ratio);
+    }
+
     auto              gpt            = std::make_unique<ft::Llama<T>>(
         ft::Llama<T>(head_num_,
                      kv_head_num_,
