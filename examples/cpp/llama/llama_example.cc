@@ -320,6 +320,7 @@ void llama_example(const INIReader reader)
     char * ft_shared_contexts_ratio = std::getenv("FT_SHARED_CONTEXTS_RATIO");
     if (ft_shared_contexts_ratio != nullptr) {
         shared_contexts_ratio = atof(ft_shared_contexts_ratio);
+        printf("Override shared_contexts_ratio as: %f", shared_contexts_ratio);
     }
 
     Llama<T> gpt = Llama<T>(head_num,
