@@ -160,6 +160,7 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
     char * ft_shared_contexts_ratio = std::getenv("FT_SHARED_CONTEXTS_RATIO");
     if (ft_shared_contexts_ratio != nullptr) {
         shared_contexts_ratio = atof(ft_shared_contexts_ratio);
+        printf("Override shared_contexts_ratio as: %f\n", shared_contexts_ratio);
     }
 
     auto              gpt            = std::make_unique<ft::Llama<T>>(
