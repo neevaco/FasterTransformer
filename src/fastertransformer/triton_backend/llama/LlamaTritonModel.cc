@@ -164,9 +164,9 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
     }
 
     AttentionType attention_type = ft::AttentionType::FUSED_MHA;
-
     if (std::getenv("LLAMA_CONTEXT_ATTENTION_DISABLE_FUSED_MHA") != nullptr &&
          std::string(std::getenv("LLAMA_CONTEXT_ATTENTION_DISABLE_FUSED_MHA")) != "ON") {
+        printf("FUSED_MHA for llama is disabled\n");
         attention_type = ft::AttentionType::UNFUSED_MHA;
     }
 
@@ -199,7 +199,7 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
                      allocator.get(),
                      false,
                      cuda_device_prop_ptr.get(),
-                     ft::AttentionType::FUSED_MHA,
+                     attention_type,
                      int8_mode_,
                      custom_all_reduce_comm,
                      enable_custom_all_reduce_,
