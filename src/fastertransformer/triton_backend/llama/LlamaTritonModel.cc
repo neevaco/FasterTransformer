@@ -167,7 +167,7 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
 
     if (std::getenv("LLAMA_CONTEXT_ATTENTION_DISABLE_FUSED_MHA") != nullptr &&
          std::string(std::getenv("LLAMA_CONTEXT_ATTENTION_DISABLE_FUSED_MHA")) != "ON") {
-        attention_type = ft::AttentionType::FUSED_MHA;
+        attention_type = ft::AttentionType::UNFUSED_MHA;
     }
 
     auto              gpt            = std::make_unique<ft::Llama<T>>(
