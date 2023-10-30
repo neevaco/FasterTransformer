@@ -163,6 +163,13 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
         printf("Override shared_contexts_ratio as: %f\n", shared_contexts_ratio);
     }
 
+    AttentionType attention_type = ft::AttentionType::FUSED_MHA;
+
+    if (std::getenv("LLAMA_CONTEXT_ATTENTION_DISABLE_FUSED_MHA") != nullptr &&
+         std::string(std::getenv("LLAMA_CONTEXT_ATTENTION_DISABLE_FUSED_MHA")) != "ON") {
+        attention_type = ft::AttentionType::FUSED_MHA;
+    }
+
     auto              gpt            = std::make_unique<ft::Llama<T>>(
         ft::Llama<T>(head_num_,
                      kv_head_num_,
