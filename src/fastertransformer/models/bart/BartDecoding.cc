@@ -370,6 +370,8 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
     // When step = k,  we put output ids and caches at step k, and the sequence_length would be k - 1 before
     // complete this step.
 
+    printf("BartDecoding<T>::forward\n");
+
     FT_LOG_DEBUG(__PRETTY_FUNCTION__);
     FT_CHECK(input_tensors->size() >= 2);
     FT_CHECK(output_tensors->size() >= 2);
