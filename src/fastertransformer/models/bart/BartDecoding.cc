@@ -343,6 +343,17 @@ void print(Tensor & t)
                 printf("%d ", buf[i]);
             }
             printf("\n");
+        return;
+    }
+    if (t.type == DataType::TYPE_BOOL) {
+            bool* buf;
+            buf = new bool[t.size()];
+            cudaMemcpy(buf, t.data, t.sizeBytes(), cudaMemcpyDeviceToHost);
+            for (int i=0; i<t.size(); i++) {
+                printf("%d ", buf[i]);
+            }
+            printf("\n");
+        return;
     }
 }
 
