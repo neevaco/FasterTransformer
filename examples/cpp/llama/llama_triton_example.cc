@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
                         printf("\n\n");
 
                     // if (i < 10)
-                        printf("%d ", hBuf[i]);
+                        printf("%d,", hBuf[i]);
                     // if ((i + 1) % (seq_len) == 0 && i < 10)
                     //     std::cout << std::endl;
                 }
