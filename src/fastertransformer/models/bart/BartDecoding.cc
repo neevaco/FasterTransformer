@@ -800,6 +800,10 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
                 if (step == 1) {
                     printf("dynamic_decode_output_tensors: %s\n\n", dynamic_decode_output_tensors.toString().c_str());
+                    for (int i=0; i<dynamic_decode_output_tensors.keys().size(); i++) {
+                        auto t = dynamic_decode_output_tensors.at(dynamic_decode_output_tensors.keys()[i]);
+                        printf("%s\n", t.toString().c_str());
+                    }
                 }  
                 if (step == 1) {
                     invokeForceId(output_ids_buf_,
