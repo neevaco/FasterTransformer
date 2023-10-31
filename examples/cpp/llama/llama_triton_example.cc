@@ -219,7 +219,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
 }
 
 std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>>
-prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std::vector<void*>* pointer_record, string file_name)
+prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std::vector<void*>* pointer_record, std::string file_name)
 {
     INIReader reader = INIReader(ini_name);
     if (reader.ParseError() < 0) {
