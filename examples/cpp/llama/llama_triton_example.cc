@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
     const int  seq_len      = output_tensors_lists[0].get()->at("output_ids").shape[2];
         printf("Here\n");
     const int* d_input_lengths = (const int*)output_tensors_lists[0].get()->at("input_lengths").data;
-
+printf("Here\n");
     // step 6: check results
     if (node_id == 0) {
 
