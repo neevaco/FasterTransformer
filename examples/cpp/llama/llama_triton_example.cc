@@ -445,14 +445,14 @@ int main(int argc, char* argv[])
     cudaDeviceSynchronize();
     ft::mpi::barrier();
 
-    gettimeofday(&end, NULL);
+    // gettimeofday(&end, NULL);
 
-    printf("[INFO] batch_size %d beam_width %d seq_len %d"
-           " FT-CPP-GPT-Triton-time %.2f ms\n",
-           batch_size,
-           beam_width,
-           seq_len,
-           ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) * 0.001) / ite);
+    // printf("[INFO] batch_size %d beam_width %d seq_len %d"
+    //        " FT-CPP-GPT-Triton-time %.2f ms\n",
+    //        batch_size,
+    //        beam_width,
+    //        seq_len,
+    //        ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) * 0.001) / ite);
 
     ft::mpi::finalize();
     return 0;
