@@ -333,6 +333,9 @@ void BartDecoding<T>::unRegisterCallback()
 {
 }
 
+void print() {
+    
+}
 
 template<typename T>
 void BartDecoding<T>::forward(TensorMap*                   output_tensors,
@@ -805,6 +808,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                         auto t = dynamic_decode_output_tensors.at(key);
                         printf("%s: %s\n", key.c_str(), t.toString().c_str());
                         auto sz = t.size();
+                        auto szbt = t.sizeBytes();
                         int *p = t.getPtr<int>();
                         for (int j=0; j<sz; j++) {
                             printf("%d ", p[j]);
