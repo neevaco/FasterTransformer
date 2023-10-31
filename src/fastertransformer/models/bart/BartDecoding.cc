@@ -798,7 +798,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                     dynamic_decode_output_tensors.insert(*t);
                 }
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
-                if (step == 1 && input_tensors->isExist("forced_bos_id")) {
+                if (step == 1) {
                     invokeForceId(output_ids_buf_,
                                   forced_bos_ids_buf_,
                                   batch_size,
