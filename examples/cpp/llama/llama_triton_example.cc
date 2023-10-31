@@ -401,14 +401,15 @@ int main(int argc, char* argv[])
                 // }
                 printf("\n");
                 for (size_t i = 0; i < outCount; i++) {
-                    if (hBuf[i] == int(0))
-                        zeroCount++;
-                    outFile << hBuf[i] << " ";
-                    if ((i + 1) % (seq_len) == 0)
-                        printf("\n\n");
+                    // if (hBuf[i] == int(0))
+                    //     zeroCount++;
+                    // outFile << hBuf[i] << " ";
+
 
                     // if (i < 10)
                         printf("%d,", hBuf[i]);
+                    if ((i + 1) % (seq_len) == 0)
+                        printf("\n\n");
                     // if ((i + 1) % (seq_len) == 0 && i < 10)
                     //     std::cout << std::endl;
                 }
