@@ -706,13 +706,13 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
             sync_check_cuda_error();
         }
 
-        invokeBuildDecoderAttentionMask(input_attention_mask_,
-                                        tiled_input_lengths_buf_,
-                                        tiled_prompt_lengths_buf_,
-                                        batch_size * beam_width,
-                                        max_input_length,
-                                        max_prefix_prompt_length,
-                                        stream_);
+        // invokeBuildDecoderAttentionMask(input_attention_mask_,
+        //                                 tiled_input_lengths_buf_,
+        //                                 tiled_prompt_lengths_buf_,
+        //                                 batch_size * beam_width,
+        //                                 max_input_length,
+        //                                 max_prefix_prompt_length,
+        //                                 stream_);
         sync_check_cuda_error();
 
         std::unordered_map<std::string, Tensor> decoder_input_tensors{
