@@ -395,9 +395,9 @@ int main(int argc, char* argv[])
             {
                 std::cout << "Writing " << outCount << " elements\n";
                 int zeroCount = 0;
-                for (int i=0; i<batch_size; i++) {
-                    printf("%d ", iBuf[i]);
-                }
+                // for (int i=0; i<batch_size; i++) {
+                //     printf("%d ", iBuf[i]);
+                // }
                 printf("\n");
                 for (size_t i = 0; i < outCount; i++) {
                     if (hBuf[i] == int(0))
@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
                         outFile << std::endl;
 
                     // if (i < 10)
-                        printf("%5d ", hBuf[i]);
+                        printf("%d ", hBuf[i]);
                     // if ((i + 1) % (seq_len) == 0 && i < 10)
                     //     std::cout << std::endl;
                 }
