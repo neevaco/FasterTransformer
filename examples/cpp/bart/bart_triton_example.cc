@@ -418,7 +418,7 @@ int main(int argc, char* argv[])
                         outFile << std::endl;
 
                     // if (i < 10)
-                        printf("%5d ", hBuf[i]);
+                        printf("%d,", hBuf[i]);
                         if ((i + 1) % (seq_len) == 0) {
                             printf("\n");
                         }
