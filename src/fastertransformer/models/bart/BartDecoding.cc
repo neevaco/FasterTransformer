@@ -809,6 +809,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                   step,
                                   stream_);
                     sync_check_cuda_error();
+                    printf("dynamic_decode_output_tensors after: %s", dynamic_decode_output_tensors.toString().c_str());
                 } 
                 //else {
                     
