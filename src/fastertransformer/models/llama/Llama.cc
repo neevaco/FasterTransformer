@@ -140,8 +140,6 @@ void Llama<T>::allocateBuffer(
     // prompt_learning weight batch ptrs
     prompt_learning_weight_batch_ =
         (const T**)(allocator_->reMalloc(prompt_learning_weight_batch_, sizeof(T*) * batchxbeam, false));
-    tiled_prompt_lengths_buf_ =
-        (int*)(allocator_->reMalloc(tiled_prompt_lengths_buf_, sizeof(int) * batchxbeam, true));
 
     tiled_input_ids_buf_ =
         (int*)(allocator_->reMalloc(tiled_input_ids_buf_, sizeof(int) * batchxbeam * max_input_len, true));
@@ -204,7 +202,6 @@ void Llama<T>::freeBuffer()
         }
 
         allocator_->free((void**)(&prompt_learning_weight_batch_));
-        allocator_->free((void**)(&tiled_prompt_lengths_buf_));
 
         allocator_->free((void**)(&tiled_input_ids_buf_));
         allocator_->free((void**)(&tiled_input_lengths_buf_));
@@ -638,22 +635,6 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         use_shared_contexts = compact_size <= shared_contexts_ratio_ * batch_size;
         sync_check_cuda_error();
     }
-
-    // Prefix prompts
-    if (has_prefix_prompt_) {
-        cudaMemcpyAsync(prompt_learning_weight_batch_,
-                        prefix_prompt_weight_batch_ptrs.data(),
-                        sizeof(T*) * batch_size * beam_width,
-                        cudaMemcpyDefault,
-                        stream_);
-        cudaMemcpyAsync(tiled_prompt_lengths_buf_,
-                        prefix_prompt_lengths.data(),
-                        sizeof(int) * batch_size * beam_width,
-                        cudaMemcpyDefault,
-                        stream_);
-    }
-
-    sync_check_cuda_error();
 
     // handle first step
     if (has_prefix_prompt_ || has_prefix_soft_prompt_ || max_input_length > 1) {
