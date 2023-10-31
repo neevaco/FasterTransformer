@@ -73,7 +73,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
     }
     ft::mpi::barrier();
 
-    int request_batch_size = 2;
+    int request_batch_size = 1;
     int max_input_len      = size_1 / size_2;
 
     ft::mpi::bcast(v_input_ids.data(), size_1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
