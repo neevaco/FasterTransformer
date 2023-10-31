@@ -197,7 +197,7 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
                      stream,
                      cublas_wrapper.get(),
                      allocator.get(),
-                     false,
+                     true,
                      cuda_device_prop_ptr.get(),
                      attention_type,
                      int8_mode_,
