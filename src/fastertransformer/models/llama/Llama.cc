@@ -640,7 +640,6 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
     }
 
     // Prefix prompts
-    printf("has_prefix_prompt_: %d\n", has_prefix_prompt_);
     if (has_prefix_prompt_) {
         cudaMemcpyAsync(prompt_learning_weight_batch_,
                         prefix_prompt_weight_batch_ptrs.data(),
@@ -837,6 +836,21 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         sync_check_cuda_error();
     }
 
+    {
+        
+        int* buf;
+        int st = batch_size * beam_width;
+        buf = new int[st];
+        cudaMemcpy(buf, tiled_prompt_lengths_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
+        {
+            printf("tiled_prompt_lengths_buf_:\n");
+            for (int i=0; i<st; i++) {
+                printf("%d ", (buf[i]));
+            }
+            printf("buf last: %f\n", double(buf[st-1]));
+            printf("\n");
+        }
+    }
     invokeMaskPaddingTokens(masked_tokens_,
                             input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
                             tiled_prompt_lengths_buf_,
