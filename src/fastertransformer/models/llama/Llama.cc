@@ -704,6 +704,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                                                      stream_);
             sync_check_cuda_error();
         }
+        printf("invokeBuildDecoderAttentionMask\n");
 
         invokeBuildDecoderAttentionMask(input_attention_mask_,
                                         tiled_input_lengths_buf_,
