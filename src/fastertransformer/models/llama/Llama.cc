@@ -162,7 +162,7 @@ void Llama<T>::allocateBuffer(
     context_decoder_input_buf_  = (T*)(allocator_->reMalloc(
         context_decoder_input_buf_, sizeof(T) * batchxbeam * max_input_len * hidden_units_, false));
     context_decoder_output_buf_ = (T*)(allocator_->reMalloc(
-        context_decoder_output_buf_, sizeof(T) * batchxbeam * max_input_len * hidden_units_, true));
+        context_decoder_output_buf_, sizeof(T) * batchxbeam * max_input_len * hidden_units_, false));
     output_log_probs_buf_ =
         (float*)(allocator_->reMalloc(output_log_probs_buf_, sizeof(float) * batchxbeam * max_seq_len, false));
 
