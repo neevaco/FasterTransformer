@@ -853,7 +853,6 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
     }
     invokeMaskPaddingTokens(masked_tokens_,
                             input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
-                            tiled_prompt_lengths_buf_,
                             max_cache_seq_len,
                             max_input_length + max_prefix_prompt_length,
                             0,
