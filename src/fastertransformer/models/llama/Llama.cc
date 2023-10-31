@@ -837,15 +837,15 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         sync_check_cuda_error();
     }
 
-    // invokeMaskPaddingTokens(masked_tokens_,
-    //                         input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
-    //                         tiled_prompt_lengths_buf_,
-    //                         max_cache_seq_len,
-    //                         max_input_length + max_prefix_prompt_length,
-    //                         0,
-    //                         batch_size,
-    //                         beam_width,
-    //                         stream_);
+    invokeMaskPaddingTokens(masked_tokens_,
+                            input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
+                            tiled_prompt_lengths_buf_,
+                            max_cache_seq_len,
+                            max_input_length + max_prefix_prompt_length,
+                            0,
+                            batch_size,
+                            beam_width,
+                            stream_);
 
     for (int step = max_input_length; step < (int)max_output_seq_len; step++) {
         const int src_indir_idx = (step - max_input_length) % 2;
