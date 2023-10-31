@@ -365,6 +365,7 @@ Llama<T>::Llama(size_t                              head_num,
     int8_mode_(int8_mode),
     shared_contexts_ratio_(shared_contexts_ratio)
 {
+    printf("is_free_buffer_after_forward: %d\n", is_free_buffer_after_forward);
     int local_vacab_size = ceil(vocab_size_ / 1.f / tensor_para_.world_size_);
     if (std::is_same<half, T>::value) {
         local_vacab_size = ceil(local_vacab_size / 8.f) * 8;
