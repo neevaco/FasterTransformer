@@ -801,8 +801,9 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                 if (step == 1) {
                     printf("dynamic_decode_output_tensors: %s\n\n", dynamic_decode_output_tensors.toString().c_str());
                     for (int i=0; i<dynamic_decode_output_tensors.keys().size(); i++) {
-                        auto t = dynamic_decode_output_tensors.at(dynamic_decode_output_tensors.keys()[i]);
-                        printf("%s\n", t.toString().c_str());
+                        std::string key = dynamic_decode_output_tensors.keys()[i]
+                        auto t = dynamic_decode_output_tensors.at(key);
+                        printf("%s: %s\n", key.c_str(), t.toString().c_str());
                     }
                 }  
                 if (step == 1) {
