@@ -404,7 +404,7 @@ int main(int argc, char* argv[])
                         zeroCount++;
                     outFile << hBuf[i] << " ";
                     if ((i + 1) % (seq_len) == 0)
-                        outFile << std::endl;
+                        printf("\n\n");
 
                     // if (i < 10)
                         printf("%d ", hBuf[i]);
