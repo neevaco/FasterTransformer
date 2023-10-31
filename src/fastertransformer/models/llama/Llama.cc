@@ -640,6 +640,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
     }
 
     // Prefix prompts
+    printf("has_prefix_prompt_: %d\n", has_prefix_prompt_);
     if (has_prefix_prompt_) {
         cudaMemcpyAsync(prompt_learning_weight_batch_,
                         prefix_prompt_weight_batch_ptrs.data(),
