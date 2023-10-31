@@ -219,7 +219,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
 }
 
 std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>>
-prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std::vector<void*>* pointer_record, std::string file_name)
+prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std::vector<void*>* pointer_record, std::string file_name, size_t request_batch_size)
 {
     INIReader reader = INIReader(ini_name);
     if (reader.ParseError() < 0) {
@@ -227,7 +227,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
         ft::FT_CHECK(false);
     }
 
-    const size_t request_batch_size = reader.GetInteger("request", "request_batch_size");
+    // const size_t request_batch_size = reader.GetInteger("request", "request_batch_size");
 
     const int start_id = reader.GetInteger("llama_7b", "start_id");
     const int end_id   = reader.GetInteger("llama_7b", "end_id");
@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
     // step 4: prepare request
     std::vector<void*> pointer_record;  // Used to prevent the pointers are release after leaving functions
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list =
-        prepareRequest(ini_name, node_id, gpu_count, &pointer_record, std::string("/notebooks/FasterTransformer/examples/cpp/llama/start_ids.csv"));
+        prepareRequest(ini_name, node_id, gpu_count, &pointer_record, std::string("/notebooks/FasterTransformer/examples/cpp/llama/start_ids.csv"), 10);
     printf("[INFO] request is created : %d\n", request_list.size());
 
     // step 5: Forward
@@ -425,7 +425,7 @@ int main(int argc, char* argv[])
     // step 4: prepare request
     std::vector<void*> pointer_record;  // Used to prevent the pointers are release after leaving functions
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list =
-        prepareRequest(ini_name, node_id, gpu_count, &pointer_record, std::string("/notebooks/FasterTransformer/examples/cpp/llama/start_ids2.csv"));
+        prepareRequest(ini_name, node_id, gpu_count, &pointer_record, std::string("/notebooks/FasterTransformer/examples/cpp/llama/start_ids2.csv"), 2);
     printf("[INFO] request is created : %d\n", request_list.size());
 
     // step 5: Forward
