@@ -333,8 +333,17 @@ void BartDecoding<T>::unRegisterCallback()
 {
 }
 
-void print() {
-    
+void print(Tensor & t) 
+{
+    if (t.type == ft::DataType::TYPE_INT32) {
+            int* buf;
+            buf = new int[t.size()];
+            cudaMemcpy(buf, t.data, t.sizeBytes(), cudaMemcpyDeviceToHost);
+            for (int i=0; i<t.size(); i++) {
+                printf("%d ", buf[i]);
+            }
+            printf("\n");
+    }
 }
 
 template<typename T>
