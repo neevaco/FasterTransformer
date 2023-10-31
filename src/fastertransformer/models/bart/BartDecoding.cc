@@ -799,7 +799,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                 }
                 dynamic_decode_layer_->forward(&dynamic_decode_output_tensors, &dynamic_decode_input_tensors);
                 if (step == 1) {
-                    printf("dynamic_decode_output_tensors: %s\n", dynamic_decode_output_tensors.toString().c_str());
+                    printf("dynamic_decode_output_tensors: %s\n\n", dynamic_decode_output_tensors.toString().c_str());
                 }  
                 if (step == 1) {
                     invokeForceId(output_ids_buf_,
@@ -809,7 +809,7 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                                   step,
                                   stream_);
                     sync_check_cuda_error();
-                    printf("dynamic_decode_output_tensors after: %s\n", dynamic_decode_output_tensors.toString().c_str());
+                    printf("dynamic_decode_output_tensors: %s\n", dynamic_decode_output_tensors.toString().c_str());
                 } 
                 //else {
                     
