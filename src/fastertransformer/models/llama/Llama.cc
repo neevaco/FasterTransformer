@@ -707,7 +707,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
 
         invokeBuildDecoderAttentionMask(input_attention_mask_,
                                         tiled_input_lengths_buf_,
-                                        nullptr, // prefix_prompt_lengths
+                                        (const int*)nullptr, // prefix_prompt_lengths
                                         batch_size * beam_width,
                                         max_input_length,
                                         max_prefix_prompt_length,
