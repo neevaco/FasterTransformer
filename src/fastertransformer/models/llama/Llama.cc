@@ -160,19 +160,19 @@ void Llama<T>::allocateBuffer(
     end_ids_buf_   = (int*)(allocator_->reMalloc(end_ids_buf_, sizeof(int) * batch_size, true));
 
     context_decoder_input_buf_  = (T*)(allocator_->reMalloc(
-        context_decoder_input_buf_, sizeof(T) * batchxbeam * max_input_len * hidden_units_, true));
+        context_decoder_input_buf_, sizeof(T) * batchxbeam * max_input_len * hidden_units_, false));
     context_decoder_output_buf_ = (T*)(allocator_->reMalloc(
         context_decoder_output_buf_, sizeof(T) * batchxbeam * max_input_len * hidden_units_, true));
     output_log_probs_buf_ =
-        (float*)(allocator_->reMalloc(output_log_probs_buf_, sizeof(float) * batchxbeam * max_seq_len, true));
+        (float*)(allocator_->reMalloc(output_log_probs_buf_, sizeof(float) * batchxbeam * max_seq_len, false));
 
     generation_should_stop_ = (bool*)allocator_->reMalloc(generation_should_stop_, sizeof(bool), true, true);
 
     if (shared_contexts_ratio_ > 0.0f) {
-        shared_contexts_idx_  = (int*)allocator_->reMalloc(shared_contexts_idx_, batch_size * sizeof(int), true);
-        batch_to_compact_idx_ = (int*)allocator_->reMalloc(batch_to_compact_idx_, batchxbeam * sizeof(int), true);
-        compact_idx_          = (int*)allocator_->reMalloc(compact_idx_, batch_size * sizeof(int), true);
-        compact_size_         = (int*)allocator_->reMalloc(compact_size_, sizeof(int), true);
+        shared_contexts_idx_  = (int*)allocator_->reMalloc(shared_contexts_idx_, batch_size * sizeof(int), false);
+        batch_to_compact_idx_ = (int*)allocator_->reMalloc(batch_to_compact_idx_, batchxbeam * sizeof(int), false);
+        compact_idx_          = (int*)allocator_->reMalloc(compact_idx_, batch_size * sizeof(int), false);
+        compact_size_         = (int*)allocator_->reMalloc(compact_size_, sizeof(int), false);
     }
 
     is_allocate_buffer_ = true;
