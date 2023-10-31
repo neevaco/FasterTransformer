@@ -421,26 +421,26 @@ int main(int argc, char* argv[])
     }
 }
 
-    // test time
-    struct timeval start, end;
-    ft::mpi::barrier();
-    cudaDeviceSynchronize();
-    gettimeofday(&start, NULL);
+    // // test time
+    // struct timeval start, end;
+    // ft::mpi::barrier();
+    // cudaDeviceSynchronize();
+    // gettimeofday(&start, NULL);
 
-    const int ite = 1;
-    for (int i = 0; i < ite; i++) {
-        threads.clear();
-        for (int device_id = 0; device_id < gpu_count; device_id++) {
-            threads.push_back(std::thread(threadForward,
-                                          &model_instances[device_id],
-                                          request_list[device_id],
-                                          &output_tensors_lists[device_id],
-                                          device_id));
-        }
-        for (auto& t : threads) {
-            t.join();
-        }
-    }
+    // const int ite = 1;
+    // for (int i = 0; i < ite; i++) {
+    //     threads.clear();
+    //     for (int device_id = 0; device_id < gpu_count; device_id++) {
+    //         threads.push_back(std::thread(threadForward,
+    //                                       &model_instances[device_id],
+    //                                       request_list[device_id],
+    //                                       &output_tensors_lists[device_id],
+    //                                       device_id));
+    //     }
+    //     for (auto& t : threads) {
+    //         t.join();
+    //     }
+    // }
 
     cudaDeviceSynchronize();
     ft::mpi::barrier();
