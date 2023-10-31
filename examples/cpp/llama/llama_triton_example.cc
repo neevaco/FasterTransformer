@@ -349,6 +349,7 @@ int main(int argc, char* argv[])
         t.join();
     }
 
+{
     // step 4: prepare request
     std::vector<void*> pointer_record;  // Used to prevent the pointers are release after leaving functions
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list =
@@ -418,6 +419,7 @@ int main(int argc, char* argv[])
             delete[] hBuf;
         }
     }
+}
 
     // test time
     struct timeval start, end;
