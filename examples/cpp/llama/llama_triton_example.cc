@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
     std::vector<void*> pointer_record;  // Used to prevent the pointers are release after leaving functions
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list =
         prepareRequest(ini_name, node_id, gpu_count, &pointer_record);
-    printf("[INFO] request is created \n");
+    printf("[INFO] request is created : %d\n", request_list.size());
 
     // step 5: Forward
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> output_tensors_lists(
