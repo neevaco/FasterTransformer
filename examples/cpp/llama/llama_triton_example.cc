@@ -143,71 +143,71 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                 {"end_id",
                  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, end_ids_ptr}}}));
 
-        int* beam_width_ptr = new int(param.beam_width);
-        pointer_record->push_back(beam_width_ptr);
-        request_list[device_id]->insert(
-            {"beam_width",
-             triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, std::vector<size_t>{1}, beam_width_ptr}});
-        if (param.beam_width > 1) {
-            float* beam_search_diversity_rate_ptr = new float(param.beam_search_diversity_rate);
-            pointer_record->push_back(beam_search_diversity_rate_ptr);
-            request_list[device_id]->insert(
-                {"beam_search_diversity_rate",
-                 triton::Tensor{
-                     triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, beam_search_diversity_rate_ptr}});
-        }
-        else {
-            if (param.runtime_top_p != 0.0f) {
-                float* runtime_top_p_ptr = new float(param.runtime_top_p);
-                pointer_record->push_back(runtime_top_p_ptr);
-                request_list[device_id]->insert(
-                    {"runtime_top_p",
-                     triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, runtime_top_p_ptr}});
-            }
-            if (param.runtime_top_k != 0) {
-                uint* runtime_top_k_ptr = new uint(param.runtime_top_k);
-                pointer_record->push_back(runtime_top_k_ptr);
-                request_list[device_id]->insert(
-                    {"runtime_top_k",
-                     triton::Tensor{
-                         triton::MEMORY_CPU, triton::TYPE_UINT32, std::vector<size_t>{1}, runtime_top_k_ptr}});
-            }
-        }
-        float* temperature_ptr = new float(param.temperature);
-        pointer_record->push_back(temperature_ptr);
-        request_list[device_id]->insert(
-            {"temperature",
-             triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, temperature_ptr}});
-        float* len_penalty_ptr = new float(param.len_penalty);
-        pointer_record->push_back(len_penalty_ptr);
-        request_list[device_id]->insert(
-            {"len_penalty",
-             triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, len_penalty_ptr}});
-        if (param.repetition_penalty != 1.0f) {
-            float* repetition_penalty_ptr = new float(param.repetition_penalty);
-            pointer_record->push_back(repetition_penalty_ptr);
-            request_list[device_id]->insert(
-                {"repetition_penalty",
-                 triton::Tensor{
-                     triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, repetition_penalty_ptr}});
-        }
-        if (param.presence_penalty != 0.0f) {
-            float* presence_penalty_ptr = new float(param.presence_penalty);
-            pointer_record->push_back(presence_penalty_ptr);
-            request_list[device_id]->insert(
-                {"presence_penalty",
-                 triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, presence_penalty_ptr}});
-        }
-        int* min_length_ptr = new int(param.min_length);
-        pointer_record->push_back(min_length_ptr);
-        request_list[device_id]->insert(
-            {"min_length",
-             triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, std::vector<size_t>{1}, min_length_ptr}});
-        unsigned long long int* random_seed_ptr = new unsigned long long int(param.random_seed);
-        pointer_record->push_back(random_seed_ptr);
-        request_list[device_id]->insert(
-            {"random_seed",
-             triton::Tensor{triton::MEMORY_CPU, triton::TYPE_UINT64, std::vector<size_t>{1}, random_seed_ptr}});
+        // int* beam_width_ptr = new int(param.beam_width);
+        // pointer_record->push_back(beam_width_ptr);
+        // request_list[device_id]->insert(
+        //     {"beam_width",
+        //      triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, std::vector<size_t>{1}, beam_width_ptr}});
+        // if (param.beam_width > 1) {
+        //     float* beam_search_diversity_rate_ptr = new float(param.beam_search_diversity_rate);
+        //     pointer_record->push_back(beam_search_diversity_rate_ptr);
+        //     request_list[device_id]->insert(
+        //         {"beam_search_diversity_rate",
+        //          triton::Tensor{
+        //              triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, beam_search_diversity_rate_ptr}});
+        // }
+        // else {
+        //     if (param.runtime_top_p != 0.0f) {
+        //         float* runtime_top_p_ptr = new float(param.runtime_top_p);
+        //         pointer_record->push_back(runtime_top_p_ptr);
+        //         request_list[device_id]->insert(
+        //             {"runtime_top_p",
+        //              triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, runtime_top_p_ptr}});
+        //     }
+        //     if (param.runtime_top_k != 0) {
+        //         uint* runtime_top_k_ptr = new uint(param.runtime_top_k);
+        //         pointer_record->push_back(runtime_top_k_ptr);
+        //         request_list[device_id]->insert(
+        //             {"runtime_top_k",
+        //              triton::Tensor{
+        //                  triton::MEMORY_CPU, triton::TYPE_UINT32, std::vector<size_t>{1}, runtime_top_k_ptr}});
+        //     }
+        // }
+        // float* temperature_ptr = new float(param.temperature);
+        // pointer_record->push_back(temperature_ptr);
+        // request_list[device_id]->insert(
+        //     {"temperature",
+        //      triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, temperature_ptr}});
+        // float* len_penalty_ptr = new float(param.len_penalty);
+        // pointer_record->push_back(len_penalty_ptr);
+        // request_list[device_id]->insert(
+        //     {"len_penalty",
+        //      triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, len_penalty_ptr}});
+        // if (param.repetition_penalty != 1.0f) {
+        //     float* repetition_penalty_ptr = new float(param.repetition_penalty);
+        //     pointer_record->push_back(repetition_penalty_ptr);
+        //     request_list[device_id]->insert(
+        //         {"repetition_penalty",
+        //          triton::Tensor{
+        //              triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, repetition_penalty_ptr}});
+        // }
+        // if (param.presence_penalty != 0.0f) {
+        //     float* presence_penalty_ptr = new float(param.presence_penalty);
+        //     pointer_record->push_back(presence_penalty_ptr);
+        //     request_list[device_id]->insert(
+        //         {"presence_penalty",
+        //          triton::Tensor{triton::MEMORY_CPU, triton::TYPE_FP32, std::vector<size_t>{1}, presence_penalty_ptr}});
+        // }
+        // int* min_length_ptr = new int(param.min_length);
+        // pointer_record->push_back(min_length_ptr);
+        // request_list[device_id]->insert(
+        //     {"min_length",
+        //      triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, std::vector<size_t>{1}, min_length_ptr}});
+        // unsigned long long int* random_seed_ptr = new unsigned long long int(param.random_seed);
+        // pointer_record->push_back(random_seed_ptr);
+        // request_list[device_id]->insert(
+        //     {"random_seed",
+        //      triton::Tensor{triton::MEMORY_CPU, triton::TYPE_UINT64, std::vector<size_t>{1}, random_seed_ptr}});
 
         pointer_record->push_back(d_input_ids);
         pointer_record->push_back(d_input_lengths);
