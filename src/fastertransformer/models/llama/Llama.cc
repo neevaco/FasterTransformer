@@ -704,11 +704,10 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
                                                      stream_);
             sync_check_cuda_error();
         }
-        printf("invokeBuildDecoderAttentionMask\n");
 
         invokeBuildDecoderAttentionMask(input_attention_mask_,
                                         tiled_input_lengths_buf_,
-                                        tiled_prompt_lengths_buf_,
+                                        nullptr, // prefix_prompt_lengths
                                         batch_size * beam_width,
                                         max_input_length,
                                         max_prefix_prompt_length,
@@ -837,21 +836,6 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         sync_check_cuda_error();
     }
 
-    {
-        
-        int* buf;
-        int st = batch_size * beam_width;
-        buf = new int[st];
-        cudaMemcpy(buf, tiled_prompt_lengths_buf_, sizeof(int) * st, cudaMemcpyDeviceToHost);
-        {
-            printf("tiled_prompt_lengths_buf_:\n");
-            for (int i=0; i<st; i++) {
-                printf("%d ", (buf[i]));
-            }
-            printf("buf last: %f\n", double(buf[st-1]));
-            printf("\n");
-        }
-    }
     invokeMaskPaddingTokens(masked_tokens_,
                             input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
                             max_cache_seq_len,
