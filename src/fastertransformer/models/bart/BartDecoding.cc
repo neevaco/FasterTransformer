@@ -801,15 +801,16 @@ void BartDecoding<T>::forward(TensorMap*                   output_tensors,
                 if (step == 1) {
                     printf("dynamic_decode_output_tensors: %s", dynamic_decode_output_tensors.toString().c_str());
                 }  
-                // if (step == 1) {
-                //     invokeForceId(output_ids_buf_,
-                //                   forced_bos_ids_buf_,
-                //                   batch_size,
-                //                   beam_width,
-                //                   step,
-                //                   stream_);
-                //     sync_check_cuda_error();
-                // } else {
+                if (step == 1) {
+                    invokeForceId(output_ids_buf_,
+                                  forced_bos_ids_buf_,
+                                  batch_size,
+                                  beam_width,
+                                  step,
+                                  stream_);
+                    sync_check_cuda_error();
+                } 
+                //else {
                     
                 // }
                 // {
