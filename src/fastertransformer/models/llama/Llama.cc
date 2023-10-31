@@ -115,17 +115,17 @@ void Llama<T>::allocateBuffer(
     }
 
     input_attention_mask_ = (T*)(allocator_->reMalloc(
-        input_attention_mask_, sizeof(T) * batchxbeam * max_seq_len * max_cache_seq_len, true));
-    decoder_input_buf_ = (T*)(allocator_->reMalloc(decoder_input_buf_, sizeof(T) * batchxbeam * hidden_units_, true));
+        input_attention_mask_, sizeof(T) * batchxbeam * max_seq_len * max_cache_seq_len, false));
+    decoder_input_buf_ = (T*)(allocator_->reMalloc(decoder_input_buf_, sizeof(T) * batchxbeam * hidden_units_, false));
     decoder_output_buf_ =
-        (T*)(allocator_->reMalloc(decoder_output_buf_, sizeof(T) * batchxbeam * hidden_units_, true));
+        (T*)(allocator_->reMalloc(decoder_output_buf_, sizeof(T) * batchxbeam * hidden_units_, false));
     normed_decoder_output_buf_ =
-        (T*)(allocator_->reMalloc(normed_decoder_output_buf_, sizeof(T) * batchxbeam * hidden_units_, true));
-    logits_buf_ = (float*)(allocator_->reMalloc(logits_buf_, sizeof(float) * batchxbeam * vocab_size_padded_, true));
+        (T*)(allocator_->reMalloc(normed_decoder_output_buf_, sizeof(T) * batchxbeam * hidden_units_, false));
+    logits_buf_ = (float*)(allocator_->reMalloc(logits_buf_, sizeof(float) * batchxbeam * vocab_size_padded_, false));
     nccl_logits_buf_ =
-        (float*)(allocator_->reMalloc(nccl_logits_buf_, sizeof(float) * batchxbeam * vocab_size_padded_, true));
-    cum_log_probs_    = (float*)(allocator_->reMalloc(cum_log_probs_, sizeof(float) * batchxbeam, true));
-    finished_buf_     = (bool*)(allocator_->reMalloc(finished_buf_, sizeof(bool) * batchxbeam, true));
+        (float*)(allocator_->reMalloc(nccl_logits_buf_, sizeof(float) * batchxbeam * vocab_size_padded_, false));
+    cum_log_probs_    = (float*)(allocator_->reMalloc(cum_log_probs_, sizeof(float) * batchxbeam, false));
+    finished_buf_     = (bool*)(allocator_->reMalloc(finished_buf_, sizeof(bool) * batchxbeam, false));
     h_finished_buf_   = new bool[batchxbeam];
     sequence_lengths_ = (int*)(allocator_->reMalloc(sequence_lengths_, sizeof(int) * batchxbeam, false));
 
@@ -141,7 +141,7 @@ void Llama<T>::allocateBuffer(
     prompt_learning_weight_batch_ =
         (const T**)(allocator_->reMalloc(prompt_learning_weight_batch_, sizeof(T*) * batchxbeam, false));
     tiled_prompt_lengths_buf_ =
-        (int*)(allocator_->reMalloc(tiled_prompt_lengths_buf_, sizeof(int) * batchxbeam, true));
+        (int*)(allocator_->reMalloc(tiled_prompt_lengths_buf_, sizeof(int) * batchxbeam, false));
 
     tiled_input_ids_buf_ =
         (int*)(allocator_->reMalloc(tiled_input_ids_buf_, sizeof(int) * batchxbeam * max_input_len, true));
@@ -365,7 +365,6 @@ Llama<T>::Llama(size_t                              head_num,
     int8_mode_(int8_mode),
     shared_contexts_ratio_(shared_contexts_ratio)
 {
-    printf("is_free_buffer_after_forward: %d\n", is_free_buffer_after_forward);
     int local_vacab_size = ceil(vocab_size_ / 1.f / tensor_para_.world_size_);
     if (std::is_same<half, T>::value) {
         local_vacab_size = ceil(local_vacab_size / 8.f) * 8;
