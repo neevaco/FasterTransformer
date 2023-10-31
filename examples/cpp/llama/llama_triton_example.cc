@@ -219,7 +219,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
 }
 
 std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>>
-prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std::vector<void*>* pointer_record)
+prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std::vector<void*>* pointer_record, string file_name)
 {
     INIReader reader = INIReader(ini_name);
     if (reader.ParseError() < 0) {
@@ -242,7 +242,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
                        max_input_len,
                        end_id,
                        1,
-                       "/notebooks/FasterTransformer/examples/cpp/llama/start_ids.csv");
+                       file_name);
 
     std::vector<int> v_bad_words;
     ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/bad_words.csv", v_bad_words);
