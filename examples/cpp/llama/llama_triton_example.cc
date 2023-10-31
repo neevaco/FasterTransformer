@@ -316,7 +316,7 @@ int main(int argc, char* argv[])
     std::string ini_name   = argc >= 2 ? std::string(argv[1]) : "/notebooks/FasterTransformer/examples/cpp/llama/llama_config.ini";
 
     // step 1: Create model
-    std::shared_ptr<AbstractTransformerModel> model            = AbstractTransformerModel::createLlamaModel("/notebooks/llama2-7b-chat-tp8/config.ini");
+    std::shared_ptr<AbstractTransformerModel> model            = AbstractTransformerModel::createLlamaModel(ini_name);
     int                                       tensor_para_size = model->getTensorParaSize();
     int                                       pipeline_para_size = model->getPipelineParaSize();
     FT_CHECK_WITH_INFO(world_size == (tensor_para_size * pipeline_para_size),
