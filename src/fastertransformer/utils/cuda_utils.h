@@ -134,6 +134,7 @@ inline void syncAndCheck(const char* const file, int const line)
             cudaDeviceSynchronize();
             cudaError_t result = cudaGetLastError();
             if (result) {
+                printf("[FT][ERROR] CUDA runtime error\n");
                 throw std::runtime_error(std::string("[FT][ERROR] CUDA runtime error: ") + (_cudaGetErrorEnum(result))
                                          + " " + file + ":" + std::to_string(line) + " \n");
             }
@@ -145,6 +146,7 @@ inline void syncAndCheck(const char* const file, int const line)
     cudaDeviceSynchronize();
     cudaError_t result = cudaGetLastError();
     if (result) {
+        printf("[FT][ERROR] CUDA runtime error\n");
         throw std::runtime_error(std::string("[FT][ERROR] CUDA runtime error: ") + (_cudaGetErrorEnum(result)) + " "
                                  + file + ":" + std::to_string(line) + " \n");
     }
