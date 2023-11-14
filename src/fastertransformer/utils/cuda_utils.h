@@ -128,9 +128,9 @@ inline void syncAndCheck(const char* const file, int const line)
 {
     // When FT_DEBUG_LEVEL=DEBUG, must check error
     static char* level_name = std::getenv("FT_DEBUG_LEVEL");
-    if (level_name != nullptr) {
+    if (true) {
         static std::string level = std::string(level_name);
-        if (level == "DEBUG") {
+        if (true) {
             cudaDeviceSynchronize();
             cudaError_t result = cudaGetLastError();
             if (result) {
