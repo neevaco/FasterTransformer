@@ -155,7 +155,7 @@ std::unique_ptr<AbstractTransformerModelInstance> LlamaTritonModel<T>::createMod
 
     ft::NcclParam tensor_para   = nccl_params.first[comms_rank];
     ft::NcclParam pipeline_para = nccl_params.second[comms_rank];
-    float shared_contexts_ratio = 1.f;
+    float shared_contexts_ratio = 0.f;
 
     char * ft_shared_contexts_ratio = std::getenv("FT_SHARED_CONTEXTS_RATIO");
     if (ft_shared_contexts_ratio != nullptr) {
