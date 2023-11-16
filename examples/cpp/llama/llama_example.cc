@@ -331,6 +331,7 @@ void llama_example(const INIReader reader)
                             vocab_size,
                             rotary_embedding_dim,
                             rope_theta,
+                            1.0f, // rope_scaling_factor
                             layernorm_eps,
                             start_id,
                             end_id,
