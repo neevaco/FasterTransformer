@@ -101,7 +101,7 @@ public:
                         size_t                              rotary_embedding_dim,
                         bool                                neox_rotary_style,
                         float                               rope_theta,
-                        float                               rope_scaling_factor;
+                        float                               rope_scaling_factor,
                         bool                                use_gptj_residual,
                         float                               layernorm_eps,
                         NcclParam                           tensor_para,

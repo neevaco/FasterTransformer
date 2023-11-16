@@ -214,7 +214,7 @@ LlamaContextDecoder<T>::LlamaContextDecoder(LlamaContextDecoder<T> const& decode
     rotary_embedding_dim_(decoder.rotary_embedding_dim_),
     neox_rotary_style_(decoder.neox_rotary_style_),
     rope_theta_(decoder.rope_theta_),
-    rope_scaling_factor_(decoder.rope_scaling_factor_)
+    rope_scaling_factor_(decoder.rope_scaling_factor_),
     use_gptj_residual_(decoder.use_gptj_residual_),
     layernorm_eps_(decoder.layernorm_eps_),
     hidden_units_(decoder.hidden_units_),
