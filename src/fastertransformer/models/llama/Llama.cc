@@ -278,7 +278,7 @@ Llama<T>::Llama(size_t                              head_num,
     vocab_size_(vocab_size),
     rotary_embedding_dim_(rotary_embedding_dim),
     rope_theta_(rope_theta),
-    rope_scaling_factor_(rope_scaling_factor)
+    rope_scaling_factor_(rope_scaling_factor),
     layernorm_eps_(layernorm_eps),
     start_id_(start_id),
     end_id_(end_id),
@@ -390,7 +390,7 @@ Llama<T>::Llama(Llama<T> const& gpt):
     vocab_size_(gpt.vocab_size_),
     rotary_embedding_dim_(gpt.rotary_embedding_dim_),
     rope_theta_(gpt.rope_theta_),
-    rope_scaling_factor_(gpt.rope_scaling_factor_)
+    rope_scaling_factor_(gpt.rope_scaling_factor_),
     layernorm_eps_(gpt.layernorm_eps_),
     start_id_(gpt.start_id_),
     end_id_(gpt.end_id_),
