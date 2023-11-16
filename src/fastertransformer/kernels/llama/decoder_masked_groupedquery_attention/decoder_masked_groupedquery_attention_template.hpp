@@ -1301,12 +1301,13 @@ __global__ void masked_groupedquery_attention_kernel(GroupedQuery_attention_para
                 &params.ia3_key_weights[(ia3_task_id * params.num_heads + hi) * Dh + tidx * QK_VEC_SIZE])));
     }
 
-    // Apply rope linear scaling
-    float scaled_timestep_no_pad (params.timestep - padd_len) / params.rope_scaling_factor;
-    float scaled_timestep = params.timestep / params.rope_scaling_factor;
-
     // Padded len
     const int padd_len = (params.total_padding_tokens == nullptr) ? 0 : params.total_padding_tokens[bi];
+
+    // Apply rope linear scaling
+    float scaled_timestep_no_pad = (params.timestep - padd_len) / params.rope_scaling_factor;
+    float scaled_timestep = params.timestep / params.rope_scaling_factor;
+
     if (params.rotary_embedding_dim > 0 && !params.neox_rotary_style) {
         if (handle_kv) {
             apply_rotary_embedding(q, k, tidx, params.rotary_embedding_dim, params.rope_theta, scaled_timestep_no_pad);
