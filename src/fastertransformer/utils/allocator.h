@@ -78,6 +78,7 @@ public:
         size              = ((size + 31) / 32) * 32;  // make the buffer align with 32 bytes
         void* void_ptr    = (void*)ptr;
         void* ptr_address = getAddress(void_ptr);
+        printf("%d\n", size);
         if (isExist(ptr_address)) {
             ReallocType realloc_type = isReMalloc(ptr_address, size);
             if (realloc_type == ReallocType::INCREASE) {
