@@ -245,7 +245,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
                        file_name);
 
     std::vector<int> v_bad_words;
-    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/bad_words.csv", v_bad_words);
+    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/stop_words.csv", v_bad_words);
 
     RequestParam param;
     param.beam_width                 = reader.GetInteger("request", "beam_width");
