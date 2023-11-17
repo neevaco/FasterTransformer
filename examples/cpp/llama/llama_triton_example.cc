@@ -413,6 +413,7 @@ int main(int argc, char* argv[])
                         printf("%d,", hBuf[i]);
                     if ((i + 1) % (seq_len) == 0) {
                         printf("\n\n");
+                        break;
                     }
                     // if ((i + 1) % (seq_len) == 0 && i < 10)
                     //     std::cout << std::endl;
