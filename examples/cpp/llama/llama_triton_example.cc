@@ -120,8 +120,8 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         ft::deviceMalloc(&d_input_bad_words, size_bad_words, false);
         ft::cudaH2Dcpy(d_input_bad_words, v_input_bad_words.data(), size_bad_words);
         
-        deviceMalloc(&d_input_stop_words, size_stop_words, false);
-        cudaH2Dcpy(d_input_stop_words, v_input_stop_words.data(), v_input_stop_words.size());
+        ft::deviceMalloc(&d_input_stop_words, size_stop_words, false);
+        ft::cudaH2Dcpy(d_input_stop_words, v_input_stop_words.data(), v_input_stop_words.size());
 
         uint32_t* request_output_len_ptr = (uint32_t*)malloc(request_batch_size * sizeof(uint32_t));
         for (int i = 0; i < request_batch_size; i++) {
