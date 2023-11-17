@@ -143,8 +143,8 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         pointer_record->push_back(start_ids_ptr);
         pointer_record->push_back(end_ids_ptr);
 
-        printf("Stop words len %d", stop_words_len)
-        printf("Size v_input_stop_words %d", d_input_stop_words.size())
+        printf("Stop words len %d", stop_words_len);
+        printf("Size v_input_stop_words %d", d_input_stop_words.size());
 
         printf("Contents of d_input_stop_words:\n");
         for (size_t i = 0; i < d_input_stop_words.size(); i++) {
