@@ -51,7 +51,7 @@ __global__ void stop_words_criterion(const int* output_ids,
 
     /* Enough previously generated tokens to look for a match */
     if (step + 1 >= item_size) {
-        printf('setting to true')
+        printf('setting to true');
         should_stop            = true;
         int        parent_id   = beam_idx;
         const bool gather_beam = beam_width > 1;
