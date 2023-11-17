@@ -49,6 +49,7 @@ std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>>
 broadCastRequest(const std::vector<int>& v_start_ids,
                  const std::vector<int>& v_start_lengths,
                  const std::vector<int>& v_bad_words,
+                 const std::vector<int>& v_stop_words,
                  const int               node_id,
                  const int               gpu_count,
                  const RequestParam      param,
@@ -58,18 +59,31 @@ broadCastRequest(const std::vector<int>& v_start_ids,
     int size_1         = v_start_ids.size();
     int size_2         = v_start_lengths.size();
     int size_bad_words = v_bad_words.size();
+    int size_stop_words = v_stop_words.size() * size_2;
+    int stop_words_len = v_stop_words.size() / 2;
+    
+    // Tile with same dict for each element
+    std::vector<int> v_tiled_stop_words;
+    for (int i = 0; i < size_2; i++) {
+        v_tiled_stop_words.insert(v_tiled_stop_words.end(), v_stop_words.begin(), v_stop_words.end());
+    }
+
     ft::mpi::bcast(&size_1, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
     ft::mpi::bcast(&size_2, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
     ft::mpi::bcast(&size_bad_words, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
+    ft::mpi::bcast(&size_stop_words, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
+    ft::mpi::bcast(&stop_words_len, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
 
     std::vector<int> v_input_ids(size_1);
     std::vector<int> v_input_lengths(size_2);
     std::vector<int> v_input_bad_words(size_bad_words);
+    std::vector<int> v_input_stop_words(size_stop_words);
 
     if (node_id == 0) {
         memcpy(v_input_ids.data(), v_start_ids.data(), size_1 * sizeof(int));
         memcpy(v_input_lengths.data(), v_start_lengths.data(), size_2 * sizeof(int));
         memcpy(v_input_bad_words.data(), v_bad_words.data(), size_bad_words * sizeof(int));
+        memcpy(v_input_stop_words.data(), v_tiled_stop_words.data(), size_stop_words * sizeof(int));
     }
     ft::mpi::barrier();
 
@@ -79,6 +93,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
     ft::mpi::bcast(v_input_ids.data(), size_1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
     ft::mpi::bcast(v_input_lengths.data(), size_2, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
     ft::mpi::bcast(v_input_bad_words.data(), size_bad_words, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
+    ft::mpi::bcast(v_input_stop_words.data(), size_stop_words, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
 
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list;
     for (int device_id = 0; device_id < gpu_count; device_id++) {
@@ -87,6 +102,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         int* d_input_ids;
         int* d_input_lengths;
         int* d_input_bad_words;
+        int* d_input_stop_words;
 
         if (max_input_len == 0) {
             // unconditional case, no input ids, so do nothing.
@@ -103,6 +119,9 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         }
         ft::deviceMalloc(&d_input_bad_words, size_bad_words, false);
         ft::cudaH2Dcpy(d_input_bad_words, v_input_bad_words.data(), size_bad_words);
+        
+        deviceMalloc(&d_input_stop_words, size_stop_words, false);
+        cudaH2Dcpy(d_input_stop_words, v_input_stop_words.data(), v_input_stop_words.size());
 
         uint32_t* request_output_len_ptr = (uint32_t*)malloc(request_batch_size * sizeof(uint32_t));
         for (int i = 0; i < request_batch_size; i++) {
@@ -137,7 +156,10 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                                 request_output_len_ptr}},
                 {"stop_words_list",
                  triton::Tensor{
-                     triton::MEMORY_GPU, triton::TYPE_INT32, {request_batch_size, 2, v_input_bad_words.size() / 2}, d_input_bad_words}},
+                     triton::MEMORY_GPU, triton::TYPE_INT32, {request_batch_size, 2, stop_words_len}, d_input_stop_words}},
+                {"bad_words_list",
+                 triton::Tensor{
+                     triton::MEMORY_GPU, triton::TYPE_INT32, {2, v_input_bad_words.size() / 2}, d_input_bad_words}},
                 {"start_id",
                  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, start_ids_ptr}},
                 {"end_id",
@@ -245,7 +267,10 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
                        file_name);
 
     std::vector<int> v_bad_words;
-    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/stop_words.csv", v_bad_words);
+    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/bad_words.csv", v_bad_words);
+
+    std::vector<int> v_stop_words;
+    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/stop_words.csv", v_stop_words);
 
     RequestParam param;
     param.beam_width                 = reader.GetInteger("request", "beam_width");
@@ -263,7 +288,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
     param.end_id                     = end_id;
 
     auto request_list =
-        broadCastRequest(v_start_ids, v_start_lengths, v_bad_words, node_id, gpu_count, param, pointer_record);
+        broadCastRequest(v_start_ids, v_start_lengths, v_bad_words, v_stop_words, node_id, gpu_count, param, pointer_record);
     return request_list;
 }
 
