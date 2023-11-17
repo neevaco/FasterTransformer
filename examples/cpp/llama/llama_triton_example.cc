@@ -135,7 +135,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                                 triton::TYPE_INT32,
                                 std::vector<size_t>{(size_t)request_batch_size},
                                 request_output_len_ptr}},
-                {"stop_words_list",
+                {"bad_words_list",
                  triton::Tensor{
                      triton::MEMORY_GPU, triton::TYPE_INT32, {2, v_input_bad_words.size() / 2}, d_input_bad_words}},
                 {"start_id",
