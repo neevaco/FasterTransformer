@@ -135,7 +135,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                                 triton::TYPE_INT32,
                                 std::vector<size_t>{(size_t)request_batch_size},
                                 request_output_len_ptr}},
-                {"bad_words_list",
+                {"stop_words_list",
                  triton::Tensor{
                      triton::MEMORY_GPU, triton::TYPE_INT32, {2, v_input_bad_words.size() / 2}, d_input_bad_words}},
                 {"start_id",
@@ -245,7 +245,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
                        file_name);
 
     std::vector<int> v_bad_words;
-    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/bad_words.csv", v_bad_words);
+    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/stop_words.csv", v_bad_words);
 
     RequestParam param;
     param.beam_width                 = reader.GetInteger("request", "beam_width");
