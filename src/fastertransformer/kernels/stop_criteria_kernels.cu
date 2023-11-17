@@ -49,6 +49,14 @@ __global__ void stop_words_criterion(const int* output_ids,
     /* The single-token case unconditionally bans the token */
     bool should_stop = false;
 
+    printf("------\n")
+    printf("step %d \n", step)
+    printf("item size %d \n", item_size)
+    printf("item_start %d \n", item_start)
+    printf("item_end %d \n", item_end)    
+    printf("base_stop_words %d \n", *base_stop_words)
+    printf("base offsets %d \n", *base_offsets)
+
     /* Enough previously generated tokens to look for a match */
     if (step + 1 >= item_size) {
         should_stop            = true;
