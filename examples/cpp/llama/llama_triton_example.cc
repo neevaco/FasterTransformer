@@ -68,6 +68,12 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         v_tiled_stop_words.insert(v_tiled_stop_words.end(), v_stop_words.begin(), v_stop_words.end());
     }
 
+    printf("Contents of v_tiled_stop_words:\n");
+    for (size_t i = 0; i < v_tiled_stop_words.size(); i++) {
+        printf("%d ", v_tiled_stop_words[i]);
+    }
+    printf("\n");
+
     ft::mpi::bcast(&size_1, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
     ft::mpi::bcast(&size_2, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
     ft::mpi::bcast(&size_bad_words, 1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
@@ -136,6 +142,16 @@ broadCastRequest(const std::vector<int>& v_start_ids,
         }
         pointer_record->push_back(start_ids_ptr);
         pointer_record->push_back(end_ids_ptr);
+
+        printf("Stop words len %d", stop_words_len)
+        printf("Size v_input_stop_words %d", d_input_stop_words.size())
+
+        printf("Contents of d_input_stop_words:\n");
+        for (size_t i = 0; i < d_input_stop_words.size(); i++) {
+            printf("%d ", d_input_stop_words[i]);
+        }
+        printf("\n");
+
 
         request_list.push_back(std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>(
             new std::unordered_map<std::string, triton::Tensor>{
