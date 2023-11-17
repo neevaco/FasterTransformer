@@ -48,7 +48,6 @@ __global__ void stop_words_criterion(const int* output_ids,
 
     /* The single-token case unconditionally bans the token */
     bool should_stop = false;
-    printf("setting to f");
 
     /* Enough previously generated tokens to look for a match */
     if (step + 1 >= item_size) {
