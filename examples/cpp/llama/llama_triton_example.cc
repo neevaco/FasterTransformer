@@ -245,7 +245,7 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
                        file_name);
 
     std::vector<int> v_bad_words;
-    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/stop_words.csv", v_bad_words);
+    ft::read_word_list("/notebooks/FasterTransformer/examples/cpp/llama/bad_words.csv", v_bad_words);
 
     RequestParam param;
     param.beam_width                 = reader.GetInteger("request", "beam_width");
@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
     // step 4: prepare request
     std::vector<void*> pointer_record;  // Used to prevent the pointers are release after leaving functions
     std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>> request_list =
-        prepareRequest(ini_name, node_id, gpu_count, &pointer_record, std::string("/notebooks/FasterTransformer/examples/cpp/llama/start_ids2.csv"), 2);
+        prepareRequest(ini_name, node_id, gpu_count, &pointer_record, std::string("/notebooks/FasterTransformer/examples/cpp/llama/start_ids.csv"), 1);
     printf("[INFO] request is created : %d\n", request_list.size());
 
     // step 5: Forward
