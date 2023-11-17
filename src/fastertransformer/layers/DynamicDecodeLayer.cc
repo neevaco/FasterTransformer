@@ -448,8 +448,6 @@ void DynamicDecodeLayer<T>::forward(TensorMap* output_tensors, TensorMap* input_
         const size_t id_offset         = ite * local_batch_size * beam_width;
         const size_t stop_words_length = input_tensors->at("stop_words_list").shape[2];
 
-        printf("Tensor stop words list is: %d, %d", input_tensors->at("stop_words_list")[0], input_tensors->at("stop_words_list")[1]);
-
         invokeStopWordsCriterion(output_tensors->at("output_ids").getPtr<const int>(),
                                  output_tensors->at("parent_ids").getPtr<const int>(),
                                  input_tensors->at("stop_words_list")
