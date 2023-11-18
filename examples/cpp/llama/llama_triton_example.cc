@@ -61,7 +61,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
     int size_bad_words = v_bad_words.size();
     printf("v_stop_words_size %d \n", v_stop_words.size());
     int size_stop_words = v_stop_words.size() * size_2;
-    int stop_words_len = v_stop_words.size();
+    int stop_words_len = v_stop_words.size() / 2;
     
     // Tile with same dict for each element
     std::vector<int> v_tiled_stop_words;

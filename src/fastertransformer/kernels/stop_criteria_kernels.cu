@@ -111,6 +111,7 @@ void invokeStopWordsCriterion(const int*   output_ids,
     block.x = min(((stop_words_len + 32 - 1) / 32) * 32, 256UL);
     grid.x  = (stop_words_len + block.x - 1) / block.x;
     grid.y  = batch_size * beam_width;
+    printf("\nBeam Width in involke %d", beam_width);
 
     stop_words_criterion<<<grid, block, 0, stream>>>(
         output_ids, parent_ids, stop_words, finished, id_offset, stop_words_len, batch_size, beam_width, step);
