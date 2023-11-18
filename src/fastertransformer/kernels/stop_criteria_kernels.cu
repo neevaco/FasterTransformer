@@ -49,27 +49,13 @@ __global__ void stop_words_criterion(const int* output_ids,
     /* The single-token case unconditionally bans the token */
     bool should_stop = false;
 
-    printf("------\n");
-    printf("id %d", id);
-    printf("batch idx %d", batch_idx);
-    printf("beam idx %d", beam_idx);
-    printf("base_stop_words %d \n", *base_stop_words);
-    printf("base offsets %d \n", *base_offsets);
-    printf("item size %d \n", item_size);
-    printf("item_start %d \n", item_start);
-    printf("item_end %d \n", item_end);    
-    printf("step %d \n", step);
-    printf("id offset %d \n", id_offset);
-
     /* Enough previously generated tokens to look for a match */
     if (step + 1 >= item_size) {
-        printf("in matching");
         should_stop            = true;
         int        parent_id   = beam_idx;
         const bool gather_beam = beam_width > 1;
 
         for (int token_idx = item_size - 1; token_idx >= 0; token_idx--) {
-            printf("in loop");
             const int previous_token = output_ids[(step - (item_size - 1) + token_idx) * batch_size * beam_width
                                                   + id_offset + batch_idx * beam_width + parent_id];
 
@@ -111,7 +97,6 @@ void invokeStopWordsCriterion(const int*   output_ids,
     block.x = min(((stop_words_len + 32 - 1) / 32) * 32, 256UL);
     grid.x  = (stop_words_len + block.x - 1) / block.x;
     grid.y  = batch_size * beam_width;
-    printf("\nBeam Width in involke %d", beam_width);
 
     stop_words_criterion<<<grid, block, 0, stream>>>(
         output_ids, parent_ids, stop_words, finished, id_offset, stop_words_len, batch_size, beam_width, step);
