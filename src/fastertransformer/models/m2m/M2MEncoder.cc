@@ -388,15 +388,7 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
     const bool use_inputs_embeds_buffer =
         use_inputs_embeds && position_embedding_type == PositionEmbeddingType::relative;
 
-    invokeBuildRelativeAttentionBias(relative_attention_bias_,
-                                     nullptr,
-                                     head_num_,
-                                     request_seq_len,
-                                     num_bucket_or_max_seq_len_,
-                                     true,
-                                     max_distance_,
-                                     position_embedding_type,
-                                     stream_);
+
     if (attention_type_ == AttentionType::UNFUSED_MHA || attention_type_ == AttentionType::FUSED_MHA) {
         // prevent undefined behavior of the padding parts
         cudaMemset(output_tensors->at("output_hidden_state").getPtr<T>(),
@@ -412,12 +404,13 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
 
         const int* sequence_lengths = input_tensors->at("sequence_length").getPtr<int>() + id_offset;
         if (position_embedding_type == PositionEmbeddingType::absolute) {
+            T*  absolute_or_relative_position_embedding = nullptr;
             invokeInputIdsEmbeddingLookupPosEncoding(
                 m2m_encoder_emb_buf_,
                 nullptr,
                 use_inputs_embeds ? input_tensors->at("inputs_embeds").getPtr<T>() :
                                     m2m_encoder_weights->embedding_table,
-                nullptr,
+                absolute_or_relative_position_embedding,
                 pPromptTuningParam<T>{},  // p/prompt tuning
                 use_inputs_embeds ? nullptr :
                                     input_tensors->at("input_ids").getPtrWithOffset<int>(id_offset * request_seq_len),
