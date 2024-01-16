@@ -292,8 +292,6 @@ void M2MTritonModel<T>::createSharedWeights(int device_id, int rank)
                                                   tensor_para_rank,
                                                   pipeline_para_size_,
                                                   pipeline_para_rank,
-                                                  true,
-                                                  true,
                                                   use_gated_activation_,
                                                   position_embedding_type_);
 

@@ -35,7 +35,6 @@ struct M2MDecoderLayerWeight {
                            const size_t mem_d_model,
                            const size_t tensor_para_size,
                            const size_t tensor_para_rank,
-                           const bool   m2m_with_bias       = true,
                            const bool   use_gated_activation = false);
     ~M2MDecoderLayerWeight();
     M2MDecoderLayerWeight(const M2MDecoderLayerWeight& other);
@@ -47,12 +46,9 @@ struct M2MDecoderLayerWeight {
     AttentionWeight<T> cross_attention_weights;
     LayerNormWeight<T> cross_attn_layernorm_weights;
     FfnWeight<T>       ffn_weights;
-    bool               m2m_with_bias_;
-    bool               use_gated_activation_;
+    bool               use_gated_activation_ = false;
 
     void loadModel(std::string dir_path, FtCudaDataType model_file_type);
-
-    void setM2MWithBias(bool m2m_with_bias_para, bool use_gated_activation_para);
 
 private:
     void setWeightPtr();
