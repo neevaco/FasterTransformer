@@ -383,15 +383,13 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
     }
 
     // M2M Structure Difference
-    const bool            m2m_with_bias          = m2m_encoder_weights->m2m_with_bias;
-    const bool            mbart                   = m2m_encoder_weights->mbart;
     PositionEmbeddingType position_embedding_type = m2m_encoder_weights->position_embedding_type;
 
     const bool use_inputs_embeds_buffer =
         use_inputs_embeds && position_embedding_type == PositionEmbeddingType::relative;
 
     invokeBuildRelativeAttentionBias(relative_attention_bias_,
-                                     m2m_encoder_weights->absolute_or_relative_position_embedding,
+                                     nullptr,
                                      head_num_,
                                      request_seq_len,
                                      num_bucket_or_max_seq_len_,
@@ -419,7 +417,7 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
                 nullptr,
                 use_inputs_embeds ? input_tensors->at("inputs_embeds").getPtr<T>() :
                                     m2m_encoder_weights->embedding_table,
-                m2m_encoder_weights->absolute_or_relative_position_embedding,
+                nullptr,
                 pPromptTuningParam<T>{},  // p/prompt tuning
                 use_inputs_embeds ? nullptr :
                                     input_tensors->at("input_ids").getPtrWithOffset<int>(id_offset * request_seq_len),
@@ -578,18 +576,6 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
 
         DataType data_type = getTensorType<T>();
 
-        // Before layers, BART/mBART has a layernorm on the embeddings. Different from T5
-        // should we put rank=0 condition here?
-        invokeGeneralT5LayerNorm(m2m_encoder_input_ptr,
-                                 m2m_encoder_input_ptr,
-                                 m2m_encoder_weights->pre_transformer_layernorm_weights.gamma,
-                                 m2m_encoder_weights->pre_transformer_layernorm_weights.beta,
-                                 layernorm_eps_,
-                                 h_token_num,
-                                 d_model_,
-                                 stream_);
-        sync_check_cuda_error();
-
         // Encoder layers
         for (uint i = 0; i < num_layer_; i++) {
             if (!isValidLayerParallelId(i)) {
@@ -736,16 +722,15 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
         }
 
         if (pipeline_para_.rank_ == pipeline_para_.world_size_ - 1) {
-            if (mbart) {  // mBART has final layernorm after Transformer block. BART doesn't
-                invokeGeneralT5LayerNorm(m2m_encoder_output_ptr,
-                                         m2m_encoder_output_ptr,
-                                         m2m_encoder_weights->post_transformer_layernorm_weights.gamma,
-                                         m2m_encoder_weights->post_transformer_layernorm_weights.beta,
-                                         layernorm_eps_,
-                                         h_token_num,
-                                         d_model_,
-                                         stream_);
-            }
+            invokeGeneralT5LayerNorm(m2m_encoder_output_ptr,
+                                        m2m_encoder_output_ptr,
+                                        m2m_encoder_weights->post_transformer_layernorm_weights.gamma,
+                                        m2m_encoder_weights->post_transformer_layernorm_weights.beta,
+                                        layernorm_eps_,
+                                        h_token_num,
+                                        d_model_,
+                                        stream_);
+
 
             // post process (rebuild padding)
             switch (attention_type_) {

@@ -31,8 +31,6 @@ M2MEncoderWeight<T>::M2MEncoderWeight(const size_t                head_num,
                                         const size_t                tensor_para_rank,
                                         const size_t                pipeline_para_size,
                                         const size_t                pipeline_para_rank,
-                                        const bool                  m2m_with_bias_para,
-                                        const bool                  mbart_para,
                                         const bool                  use_gated_activation_para,
                                         const PositionEmbeddingType pe_type):
     head_num_(head_num),
@@ -46,14 +44,10 @@ M2MEncoderWeight<T>::M2MEncoderWeight(const size_t                head_num,
     tensor_para_rank_(tensor_para_rank),
     pipeline_para_size_(pipeline_para_size),
     pipeline_para_rank_(pipeline_para_rank),
-    m2m_with_bias(m2m_with_bias_para),
-    mbart(mbart_para),
     use_gated_activation(use_gated_activation_para),
     position_embedding_type(pe_type)
 {
-    // 2: absolute/relative positional embedding weight, word
-    // embedding weight. mBART has two LN, BART has one LN
-    real_weights_num_ = 2 + (mbart ? 2 : 1) * (m2m_with_bias ? 2 : 1);
+    real_weights_num_ = weights_num_;
 
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " start");
     FT_CHECK(num_layer_ % pipeline_para_size_ == 0);
@@ -70,7 +64,6 @@ M2MEncoderWeight<T>::M2MEncoderWeight(const size_t                head_num,
                                                                                inter_size_,
                                                                                tensor_para_size_,
                                                                                tensor_para_rank_,
-                                                                               m2m_with_bias,
                                                                                use_gated_activation));
         }
         else {
@@ -86,27 +79,10 @@ void M2MEncoderWeight<T>::initialize()
 {
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " start");
 
-    if (position_embedding_type == PositionEmbeddingType::absolute) {
-        weights_size[0] = num_bucket_or_max_seq_len_ * d_model_;
-    }
-    else {
-        weights_size[0] = (head_num_ / tensor_para_size_) * num_bucket_or_max_seq_len_;
-    }
-    weights_size[1] = d_model_ * vocab_size_;
+
+    weights_size[0] = d_model_ * vocab_size_;
+    weights_size[1] = d_model_;
     weights_size[2] = d_model_;
-    if (mbart || m2m_with_bias) {
-        if (mbart && m2m_with_bias) {
-            weights_size[3] = d_model_;
-            weights_size[4] = d_model_;
-            weights_size[5] = d_model_;
-        }
-        else if (mbart && !m2m_with_bias) {
-            weights_size[3] = d_model_;
-        }
-        else if (!mbart && m2m_with_bias) {
-            weights_size[3] = d_model_;
-        }
-    }  // if none of the flags is on, there are only 3 weights
 
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " end");
 }
@@ -121,9 +97,6 @@ M2MEncoderWeight<T>::~M2MEncoderWeight()
             deviceFree(weights_ptr[i]);
         }
 
-        pre_transformer_layernorm_weights.gamma  = nullptr;
-        pre_transformer_layernorm_weights.beta   = nullptr;
-        absolute_or_relative_position_embedding  = nullptr;
         embedding_table                          = nullptr;
         post_transformer_layernorm_weights.gamma = nullptr;
         post_transformer_layernorm_weights.beta  = nullptr;
@@ -148,8 +121,6 @@ M2MEncoderWeight<T>::M2MEncoderWeight(const M2MEncoderWeight& other):
     tensor_para_rank_(other.tensor_para_rank_),
     pipeline_para_size_(other.pipeline_para_size_),
     pipeline_para_rank_(other.pipeline_para_rank_),
-    m2m_with_bias(other.m2m_with_bias),
-    mbart(other.mbart),
     use_gated_activation(other.use_gated_activation),
     position_embedding_type(other.position_embedding_type),
     real_weights_num_(other.real_weights_num_)
@@ -186,8 +157,6 @@ M2MEncoderWeight<T>& M2MEncoderWeight<T>::operator=(const M2MEncoderWeight& othe
     tensor_para_rank_          = other.tensor_para_rank_;
     pipeline_para_size_        = other.pipeline_para_size_;
     pipeline_para_rank_        = other.pipeline_para_rank_;
-    m2m_with_bias             = other.m2m_with_bias;
-    mbart                      = other.mbart;
     use_gated_activation       = other.use_gated_activation;
     position_embedding_type    = other.position_embedding_type;
     real_weights_num_          = other.real_weights_num_;
@@ -213,22 +182,9 @@ void M2MEncoderWeight<T>::setWeightPtr()
 {
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " start");
 
-    absolute_or_relative_position_embedding = weights_ptr[0];
-    embedding_table                         = weights_ptr[1];
-    pre_transformer_layernorm_weights.gamma = weights_ptr[2];
-    if (mbart || m2m_with_bias) {
-        if (mbart && m2m_with_bias) {
-            pre_transformer_layernorm_weights.beta   = weights_ptr[3];
-            post_transformer_layernorm_weights.gamma = weights_ptr[4];
-            post_transformer_layernorm_weights.beta  = weights_ptr[5];
-        }
-        else if (mbart && !m2m_with_bias) {
-            post_transformer_layernorm_weights.gamma = weights_ptr[3];
-        }
-        else if (!mbart && m2m_with_bias) {
-            pre_transformer_layernorm_weights.beta = weights_ptr[3];
-        }
-    }
+    embedding_table                         = weights_ptr[0];
+    post_transformer_layernorm_weights.gamma = weights_ptr[1];
+    post_transformer_layernorm_weights.beta  = weights_ptr[2];
 
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " end");
 }
@@ -252,31 +208,16 @@ void M2MEncoderWeight<T>::loadModel(std::string dir_path)
     FtCudaDataType model_file_type = getModelFileType(dir_path + "/config.ini", "encoder");
     FT_CHECK(is_maintain_buffer == true);
 
-    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/encoder.embed_positions.weight.bin", model_file_type);
-    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
-    loadWeightFromBin<T>(
-        weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/encoder.final_layer_norm.weight.bin", model_file_type);
-    if (m2m_with_bias) {
-        if (mbart) {
-            loadWeightFromBin<T>(weights_ptr[3],
-                                {(size_t)weights_size[3]},
-                                dir_path + "/encoder.final_layer_norm.bias.bin",
-                                model_file_type);
-            loadWeightFromBin<T>(weights_ptr[4],
-                                {(size_t)weights_size[4]},
-                                dir_path + "/encoder.layer_norm.weight.bin",
-                                model_file_type);
-            loadWeightFromBin<T>(weights_ptr[5],
-                                {(size_t)weights_size[5]},
-                                dir_path + "/encoder.layer_norm.bias.bin",
-                                model_file_type);    
-        } else {
-            loadWeightFromBin<T>(weights_ptr[3],
-                                {(size_t)weights_size[3]},
-                                dir_path + "/encoder.final_layer_norm.bias.bin",
-                                model_file_type);
-        }
-    }
+    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[1]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[1],
+                        {(size_t)weights_size[1]},
+                        dir_path + "/encoder.layer_norm.weight.bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr[2],
+                        {(size_t)weights_size[2]},
+                        dir_path + "/encoder.layer_norm.bias.bin",
+                        model_file_type);    
+
 
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {
@@ -310,20 +251,6 @@ void M2MEncoderWeight<T>::resizeLayer(const int num_layer)
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " end");
 }
 
-template<typename T>
-void M2MEncoderWeight<T>::setM2MStructureDiff(bool                  m2m_with_bias_para,
-                                                bool                  mbart_para,
-                                                bool                  use_gated_activation_para,
-                                                PositionEmbeddingType position_embedding_type_para)
-{
-    m2m_with_bias          = m2m_with_bias_para;
-    mbart                   = mbart_para;
-    position_embedding_type = position_embedding_type_para;
-    use_gated_activation    = use_gated_activation_para;
-    for (int i = 0; i < num_layer_; i++) {
-        m2m_encoder_layer_weights[i]->setM2MWithBias(m2m_with_bias_para, use_gated_activation);
-    }
-}
 
 template struct M2MEncoderWeight<float>;
 template struct M2MEncoderWeight<half>;
