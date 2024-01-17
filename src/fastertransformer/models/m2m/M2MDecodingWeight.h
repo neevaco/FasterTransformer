@@ -51,6 +51,7 @@ struct M2MDecodingWeight {
     LayerNormWeight<T>                      post_decoder_layernorm;
     DenseWeight<T> post_decoder_embedding;  // Megatron embedding is weight + bias, so prefer to use a separate weight
                                             // class to store
+    const T*                                sinusoidal_position_embedding = nullptr;
     bool use_gated_activation = false;
     // 0 = relative_position_embedding,  1 = absolute_position_embedding
     PositionEmbeddingType position_embedding_type = PositionEmbeddingType::absolute;
@@ -82,10 +83,9 @@ private:
 
     int real_weights_num_;
 
-    // 4: [0] word embedding weight [1] word embedding 2 weight
-    // [2] post-LN weight [3] post-LN bias
-    // and bias
-    const static int weights_num_ = 4;
+    // 5: [0] word embedding weight [1] word embedding 2 weight
+    // [2] post-LN weight [3] post-LN bias [4] embed_positions (precalculated sinusoidal)
+    const static int weights_num_ = 5;
     T*               weights_ptr[weights_num_];
     size_t           weights_size[weights_num_];
 };

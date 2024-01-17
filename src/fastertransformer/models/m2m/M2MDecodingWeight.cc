@@ -87,6 +87,7 @@ void M2MDecodingWeight<T>::initialize()
     weights_size[1] = d_model_ * vocab_size_;
     weights_size[2] = d_model_;
     weights_size[3] = d_model_;
+    weights_size[4] = d_model_ * num_bucket_or_max_seq_len_;
 
     FT_LOG_DEBUG("M2MDecodingWeight " + std::string(__func__) + " end");
 }
@@ -106,6 +107,7 @@ M2MDecodingWeight<T>::~M2MDecodingWeight()
         post_decoder_embedding.kernel           = nullptr;
         post_decoder_embedding.bias             = nullptr;
         post_decoder_layernorm.beta             = nullptr;
+        sinusoidal_position_embedding           = nullptr;
         is_maintain_buffer_                     = false;
     }
     FT_LOG_DEBUG("M2MDecodingWeight " + std::string(__func__) + " end");
@@ -199,6 +201,7 @@ void M2MDecodingWeight<T>::setWeightPtr()
     post_decoder_embedding.kernel           = weights_ptr[1];
     post_decoder_layernorm.gamma = weights_ptr[2];
     post_decoder_layernorm.beta  = weights_ptr[3];
+    sinusoidal_position_embedding = weights_ptr[4];
 }
 
 template<typename T>
@@ -219,7 +222,10 @@ void M2MDecodingWeight<T>::loadModel(std::string dir_path)
                         {(size_t)weights_size[3]},
                         dir_path + "/decoder.layer_norm.bias.bin",
                         model_file_type);
-
+    loadWeightFromBin<T>(weights_ptr[4],
+                        {(size_t)weights_size[4]},
+                        dir_path + "/decoder.embed_positions.weight.bin",
+                        model_file_type);
 
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {

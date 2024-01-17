@@ -44,6 +44,7 @@ struct M2MEncoderWeight {
 
     std::vector<M2MEncoderLayerWeight<T>*> m2m_encoder_layer_weights;
     LayerNormWeight<T>                      post_transformer_layernorm_weights;
+    T*                                      sinusoidal_position_embedding           = nullptr;
     T*                                      embedding_table                         = nullptr;
     bool                                    use_gated_activation                    = false;
     PositionEmbeddingType                   position_embedding_type                 = PositionEmbeddingType::absolute;
@@ -75,8 +76,8 @@ private:
 
     int real_weights_num_;
 
-    // 3: [0] word embedding weight [1] post-LN weight [2] post-LN bias
-    const static int weights_num_ = 3;
+    // 4: [0] word embedding weight [1] post-LN weight [2] post-LN bias [3] embed_positions (sinusoidal)
+    const static int weights_num_ = 4;
     T*               weights_ptr[weights_num_];
     size_t           weights_size[weights_num_];
 };

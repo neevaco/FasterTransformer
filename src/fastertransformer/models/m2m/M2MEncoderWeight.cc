@@ -83,6 +83,7 @@ void M2MEncoderWeight<T>::initialize()
     weights_size[0] = d_model_ * vocab_size_;
     weights_size[1] = d_model_;
     weights_size[2] = d_model_;
+    weights_size[3] = d_model_ * num_bucket_or_max_seq_len_;
 
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " end");
 }
@@ -98,6 +99,7 @@ M2MEncoderWeight<T>::~M2MEncoderWeight()
         }
 
         embedding_table                          = nullptr;
+        sinusoidal_position_embedding            = nullptr;
         post_transformer_layernorm_weights.gamma = nullptr;
         post_transformer_layernorm_weights.beta  = nullptr;
         is_maintain_buffer                       = false;
@@ -182,9 +184,10 @@ void M2MEncoderWeight<T>::setWeightPtr()
 {
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " start");
 
-    embedding_table                         = weights_ptr[0];
+    embedding_table                          = weights_ptr[0];
     post_transformer_layernorm_weights.gamma = weights_ptr[1];
     post_transformer_layernorm_weights.beta  = weights_ptr[2];
+    sinusoidal_position_embedding            = weights_ptr[3];
 
     FT_LOG_DEBUG("M2MEncoderWeight " + std::string(__func__) + " end");
 }
@@ -208,7 +211,7 @@ void M2MEncoderWeight<T>::loadModel(std::string dir_path)
     FtCudaDataType model_file_type = getModelFileType(dir_path + "/config.ini", "encoder");
     FT_CHECK(is_maintain_buffer == true);
 
-    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[1]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/encoder.embed_tokens.weight.bin", model_file_type);
     loadWeightFromBin<T>(weights_ptr[1],
                         {(size_t)weights_size[1]},
                         dir_path + "/encoder.layer_norm.weight.bin",
@@ -216,8 +219,11 @@ void M2MEncoderWeight<T>::loadModel(std::string dir_path)
     loadWeightFromBin<T>(weights_ptr[2],
                         {(size_t)weights_size[2]},
                         dir_path + "/encoder.layer_norm.bias.bin",
-                        model_file_type);    
-
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr[3],
+                    {(size_t)weights_size[3]},
+                    dir_path + "/encoder.embed_positions.weight.bin",
+                    model_file_type);
 
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {

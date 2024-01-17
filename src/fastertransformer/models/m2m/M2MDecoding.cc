@@ -490,7 +490,7 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
             if (pipeline_para_.rank_ == 0) {
                 invokeEmbeddingLookupPosEncodingPadCount(decoder_input_buf_ + d_model_offset,
                                                          decoding_weights->pre_decoder_embedding_table,
-                                                         (T*)nullptr,
+                                                         decoding_weights->sinusoidal_position_embedding,
                                                          output_ids_buf_ + id_offset,
                                                          nullptr,
                                                          local_batch_size * beam_width,
