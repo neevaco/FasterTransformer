@@ -326,6 +326,10 @@ add_library(transformer-shared SHARED
   $<TARGET_OBJECTS:BartDecoder>
   $<TARGET_OBJECTS:BartDecoding>
   $<TARGET_OBJECTS:BartTritonBackend>
+  $<TARGET_OBJECTS:M2MEncoder>
+  $<TARGET_OBJECTS:M2MDecoder>
+  $<TARGET_OBJECTS:M2MDecoding>
+  $<TARGET_OBJECTS:M2MTritonBackend>
   $<TARGET_OBJECTS:Deberta>
   $<TARGET_OBJECTS:DebertaLayerWeight>
   $<TARGET_OBJECTS:DebertaTritonBackend>
