@@ -176,7 +176,6 @@ M2MTritonModelInstance<T>::forward(std::shared_ptr<std::unordered_map<std::strin
 
         m2m_encoder_->forward(&encoder_output_tensors, &encoder_input_tensors, m2m_encoder_weight_.get());
 
-
 // {
 //         T* buf;
 //         int st = request_batch_size * mem_max_seq_len * m2m_encoder_->getDModel();

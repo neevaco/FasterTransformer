@@ -32,8 +32,6 @@ M2MDecodingWeight<T>::M2MDecodingWeight(const size_t                head_num,
                                           const size_t                tensor_para_rank,
                                           const size_t                pipeline_para_size,
                                           const size_t                pipeline_para_rank,
-                                          const bool                  m2m_with_bias_para,
-                                          const bool                  mbart_para,
                                           const bool                  use_gated_activation_para,
                                           const PositionEmbeddingType pe_type):
     head_num_(head_num),
@@ -48,14 +46,10 @@ M2MDecodingWeight<T>::M2MDecodingWeight(const size_t                head_num,
     tensor_para_rank_(tensor_para_rank),
     pipeline_para_size_(pipeline_para_size),
     pipeline_para_rank_(pipeline_para_rank),
-    m2m_with_bias(m2m_with_bias_para),
-    mbart(mbart_para),
     use_gated_activation(use_gated_activation_para),
     position_embedding_type(pe_type)
 {
-    // 2: absolute/relative positional embedding weight, word embedding weight.
-    // mBART has embedding2 + two LN, BART has embedding 2 + one LN
-    real_weights_num_ = 2 + (mbart ? 3 : 2) * (m2m_with_bias ? 2 : 1);
+    real_weights_num_ = weights_num_;
 
     FT_LOG_DEBUG("M2MDecodingWeight " + std::string(__func__) + " start");
     FT_CHECK(num_layer_ % pipeline_para_size_ == 0);
@@ -74,7 +68,6 @@ M2MDecodingWeight<T>::M2MDecodingWeight(const size_t                head_num,
                                                                           mem_d_model_,
                                                                           tensor_para_size_,
                                                                           tensor_para_rank_,
-                                                                          m2m_with_bias,
                                                                           use_gated_activation));
         }
         else {
@@ -89,31 +82,12 @@ void M2MDecodingWeight<T>::initialize()
 {
     FT_LOG_DEBUG("M2MDecodingWeight " + std::string(__func__) + " start");
 
-    if (position_embedding_type == PositionEmbeddingType::absolute) {
-        weights_size[0] = num_bucket_or_max_seq_len_ * d_model_;
-    }
-    else {
-        weights_size[0] = (head_num_ / tensor_para_size_) * num_bucket_or_max_seq_len_;
-    }
-    weights_size[1] = d_model_ * vocab_size_;
-    weights_size[2] = d_model_ * vocab_size_;
-    weights_size[3] = d_model_;
 
-    if (mbart || m2m_with_bias) {
-        if (mbart && m2m_with_bias) {
-            weights_size[4] = d_model_;
-            weights_size[5] = d_model_;
-            weights_size[6] = d_model_;
-            weights_size[7] = vocab_size_;
-        }
-        else if (mbart && !m2m_with_bias) {
-            weights_size[4] = d_model_;
-        }
-        else if (!mbart && m2m_with_bias) {
-            weights_size[4] = d_model_;
-            weights_size[5] = vocab_size_;
-        }
-    }  // if none of the flags is on, there are only 3 weights
+    weights_size[0] = d_model_ * vocab_size_;
+    weights_size[1] = d_model_ * vocab_size_;
+    weights_size[2] = d_model_;
+    weights_size[3] = d_model_;
+    weights_size[4] = d_model_ * num_bucket_or_max_seq_len_;
 
     FT_LOG_DEBUG("M2MDecodingWeight " + std::string(__func__) + " end");
 }
@@ -128,14 +102,12 @@ M2MDecodingWeight<T>::~M2MDecodingWeight()
             deviceFree(weights_ptr[i]);
         }
 
-        pre_decoder_layernorm.gamma             = nullptr;
-        pre_decoder_layernorm.beta              = nullptr;
         pre_decoder_embedding_table             = nullptr;
-        absolute_or_relative_position_embedding = nullptr;
         post_decoder_layernorm.gamma            = nullptr;
         post_decoder_embedding.kernel           = nullptr;
         post_decoder_embedding.bias             = nullptr;
         post_decoder_layernorm.beta             = nullptr;
+        sinusoidal_position_embedding           = nullptr;
         is_maintain_buffer_                     = false;
     }
     FT_LOG_DEBUG("M2MDecodingWeight " + std::string(__func__) + " end");
@@ -155,8 +127,6 @@ M2MDecodingWeight<T>::M2MDecodingWeight(const M2MDecodingWeight& other):
     tensor_para_rank_(other.tensor_para_rank_),
     pipeline_para_size_(other.pipeline_para_size_),
     pipeline_para_rank_(other.pipeline_para_rank_),
-    m2m_with_bias(other.m2m_with_bias),
-    mbart(other.mbart),
     use_gated_activation(other.use_gated_activation),
     position_embedding_type(other.position_embedding_type),
     real_weights_num_(other.real_weights_num_)
@@ -192,8 +162,6 @@ M2MDecodingWeight<T>& M2MDecodingWeight<T>::operator=(const M2MDecodingWeight& o
     tensor_para_rank_          = other.tensor_para_rank_;
     pipeline_para_size_        = other.pipeline_para_size_;
     pipeline_para_rank_        = other.pipeline_para_rank_;
-    m2m_with_bias             = other.m2m_with_bias;
-    mbart                      = other.mbart;
     use_gated_activation       = other.use_gated_activation;
     position_embedding_type    = other.position_embedding_type;
     real_weights_num_          = other.real_weights_num_;
@@ -229,26 +197,11 @@ void M2MDecodingWeight<T>::mallocWeights()
 template<typename T>
 void M2MDecodingWeight<T>::setWeightPtr()
 {
-    absolute_or_relative_position_embedding = weights_ptr[0];
-    pre_decoder_embedding_table             = weights_ptr[1];
-    post_decoder_embedding.kernel           = weights_ptr[2];
-    pre_decoder_layernorm.gamma             = weights_ptr[3];
-
-    if (mbart || m2m_with_bias) {
-        if (mbart && m2m_with_bias) {
-            post_decoder_layernorm.gamma = weights_ptr[4];
-            pre_decoder_layernorm.beta   = weights_ptr[5];
-            post_decoder_layernorm.beta  = weights_ptr[6];
-            post_decoder_embedding.bias  = weights_ptr[7];
-        }
-        else if (mbart && !m2m_with_bias) {
-            post_decoder_layernorm.gamma = weights_ptr[4];
-        }
-        else if (!mbart && m2m_with_bias) {
-            pre_decoder_layernorm.beta  = weights_ptr[4];
-            post_decoder_embedding.bias = weights_ptr[5];
-        }
-    }
+    pre_decoder_embedding_table             = weights_ptr[0];
+    post_decoder_embedding.kernel           = weights_ptr[1];
+    post_decoder_layernorm.gamma = weights_ptr[2];
+    post_decoder_layernorm.beta  = weights_ptr[3];
+    sinusoidal_position_embedding = weights_ptr[4];
 }
 
 template<typename T>
@@ -259,35 +212,20 @@ void M2MDecodingWeight<T>::loadModel(std::string dir_path)
     FtCudaDataType model_file_type = getModelFileType(dir_path + "/config.ini", "decoder");
     FT_CHECK(is_maintain_buffer_ == true);
 
-    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/decoder.embed_positions.weight.bin", model_file_type);
-    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/decoder.embed_tokens.weight.bin", model_file_type);
-    loadWeightFromBin<T>(weights_ptr[2], {(size_t)weights_size[2]}, dir_path + "/decoder.lm_head.weight.bin", model_file_type);
-    loadWeightFromBin<T>(
-        weights_ptr[3], {(size_t)weights_size[3]}, dir_path + "/decoder.final_layer_norm.weight.bin", model_file_type);
-    if (m2m_with_bias) {
-        if (mbart) {
-            loadWeightFromBin<T>(weights_ptr[4],
-                                {(size_t)weights_size[4]},
-                                dir_path + "/decoder.layer_norm.weight.bin",
-                                model_file_type);
-            loadWeightFromBin<T>(weights_ptr[5],
-                                {(size_t)weights_size[5]},
-                                dir_path + "/decoder.final_layer_norm.bias.bin",
-                                model_file_type);
-            loadWeightFromBin<T>(weights_ptr[6],
-                                {(size_t)weights_size[6]},
-                                dir_path + "/decoder.layer_norm.bias.bin",
-                                model_file_type);
-            loadWeightFromBin<T>(weights_ptr[7], {(size_t)weights_size[7]}, dir_path + "/decoder.final_logits_bias.bin", model_file_type);
-
-        } else {
-            loadWeightFromBin<T>(weights_ptr[4],
-                                {(size_t)weights_size[4]},
-                                dir_path + "/decoder.final_layer_norm.bias.bin",
-                                model_file_type);
-            loadWeightFromBin<T>(weights_ptr[5], {(size_t)weights_size[5]}, dir_path + "/decoder.final_logits_bias.bin", model_file_type);
-        }
-    }
+    loadWeightFromBin<T>(weights_ptr[0], {(size_t)weights_size[0]}, dir_path + "/decoder.embed_tokens.weight.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[1], {(size_t)weights_size[1]}, dir_path + "/decoder.lm_head.weight.bin", model_file_type);
+    loadWeightFromBin<T>(weights_ptr[2],
+                        {(size_t)weights_size[2]},
+                        dir_path + "/decoder.layer_norm.weight.bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr[3],
+                        {(size_t)weights_size[3]},
+                        dir_path + "/decoder.layer_norm.bias.bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr[4],
+                        {(size_t)weights_size[4]},
+                        dir_path + "/decoder.embed_positions.weight.bin",
+                        model_file_type);
 
     for (int l = 0; l < num_layer_; l++) {
         if (isValidLayerParallelId(l)) {
@@ -319,21 +257,6 @@ void M2MDecodingWeight<T>::resizeLayer(const int num_layer)
         decoder_layer_weights.push_back(new M2MDecoderLayerWeight<T>());
     }
     FT_LOG_DEBUG("M2MDecodingWeight " + std::string(__func__) + " end");
-}
-
-template<typename T>
-void M2MDecodingWeight<T>::setM2MStructureDiff(bool                  m2m_with_bias_para,
-                                                 bool                  mbart_para,
-                                                 bool                  use_gated_activation_para,
-                                                 PositionEmbeddingType position_embedding_type_para)
-{
-    m2m_with_bias          = m2m_with_bias_para;
-    mbart                   = mbart_para;
-    use_gated_activation    = use_gated_activation_para;
-    position_embedding_type = position_embedding_type_para;
-    for (int i = 0; i < num_layer_; i++) {
-        decoder_layer_weights[i]->setM2MWithBias(m2m_with_bias_para, use_gated_activation_para);
-    }
 }
 
 template struct M2MDecodingWeight<float>;

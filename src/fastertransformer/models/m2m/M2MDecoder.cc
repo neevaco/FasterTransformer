@@ -194,7 +194,6 @@ M2MDecoder<T>::M2MDecoder(size_t                              max_batch_size,
                             NcclParam                           tensor_para,
                             NcclParam                           pipeline_para,
                             ActivationType                      activation_type,
-                            LayerNormType                       layernorm_type,
                             float                               q_scaling,
                             std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm,
                             int                                 enable_custom_all_reduce):
@@ -210,7 +209,6 @@ M2MDecoder<T>::M2MDecoder(size_t                              max_batch_size,
     tensor_para_(tensor_para),
     pipeline_para_(pipeline_para),
     activation_type_(activation_type),
-    layernorm_type_(layernorm_type),
     q_scaling_(q_scaling),
     custom_all_reduce_comm_(custom_all_reduce_comm),
     enable_custom_all_reduce_(enable_custom_all_reduce)
@@ -232,7 +230,6 @@ M2MDecoder<T>::M2MDecoder(M2MDecoder<T> const& decoder):
     tensor_para_(decoder.tensor_para_),
     pipeline_para_(decoder.pipeline_para_),
     activation_type_(decoder.activation_type_),
-    layernorm_type_(decoder.layernorm_type_),
     q_scaling_(decoder.q_scaling_),
     custom_all_reduce_comm_(decoder.custom_all_reduce_comm_),
     enable_custom_all_reduce_(decoder.enable_custom_all_reduce_)
@@ -389,23 +386,22 @@ void M2MDecoder<T>::forward(std::vector<Tensor>*                           outpu
         }
         mem_cache_offset += ite_cache_offset;
 
-        if (layernorm_type_ == LayerNormType::pre_layernorm) {
-            invokeGeneralT5LayerNorm(decoder_normed_input_,
-                                     decoder_input,
-                                     decoder_layer_weight->at(l)->self_attn_layernorm_weights.gamma,
-                                     decoder_layer_weight->at(l)->self_attn_layernorm_weights.beta,
-                                     layernorm_eps_,
-                                     local_batch_size,
-                                     d_model_,
-                                     stream_);
-        }
+        invokeGeneralT5LayerNorm(decoder_normed_input_,
+                                    decoder_input,
+                                    decoder_layer_weight->at(l)->self_attn_layernorm_weights.gamma,
+                                    decoder_layer_weight->at(l)->self_attn_layernorm_weights.beta,
+                                    layernorm_eps_,
+                                    local_batch_size,
+                                    d_model_,
+                                    stream_);
+
         sync_check_cuda_error();
         TensorMap self_attention_input_tensors{
             {"input_query",
              Tensor{MEMORY_GPU,
                     data_type,
                     {local_batch_size, d_model_},
-                    layernorm_type_ == LayerNormType::pre_layernorm ? decoder_normed_input_ : decoder_input}},
+                    decoder_normed_input_}},
             {"finished", input_tensors->at(3)},
             {"sequence_lengths", input_tensors->at(5)},
             {"step", input_tensors->at(4)},
@@ -423,32 +419,19 @@ void M2MDecoder<T>::forward(std::vector<Tensor>*                           outpu
                                        &self_attention_input_tensors,
                                        &decoder_layer_weight->at(l)->self_attention_weights);
 
-        if (layernorm_type_ == LayerNormType::pre_layernorm) {
-            invokeGeneralAddBiasResidualT5PreLayerNorm(
-                self_attn_output_,
-                normed_self_attn_output_,
-                decoder_input,
-                decoder_layer_weight->at(l)->cross_attn_layernorm_weights.gamma,
-                decoder_layer_weight->at(l)->cross_attn_layernorm_weights.beta,
-                decoder_layer_weight->at(l)->self_attention_weights.attention_output_weight.bias,
-                layernorm_eps_,
-                local_batch_size,
-                d_model_,
-                stream_);
-        }
-        else if (layernorm_type_ == LayerNormType::post_layernorm) {
-            invokeGeneralAddBiasResidualT5PreLayerNorm(
-                self_attn_output_,
-                self_attn_output_,
-                decoder_input,
-                decoder_layer_weight->at(l)->self_attn_layernorm_weights.gamma,
-                decoder_layer_weight->at(l)->self_attn_layernorm_weights.beta,
-                decoder_layer_weight->at(l)->self_attention_weights.attention_output_weight.bias,
-                layernorm_eps_,
-                local_batch_size,
-                d_model_,
-                stream_);
-        }
+
+        invokeGeneralAddBiasResidualT5PreLayerNorm(
+            self_attn_output_,
+            normed_self_attn_output_,
+            decoder_input,
+            decoder_layer_weight->at(l)->cross_attn_layernorm_weights.gamma,
+            decoder_layer_weight->at(l)->cross_attn_layernorm_weights.beta,
+            decoder_layer_weight->at(l)->self_attention_weights.attention_output_weight.bias,
+            layernorm_eps_,
+            local_batch_size,
+            d_model_,
+            stream_);
+
         sync_check_cuda_error();
 
         TensorMap cross_attention_input_tensors{
@@ -456,7 +439,7 @@ void M2MDecoder<T>::forward(std::vector<Tensor>*                           outpu
              Tensor{MEMORY_GPU,
                     data_type,
                     {local_batch_size, d_model_},
-                    layernorm_type_ == LayerNormType::pre_layernorm ? normed_self_attn_output_ : self_attn_output_}},
+                    normed_self_attn_output_}},
             {"encoder_output", input_tensors->at(1)},
             {"encoder_sequence_length", input_tensors->at(2)},
             {"finished", input_tensors->at(3)},
@@ -483,32 +466,18 @@ void M2MDecoder<T>::forward(std::vector<Tensor>*                           outpu
                                         &cross_attention_input_tensors,
                                         &decoder_layer_weight->at(l)->cross_attention_weights);
 
-        if (layernorm_type_ == LayerNormType::pre_layernorm) {
-            invokeGeneralAddBiasResidualT5PreLayerNorm(
-                cross_attn_output_,
-                normed_cross_attn_output_,
-                self_attn_output_,
-                decoder_layer_weight->at(l)->layernorm_weights.gamma,
-                decoder_layer_weight->at(l)->layernorm_weights.beta,
-                decoder_layer_weight->at(l)->cross_attention_weights.attention_output_weight.bias,
-                layernorm_eps_,
-                local_batch_size,
-                d_model_,
-                stream_);
-        }
-        else if (layernorm_type_ == LayerNormType::post_layernorm) {
-            invokeGeneralAddBiasResidualT5PreLayerNorm(
-                cross_attn_output_,
-                cross_attn_output_,
-                self_attn_output_,
-                decoder_layer_weight->at(l)->cross_attn_layernorm_weights.gamma,
-                decoder_layer_weight->at(l)->cross_attn_layernorm_weights.beta,
-                decoder_layer_weight->at(l)->cross_attention_weights.attention_output_weight.bias,
-                layernorm_eps_,
-                local_batch_size,
-                d_model_,
-                stream_);
-        }
+
+        invokeGeneralAddBiasResidualT5PreLayerNorm(
+            cross_attn_output_,
+            normed_cross_attn_output_,
+            self_attn_output_,
+            decoder_layer_weight->at(l)->layernorm_weights.gamma,
+            decoder_layer_weight->at(l)->layernorm_weights.beta,
+            decoder_layer_weight->at(l)->cross_attention_weights.attention_output_weight.bias,
+            layernorm_eps_,
+            local_batch_size,
+            d_model_,
+            stream_);
         sync_check_cuda_error();
 
         TensorMap ffn_input_tensors(
@@ -516,8 +485,7 @@ void M2MDecoder<T>::forward(std::vector<Tensor>*                           outpu
               Tensor{MEMORY_GPU,
                      data_type,
                      {local_batch_size, d_model_},
-                     layernorm_type_ == LayerNormType::pre_layernorm ? normed_cross_attn_output_ :
-                                                                       cross_attn_output_}}});
+                     normed_cross_attn_output_}}});
 
         TensorMap ffn_output_tensors;
 
@@ -525,26 +493,12 @@ void M2MDecoder<T>::forward(std::vector<Tensor>*                           outpu
                                   Tensor{MEMORY_GPU, data_type, {local_batch_size, d_model_}, decoder_output});
         ffn_layer_->forward(&ffn_output_tensors, &ffn_input_tensors, &decoder_layer_weight->at(l)->ffn_weights);
 
-        if (layernorm_type_ == LayerNormType::pre_layernorm) {
-            invokeT5AddBiasResidual(decoder_output,
-                                    cross_attn_output_,
-                                    decoder_layer_weight->at(l)->ffn_weights.output_weight.bias,
-                                    local_batch_size,
-                                    d_model_,
-                                    stream_);
-        }
-        else if (layernorm_type_ == LayerNormType::post_layernorm) {
-            invokeGeneralAddBiasResidualT5PreLayerNorm(decoder_output,
-                                                       decoder_output,
-                                                       cross_attn_output_,
-                                                       decoder_layer_weight->at(l)->layernorm_weights.gamma,
-                                                       decoder_layer_weight->at(l)->layernorm_weights.beta,
-                                                       decoder_layer_weight->at(l)->ffn_weights.output_weight.bias,
-                                                       layernorm_eps_,
-                                                       local_batch_size,
-                                                       d_model_,
-                                                       stream_);
-        }
+        invokeT5AddBiasResidual(decoder_output,
+                                cross_attn_output_,
+                                decoder_layer_weight->at(l)->ffn_weights.output_weight.bias,
+                                local_batch_size,
+                                d_model_,
+                                stream_);
         sync_check_cuda_error();
 
         if (isLastLayerParallelId(l) == true && pipeline_para_.rank_ != pipeline_para_.world_size_ - 1

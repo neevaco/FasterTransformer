@@ -34,7 +34,6 @@ struct M2MEncoderLayerWeight {
                            const size_t inter_size,
                            const size_t tensor_para_size,
                            const size_t tensor_para_rank,
-                           const bool   m2m_with_bias       = true,
                            const bool   use_gated_activation = false);
     ~M2MEncoderLayerWeight();
     M2MEncoderLayerWeight(const M2MEncoderLayerWeight& other);
@@ -48,11 +47,9 @@ struct M2MEncoderLayerWeight {
     LayerNormWeight<T> attn_layernorm_weights_;
     FfnWeight<T>       ffn_weights_;
     LayerNormWeight<T> ffn_layernorm_weights_;
-    bool               m2m_with_bias_;
-    bool               use_gated_activation_;
+    bool               use_gated_activation_ = false;
 
     void loadModel(std::string dir_path, FtCudaDataType model_file_type);
-    void setM2MWithBias(bool m2m_with_bias_para, bool use_gated_activation_para);
 
 private:
     void initialize();    /* compute weight shapes */

@@ -39,7 +39,6 @@ void M2MDecoding<T>::initialize()
                                   tensor_para_,
                                   pipeline_para_,
                                   activation_type_,
-                                  layernorm_type_,
                                   q_scaling_,
                                   custom_all_reduce_comm_,
                                   enable_custom_all_reduce_);
@@ -243,7 +242,6 @@ M2MDecoding<T>::M2MDecoding(size_t                              max_batch_size,
                               NcclParam                           tensor_para,
                               NcclParam                           pipeline_para,
                               ActivationType                      activation_type,
-                              LayerNormType                       layernorm_type,
                               bool                                tie_word_embeddings,
                               std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm,
                               int                                 enable_custom_all_reduce):
@@ -269,7 +267,6 @@ M2MDecoding<T>::M2MDecoding(size_t                              max_batch_size,
     tensor_para_(tensor_para),
     pipeline_para_(pipeline_para),
     activation_type_(activation_type),
-    layernorm_type_(layernorm_type),
     tie_word_embeddings_(tie_word_embeddings),
     custom_all_reduce_comm_(custom_all_reduce_comm),
     enable_custom_all_reduce_(enable_custom_all_reduce)
@@ -307,7 +304,6 @@ M2MDecoding<T>::M2MDecoding(M2MDecoding<T> const& decoding):
     tensor_para_(decoding.tensor_para_),
     pipeline_para_(decoding.pipeline_para_),
     activation_type_(decoding.activation_type_),
-    layernorm_type_(decoding.layernorm_type_),
     tie_word_embeddings_(decoding.tie_word_embeddings_),
     custom_all_reduce_comm_(decoding.custom_all_reduce_comm_),
     enable_custom_all_reduce_(decoding.enable_custom_all_reduce_)
@@ -437,16 +433,6 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
                              stream_);
     sync_check_cuda_error();
 
-    invokeBuildRelativeAttentionBias(relative_attention_bias_,
-                                     decoding_weights->absolute_or_relative_position_embedding,
-                                     head_num_,
-                                     (max_seq_len + 1),
-                                     num_bucket_,
-                                     false,
-                                     max_distance_,
-                                     decoding_weights->position_embedding_type,
-                                     stream_);
-    sync_check_cuda_error();
 
     if (vocab_size_ == vocab_size_padded_) {
         padded_embedding_kernel_ptr_            = decoding_weights->post_decoder_embedding.kernel;
@@ -500,10 +486,7 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
             if (pipeline_para_.rank_ == 0) {
                 invokeEmbeddingLookupPosEncodingPadCount(decoder_input_buf_ + d_model_offset,
                                                          decoding_weights->pre_decoder_embedding_table,
-                                                         decoding_weights->position_embedding_type
-                                                                 == PositionEmbeddingType::relative ?
-                                                             (T*)nullptr :
-                                                             decoding_weights->absolute_or_relative_position_embedding,
+                                                         decoding_weights->sinusoidal_position_embedding,
                                                          output_ids_buf_ + id_offset,
                                                          nullptr,
                                                          local_batch_size * beam_width,
@@ -515,17 +498,6 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
                                                          stream_);
                 sync_check_cuda_error();
             }
-
-            // BART/mBART has a layernorm after word + positional embedding
-            invokeGeneralT5LayerNorm(decoder_input_buf_ + d_model_offset,
-                                     decoder_input_buf_ + d_model_offset,
-                                     decoding_weights->pre_decoder_layernorm.gamma,
-                                     decoding_weights->pre_decoder_layernorm.beta,
-                                     layernorm_eps_,
-                                     local_batch_size * beam_width,
-                                     d_model_,
-                                     stream_);
-            sync_check_cuda_error();
 
             std::vector<Tensor> decoder_input_tensors{
                 Tensor{MEMORY_GPU,
@@ -580,24 +552,19 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
             decoder_->forward(
                 &decoder_output_tensors, &decoder_input_tensors, &decoding_weights->decoder_layer_weights);
 
-            bool m2m_with_bias = decoding_weights->m2m_with_bias;
-            bool mbart          = decoding_weights->mbart;
-
             const cudaDataType_t gemm_data_type = getCudaDataType<T>();
 
             if (pipeline_para_.rank_ == pipeline_para_.world_size_ - 1) {
-                T* decoder_output_buf_tmp = mbart ? normed_decoder_output_buf_ : decoder_output_buf_;
+                T* decoder_output_buf_tmp = normed_decoder_output_buf_ ;
 
-                if (mbart) {
-                    invokeGeneralT5LayerNorm(decoder_output_buf_tmp + d_model_offset,
-                                             decoder_output_buf_ + d_model_offset,
-                                             decoding_weights->post_decoder_layernorm.gamma,
-                                             decoding_weights->post_decoder_layernorm.beta,
-                                             layernorm_eps_,
-                                             local_batch_size * beam_width,
-                                             d_model_,
-                                             stream_);
-                }
+                invokeGeneralT5LayerNorm(decoder_output_buf_tmp + d_model_offset,
+                                            decoder_output_buf_ + d_model_offset,
+                                            decoding_weights->post_decoder_layernorm.gamma,
+                                            decoding_weights->post_decoder_layernorm.beta,
+                                            layernorm_eps_,
+                                            local_batch_size * beam_width,
+                                            d_model_,
+                                            stream_);
 
                 sync_check_cuda_error();
 
@@ -605,7 +572,7 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
 
                 // bf16 logits computation fallback to fp32
                 if (tensor_para_.world_size_ == 1) {
-                    float alpha = (!m2m_with_bias && tie_word_embeddings_) ? 1.0f / sqrt(d_model_) : 1.0f;
+                    float alpha = 1.0f;
                     float beta  = 0.0f;
 #ifdef ENABLE_BF16
                     if (std::is_same<T, __nv_bfloat16>::value) {
@@ -650,7 +617,7 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
                 }
                 else {
                     const int local_vocab_size = vocab_size_padded_ / tensor_para_.world_size_;
-                    float     alpha = (!m2m_with_bias && tie_word_embeddings_) ? 1.0f / sqrt(d_model_) : 1.0f;
+                    float     alpha = 1.0f;
                     float     beta  = 0.0f;
 #ifdef ENABLE_BF16
                     if (std::is_same<T, __nv_bfloat16>::value) {
@@ -710,21 +677,20 @@ void M2MDecoding<T>::forward(TensorMap*                   output_tensors,
                                           stream_);
                 }
 
-                if (m2m_with_bias) {
-                    invokeGenericActivation<IdentityActivation, DynamicDecodeType, T>(
-                        logits_buf_ + vocab_size_units_offset,
-                        padded_post_decoder_embedding_bias_ptr_,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        local_batch_size * beam_width,
-                        vocab_size_padded_,
-                        0,
-                        nullptr,
-                        nullptr,
-                        stream_);
-                }
+
+                invokeGenericActivation<IdentityActivation, DynamicDecodeType, T>(
+                    logits_buf_ + vocab_size_units_offset,
+                    padded_post_decoder_embedding_bias_ptr_,
+                    nullptr,
+                    nullptr,
+                    nullptr,
+                    nullptr,
+                    local_batch_size * beam_width,
+                    vocab_size_padded_,
+                    0,
+                    nullptr,
+                    nullptr,
+                    stream_);
 
                 int       tmp_local_batch_size       = local_batch_size;
                 bool      is_initialize_random_table = step == 1;

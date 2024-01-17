@@ -43,6 +43,7 @@ struct RequestParam {
     unsigned long long int random_seed;
     int                    start_id;
     int                    end_id;
+    int                    forced_bos_id;
 };
 
 std::vector<std::shared_ptr<std::unordered_map<std::string, triton::Tensor>>>
@@ -73,7 +74,7 @@ broadCastRequest(const std::vector<int>& v_start_ids,
     }
     ft::mpi::barrier();
 
-    int request_batch_size = 2;
+    int request_batch_size = 1;
     int max_input_len      = size_1 / size_2;
 
     ft::mpi::bcast(v_input_ids.data(), size_1, ft::mpi::MPI_TYPE_INT, 0, ft::mpi::COMM_WORLD);
@@ -111,9 +112,11 @@ broadCastRequest(const std::vector<int>& v_start_ids,
 
         int* start_ids_ptr = (int*)malloc(request_batch_size * sizeof(int));
         int* end_ids_ptr   = (int*)malloc(request_batch_size * sizeof(int));
+        int* forced_bos_ids_ptr   = (int*)malloc(request_batch_size * sizeof(int));
         for (int i = 0; i < request_batch_size; i++) {
             start_ids_ptr[i] = param.start_id;
             end_ids_ptr[i]   = param.end_id;
+            forced_bos_ids_ptr[i] = param.forced_bos_id;
         }
         pointer_record->push_back(start_ids_ptr);
         pointer_record->push_back(end_ids_ptr);
@@ -142,6 +145,8 @@ broadCastRequest(const std::vector<int>& v_start_ids,
                 //  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, start_ids_ptr}},
                 // {"end_id",
                 //  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, end_ids_ptr}}
+                 {"forced_bos_id",
+                  triton::Tensor{triton::MEMORY_CPU, triton::TYPE_INT32, {(size_t)request_batch_size}, forced_bos_ids_ptr}}
                  }));
 
         int* beam_width_ptr = new int(param.beam_width);
@@ -230,8 +235,9 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
 
     const size_t request_batch_size = 1; //reader.GetInteger("request", "request_batch_size");
 
-    const int start_id = reader.GetInteger("decoder", "start_id");
-    const int end_id   = reader.GetInteger("decoder", "end_id");
+    //const int start_id = reader.GetInteger("decoder", "start_id");
+    const int end_id   = reader.GetInteger("decoder", "eos_token_id");
+    const int forced_bos_id   = reader.GetInteger("decoder", "forced_bos_id");
 
     std::vector<int> v_start_ids;
     std::vector<int> v_start_lengths;
@@ -262,8 +268,9 @@ prepareRequest(std::string ini_name, const int node_id, const int gpu_count, std
     param.presence_penalty           = reader.GetFloat("request", "presence_penalty", 0.0f);
     param.min_length                 = reader.GetInteger("request", "min_length", 0);
     param.random_seed                = (unsigned long long int)0;
-    param.start_id                   = 250025;
+    param.start_id                   = -1;
     param.end_id                     = end_id;
+    param.forced_bos_id              = forced_bos_id;
 
     auto request_list =
         broadCastRequest(v_start_ids, v_start_lengths, v_bad_words, node_id, gpu_count, param, pointer_record);
@@ -316,10 +323,10 @@ int main(int argc, char* argv[])
     const int   gpu_count  = ft::getDeviceCount();
     std::cout << "gpu_count: " << gpu_count << std::endl;
     const int   world_size = node_num * gpu_count;
-    std::string ini_name   = argc >= 2 ? std::string(argv[1]) : "/notebooks/tmp/FasterTransformer/examples/cpp/m2m/";
+    std::string ini_name   = argc >= 2 ? std::string(argv[1]) : "/notebooks/FasterTransformer/examples/cpp/m2m/";
 
     // step 1: Create model
-    std::shared_ptr<AbstractTransformerModel> model            = AbstractTransformerModel::createM2MModel("/notebooks/m2m-ft/1-gpu");
+    std::shared_ptr<AbstractTransformerModel> model            = AbstractTransformerModel::createM2MModel("/notebooks/models/m2m-ft/1/1-gpu");
     int                                       tensor_para_size = model->getTensorParaSize();
     int                                       pipeline_para_size = model->getPipelineParaSize();
     FT_CHECK_WITH_INFO(world_size == (tensor_para_size * pipeline_para_size),

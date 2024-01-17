@@ -69,8 +69,6 @@ private:
     int  getFirstLayerParallelId();
 
     const ActivationType activation_type_;
-    const LayerNormType  layernorm_type_;
-
     const NcclParam tensor_para_;
     const NcclParam pipeline_para_;
 
@@ -111,7 +109,6 @@ public:
                 AttentionType                       attention_type,
                 bool                                sparse,
                 ActivationType                      activation_type,
-                LayerNormType                       layernorm_type,
                 NcclParam                           tensor_para,
                 NcclParam                           pipeline_para,
                 std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm   = nullptr,

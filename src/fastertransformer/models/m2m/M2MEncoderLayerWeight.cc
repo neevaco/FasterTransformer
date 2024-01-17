@@ -27,7 +27,6 @@ M2MEncoderLayerWeight<T>::M2MEncoderLayerWeight(const size_t head_num,
                                                   const size_t inter_size,
                                                   const size_t tensor_para_size,
                                                   const size_t tensor_para_rank,
-                                                  const bool   m2m_with_bias,
                                                   const bool   use_gated_activation):
     head_num_(head_num),
     size_per_head_(size_per_head),
@@ -35,11 +34,10 @@ M2MEncoderLayerWeight<T>::M2MEncoderLayerWeight(const size_t head_num,
     inter_size_(inter_size),
     tensor_para_size_(tensor_para_size),
     tensor_para_rank_(tensor_para_rank),
-    m2m_with_bias_(m2m_with_bias),
     use_gated_activation_(use_gated_activation)
 {
     real_weights_num_ = (8 + (use_gated_activation_ ? 1 : 0))
-                        * (m2m_with_bias_ ? 2 : 1);  // 8: Q, K, V, O, LayerNorm1, FC1, FC2, LayerNorm2
+                        * 2;  // 8: Q, K, V, O, LayerNorm1, FC1, FC2, LayerNorm2
     FT_LOG_DEBUG("M2MEncoderLayerWeight " + std::string(__func__) + " start");
     initialize();
     mallocWeights();
@@ -67,29 +65,28 @@ void M2MEncoderLayerWeight<T>::initialize()
         weights_size_[6] = (inter_size_ / tensor_para_size_) * d_model_;  // FC2 weight
         weights_size_[7] = d_model_;                                      // LN2 weight
     }
-    if (m2m_with_bias_) {
-        if (use_gated_activation_) {
-            weights_size_[9]  = (head_num_ / tensor_para_size_) * size_per_head_;
-            weights_size_[10] = (head_num_ / tensor_para_size_) * size_per_head_;
-            weights_size_[11] = (head_num_ / tensor_para_size_) * size_per_head_;
-            weights_size_[12] = d_model_;
-            weights_size_[13] = d_model_;
-            weights_size_[14] = (inter_size_ / tensor_para_size_);
-            weights_size_[15] = (inter_size_ / tensor_para_size_);  // for gated activation
-            weights_size_[16] = d_model_;
-            weights_size_[17] = d_model_;
-        }
-        else {
-            weights_size_[8]  = (head_num_ / tensor_para_size_) * size_per_head_;
-            weights_size_[9]  = (head_num_ / tensor_para_size_) * size_per_head_;
-            weights_size_[10] = (head_num_ / tensor_para_size_) * size_per_head_;
-            weights_size_[11] = d_model_;
-            weights_size_[12] = d_model_;
-            weights_size_[13] = (inter_size_ / tensor_para_size_);
-            weights_size_[14] = d_model_;
-            weights_size_[15] = d_model_;
-        }
+    if (use_gated_activation_) {
+        weights_size_[9]  = (head_num_ / tensor_para_size_) * size_per_head_;
+        weights_size_[10] = (head_num_ / tensor_para_size_) * size_per_head_;
+        weights_size_[11] = (head_num_ / tensor_para_size_) * size_per_head_;
+        weights_size_[12] = d_model_;
+        weights_size_[13] = d_model_;
+        weights_size_[14] = (inter_size_ / tensor_para_size_);
+        weights_size_[15] = (inter_size_ / tensor_para_size_);  // for gated activation
+        weights_size_[16] = d_model_;
+        weights_size_[17] = d_model_;
     }
+    else {
+        weights_size_[8]  = (head_num_ / tensor_para_size_) * size_per_head_;
+        weights_size_[9]  = (head_num_ / tensor_para_size_) * size_per_head_;
+        weights_size_[10] = (head_num_ / tensor_para_size_) * size_per_head_;
+        weights_size_[11] = d_model_;
+        weights_size_[12] = d_model_;
+        weights_size_[13] = (inter_size_ / tensor_para_size_);
+        weights_size_[14] = d_model_;
+        weights_size_[15] = d_model_;
+    }
+    
 
     FT_LOG_DEBUG("M2MEncoderLayerWeight " + std::string(__func__) + " end");
 }
@@ -147,7 +144,6 @@ M2MEncoderLayerWeight<T>::M2MEncoderLayerWeight(const M2MEncoderLayerWeight& oth
     inter_size_(other.inter_size_),
     tensor_para_size_(other.tensor_para_size_),
     tensor_para_rank_(other.tensor_para_rank_),
-    m2m_with_bias_(other.m2m_with_bias_),
     real_weights_num_(other.real_weights_num_)
 {
     FT_LOG_DEBUG("M2MEncoderLayerWeight " + std::string(__func__) + " start");
@@ -171,7 +167,6 @@ M2MEncoderLayerWeight<T>& M2MEncoderLayerWeight<T>::operator=(const M2MEncoderLa
     inter_size_       = other.inter_size_;
     tensor_para_size_ = other.tensor_para_size_;
     tensor_para_rank_ = other.tensor_para_rank_;
-    m2m_with_bias_   = other.m2m_with_bias_;
     real_weights_num_ = other.real_weights_num_;
     initialize();
     mallocWeights();
@@ -249,29 +244,29 @@ void M2MEncoderLayerWeight<T>::setWeightPtr()
         ffn_layernorm_weights_.gamma            = weights_ptr_[7];
     }
 
-    if (m2m_with_bias_) {
-        if (use_gated_activation_) {
-            attention_weights_.query_weight.bias            = weights_ptr_[9];
-            attention_weights_.key_weight.bias              = weights_ptr_[10];
-            attention_weights_.value_weight.bias            = weights_ptr_[11];
-            attention_weights_.attention_output_weight.bias = weights_ptr_[12];
-            attn_layernorm_weights_.beta                    = weights_ptr_[13];
-            ffn_weights_.intermediate_weight.bias           = weights_ptr_[14];
-            ffn_weights_.intermediate_weight2.bias          = weights_ptr_[15];
-            ffn_weights_.output_weight.bias                 = weights_ptr_[16];
-            ffn_layernorm_weights_.beta                     = weights_ptr_[17];
-        }
-        else {
-            attention_weights_.query_weight.bias            = weights_ptr_[8];
-            attention_weights_.key_weight.bias              = weights_ptr_[9];
-            attention_weights_.value_weight.bias            = weights_ptr_[10];
-            attention_weights_.attention_output_weight.bias = weights_ptr_[11];
-            attn_layernorm_weights_.beta                    = weights_ptr_[12];
-            ffn_weights_.intermediate_weight.bias           = weights_ptr_[13];
-            ffn_weights_.output_weight.bias                 = weights_ptr_[14];
-            ffn_layernorm_weights_.beta                     = weights_ptr_[15];
-        }
+
+    if (use_gated_activation_) {
+        attention_weights_.query_weight.bias            = weights_ptr_[9];
+        attention_weights_.key_weight.bias              = weights_ptr_[10];
+        attention_weights_.value_weight.bias            = weights_ptr_[11];
+        attention_weights_.attention_output_weight.bias = weights_ptr_[12];
+        attn_layernorm_weights_.beta                    = weights_ptr_[13];
+        ffn_weights_.intermediate_weight.bias           = weights_ptr_[14];
+        ffn_weights_.intermediate_weight2.bias          = weights_ptr_[15];
+        ffn_weights_.output_weight.bias                 = weights_ptr_[16];
+        ffn_layernorm_weights_.beta                     = weights_ptr_[17];
     }
+    else {
+        attention_weights_.query_weight.bias            = weights_ptr_[8];
+        attention_weights_.key_weight.bias              = weights_ptr_[9];
+        attention_weights_.value_weight.bias            = weights_ptr_[10];
+        attention_weights_.attention_output_weight.bias = weights_ptr_[11];
+        attn_layernorm_weights_.beta                    = weights_ptr_[12];
+        ffn_weights_.intermediate_weight.bias           = weights_ptr_[13];
+        ffn_weights_.output_weight.bias                 = weights_ptr_[14];
+        ffn_layernorm_weights_.beta                     = weights_ptr_[15];
+    }
+
 
     is_maintain_buffer_ = true;
     FT_LOG_DEBUG("M2MEncoderLayerWeight " + std::string(__func__) + " end");
@@ -327,52 +322,42 @@ void M2MEncoderLayerWeight<T>::loadModel(std::string dir_path, FtCudaDataType mo
                         {weights_size_[7]},
                         dir_path + "layer.SelfAttention.final_layer_norm.weight.bin",
                         model_file_type);
+    loadWeightFromBin<T>(weights_ptr_[8],
+                        {weights_size_[8]},
+                        dir_path + "layer.SelfAttention.q.bias." + tp_rank + ".bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr_[9],
+                        {weights_size_[9]},
+                        dir_path + "layer.SelfAttention.k.bias." + tp_rank + ".bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr_[10],
+                        {weights_size_[10]},
+                        dir_path + "layer.SelfAttention.v.bias." + tp_rank + ".bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr_[11],
+                        {weights_size_[11]},
+                        dir_path + "layer.SelfAttention.out_proj.bias." + tp_rank + ".bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr_[12],
+                        {weights_size_[12]},
+                        dir_path + "layer.SelfAttention.attn_layer_norm.bias.bin",
+                        model_file_type);
 
-    if (m2m_with_bias_) {
-        loadWeightFromBin<T>(weights_ptr_[8],
-                            {weights_size_[8]},
-                            dir_path + "layer.SelfAttention.q.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[9],
-                            {weights_size_[9]},
-                            dir_path + "layer.SelfAttention.k.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[10],
-                            {weights_size_[10]},
-                            dir_path + "layer.SelfAttention.v.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[11],
-                            {weights_size_[11]},
-                            dir_path + "layer.SelfAttention.out_proj.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[12],
-                            {weights_size_[12]},
-                            dir_path + "layer.SelfAttention.attn_layer_norm.bias.bin",
-                            model_file_type);
-
-        loadWeightFromBin<T>(weights_ptr_[13],
-                            {weights_size_[13]},
-                            dir_path + "layer.SelfAttention.fc1.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[14],
-                            {weights_size_[14]},
-                            dir_path + "layer.SelfAttention.fc2.bias." + tp_rank + ".bin",
-                            model_file_type);
-        loadWeightFromBin<T>(weights_ptr_[15],
-                            {weights_size_[15]},
-                            dir_path + "layer.SelfAttention.final_layer_norm.bias.bin",
-                            model_file_type);       
-    }
+    loadWeightFromBin<T>(weights_ptr_[13],
+                        {weights_size_[13]},
+                        dir_path + "layer.SelfAttention.fc1.bias." + tp_rank + ".bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr_[14],
+                        {weights_size_[14]},
+                        dir_path + "layer.SelfAttention.fc2.bias." + tp_rank + ".bin",
+                        model_file_type);
+    loadWeightFromBin<T>(weights_ptr_[15],
+                        {weights_size_[15]},
+                        dir_path + "layer.SelfAttention.final_layer_norm.bias.bin",
+                        model_file_type);
 
 
     FT_LOG_DEBUG("M2MEncoderLayerWeight " + std::string(__func__) + " end");
-}
-
-template<typename T>
-void M2MEncoderLayerWeight<T>::setM2MWithBias(bool m2m_with_bias_para, bool use_gated_activation_para)
-{
-    m2m_with_bias_       = m2m_with_bias_para;
-    use_gated_activation_ = use_gated_activation_para;
 }
 
 template struct M2MEncoderLayerWeight<float>;

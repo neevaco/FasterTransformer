@@ -140,7 +140,6 @@ M2MEncoder<T>::M2MEncoder(size_t                              max_batch_size,
                             AttentionType                       attention_type,
                             bool                                sparse,
                             ActivationType                      activation_type,
-                            LayerNormType                       layernorm_type,
                             NcclParam                           tensor_para,
                             NcclParam                           pipeline_para,
                             std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm,
@@ -161,7 +160,6 @@ M2MEncoder<T>::M2MEncoder(size_t                              max_batch_size,
     attention_type_(attention_type),
     sparse_(sparse),
     activation_type_(activation_type),
-    layernorm_type_(layernorm_type),
     tensor_para_(tensor_para),
     pipeline_para_(pipeline_para),
     custom_all_reduce_comm_(custom_all_reduce_comm),
@@ -188,7 +186,6 @@ M2MEncoder<T>::M2MEncoder(M2MEncoder<T> const& m2m_encoder):
     attention_type_(m2m_encoder.attention_type_),
     sparse_(m2m_encoder.sparse_),
     activation_type_(m2m_encoder.activation_type_),
-    layernorm_type_(m2m_encoder.layernorm_type_),
     tensor_para_(m2m_encoder.tensor_para_),
     pipeline_para_(m2m_encoder.pipeline_para_),
     custom_all_reduce_comm_(m2m_encoder.custom_all_reduce_comm_),
@@ -238,16 +235,10 @@ void M2MEncoder<T>::allocateBuffer()
         m2m_encoder_out_buffer_ = (T*)allocator_->reMalloc(
             m2m_encoder_out_buffer_, sizeof(T) * max_batch_size_ * max_seq_len_ * d_model_, false);
 
-        if (layernorm_type_ == LayerNormType::post_layernorm) {
-            normed_from_tensor_  = nullptr;
-            normed_attn_out_buf_ = nullptr;
-        }
-        else {
-            normed_from_tensor_ = (T*)allocator_->reMalloc(
-                normed_from_tensor_, sizeof(T) * max_batch_size_ * max_seq_len_ * d_model_, false);
-            normed_attn_out_buf_ = (T*)allocator_->reMalloc(
-                normed_attn_out_buf_, sizeof(T) * max_batch_size_ * max_seq_len_ * d_model_, false);
-        }
+        normed_from_tensor_ = (T*)allocator_->reMalloc(
+            normed_from_tensor_, sizeof(T) * max_batch_size_ * max_seq_len_ * d_model_, false);
+        normed_attn_out_buf_ = (T*)allocator_->reMalloc(
+            normed_attn_out_buf_, sizeof(T) * max_batch_size_ * max_seq_len_ * d_model_, false);
         is_allocate_buffer_ = true;
     }
 }
@@ -273,16 +264,11 @@ void M2MEncoder<T>::allocateBuffer(size_t batch_size, size_t seq_len)
     m2m_encoder_out_buffer_ =
         (T*)allocator_->reMalloc(m2m_encoder_out_buffer_, sizeof(T) * batch_size * seq_len * d_model_, false);
 
-    if (layernorm_type_ == LayerNormType::post_layernorm) {
-        normed_from_tensor_  = nullptr;
-        normed_attn_out_buf_ = nullptr;
-    }
-    else {
-        normed_from_tensor_ =
-            (T*)allocator_->reMalloc(normed_from_tensor_, sizeof(T) * batch_size * seq_len * d_model_, false);
-        normed_attn_out_buf_ =
-            (T*)allocator_->reMalloc(normed_attn_out_buf_, sizeof(T) * batch_size * seq_len * d_model_, false);
-    }
+    normed_from_tensor_ =
+        (T*)allocator_->reMalloc(normed_from_tensor_, sizeof(T) * batch_size * seq_len * d_model_, false);
+    normed_attn_out_buf_ =
+        (T*)allocator_->reMalloc(normed_attn_out_buf_, sizeof(T) * batch_size * seq_len * d_model_, false);
+
     is_allocate_buffer_ = true;
 }
 
@@ -301,14 +287,9 @@ void M2MEncoder<T>::freeBuffer()
         allocator_->free((void**)(&attn_out_buf_));
         allocator_->free((void**)(&m2m_encoder_out_buffer_));
 
-        if (layernorm_type_ == LayerNormType::post_layernorm) {
-            normed_from_tensor_  = nullptr;
-            normed_attn_out_buf_ = nullptr;
-        }
-        else {
-            allocator_->free((void**)(&normed_from_tensor_));
-            allocator_->free((void**)(&normed_attn_out_buf_));
-        }
+        allocator_->free((void**)(&normed_from_tensor_));
+        allocator_->free((void**)(&normed_attn_out_buf_));
+
         is_allocate_buffer_ = false;
     }
 }
@@ -383,22 +364,12 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
     }
 
     // M2M Structure Difference
-    const bool            m2m_with_bias          = m2m_encoder_weights->m2m_with_bias;
-    const bool            mbart                   = m2m_encoder_weights->mbart;
     PositionEmbeddingType position_embedding_type = m2m_encoder_weights->position_embedding_type;
 
     const bool use_inputs_embeds_buffer =
         use_inputs_embeds && position_embedding_type == PositionEmbeddingType::relative;
 
-    invokeBuildRelativeAttentionBias(relative_attention_bias_,
-                                     m2m_encoder_weights->absolute_or_relative_position_embedding,
-                                     head_num_,
-                                     request_seq_len,
-                                     num_bucket_or_max_seq_len_,
-                                     true,
-                                     max_distance_,
-                                     position_embedding_type,
-                                     stream_);
+
     if (attention_type_ == AttentionType::UNFUSED_MHA || attention_type_ == AttentionType::FUSED_MHA) {
         // prevent undefined behavior of the padding parts
         cudaMemset(output_tensors->at("output_hidden_state").getPtr<T>(),
@@ -419,7 +390,7 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
                 nullptr,
                 use_inputs_embeds ? input_tensors->at("inputs_embeds").getPtr<T>() :
                                     m2m_encoder_weights->embedding_table,
-                m2m_encoder_weights->absolute_or_relative_position_embedding,
+                m2m_encoder_weights->sinusoidal_position_embedding,
                 pPromptTuningParam<T>{},  // p/prompt tuning
                 use_inputs_embeds ? nullptr :
                                     input_tensors->at("input_ids").getPtrWithOffset<int>(id_offset * request_seq_len),
@@ -578,18 +549,6 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
 
         DataType data_type = getTensorType<T>();
 
-        // Before layers, BART/mBART has a layernorm on the embeddings. Different from T5
-        // should we put rank=0 condition here?
-        invokeGeneralT5LayerNorm(m2m_encoder_input_ptr,
-                                 m2m_encoder_input_ptr,
-                                 m2m_encoder_weights->pre_transformer_layernorm_weights.gamma,
-                                 m2m_encoder_weights->pre_transformer_layernorm_weights.beta,
-                                 layernorm_eps_,
-                                 h_token_num,
-                                 d_model_,
-                                 stream_);
-        sync_check_cuda_error();
-
         // Encoder layers
         for (uint i = 0; i < num_layer_; i++) {
             if (!isValidLayerParallelId(i)) {
@@ -611,16 +570,15 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
                     ftNcclAllGather(from_tensor, from_tensor, data_size, tensor_para_.rank_, tensor_para_, stream_);
                 }
             }
-            if (layernorm_type_ == LayerNormType::pre_layernorm) {
-                invokeGeneralT5LayerNorm(normed_from_tensor_,
-                                         from_tensor,
-                                         layer_weight->attn_layernorm_weights_.gamma,
-                                         layer_weight->attn_layernorm_weights_.beta,
-                                         layernorm_eps_,
-                                         h_token_num,
-                                         d_model_,
-                                         stream_);
-            }
+
+            invokeGeneralT5LayerNorm(normed_from_tensor_,
+                                        from_tensor,
+                                        layer_weight->attn_layernorm_weights_.gamma,
+                                        layer_weight->attn_layernorm_weights_.beta,
+                                        layernorm_eps_,
+                                        h_token_num,
+                                        d_model_,
+                                        stream_);
 
             {
                 TensorMap attn_input_tensors{
@@ -628,7 +586,7 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
                      Tensor{MEMORY_GPU,
                             data_type,
                             std::vector<size_t>{h_token_num, d_model_},
-                            layernorm_type_ == LayerNormType::pre_layernorm ? normed_from_tensor_ : from_tensor}},
+                            normed_from_tensor_}},
                     {"attention_mask",
                      Tensor{MEMORY_GPU,
                             data_type,
@@ -662,32 +620,18 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
                 attention_layer_->forward(&attn_output_tensors, &attn_input_tensors, &layer_weight->attention_weights_);
             }
 
-            if (layernorm_type_ == LayerNormType::post_layernorm) {
-                invokeGeneralAddBiasResidualT5PreLayerNorm(
-                    attn_out_buf_,
-                    attn_out_buf_,
-                    from_tensor,
-                    layer_weight->attn_layernorm_weights_.gamma,
-                    layer_weight->attn_layernorm_weights_.beta,
-                    layer_weight->attention_weights_.attention_output_weight.bias,
-                    layernorm_eps_,
-                    h_token_num,
-                    d_model_,
-                    stream_);
-            }
-            else if (layernorm_type_ == LayerNormType::pre_layernorm) {
-                invokeGeneralAddBiasResidualT5PreLayerNorm(
-                    attn_out_buf_,
-                    normed_attn_out_buf_,
-                    from_tensor,
-                    layer_weight->ffn_layernorm_weights_.gamma,
-                    layer_weight->ffn_layernorm_weights_.beta,
-                    layer_weight->attention_weights_.attention_output_weight.bias,
-                    layernorm_eps_,
-                    h_token_num,
-                    d_model_,
-                    stream_);
-            }
+
+            invokeGeneralAddBiasResidualT5PreLayerNorm(
+                attn_out_buf_,
+                normed_attn_out_buf_,
+                from_tensor,
+                layer_weight->ffn_layernorm_weights_.gamma,
+                layer_weight->ffn_layernorm_weights_.beta,
+                layer_weight->attention_weights_.attention_output_weight.bias,
+                layernorm_eps_,
+                h_token_num,
+                d_model_,
+                stream_);
 
             // FFN
             {
@@ -696,33 +640,20 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
                       Tensor{MEMORY_GPU,
                              data_type,
                              {h_token_num, d_model_},
-                             layernorm_type_ == LayerNormType::pre_layernorm ? normed_attn_out_buf_ : attn_out_buf_}}});
+                             normed_attn_out_buf_}}});
                 TensorMap ffn_output_tensors;
                 ffn_output_tensors.insert("ffn_output",
                                           Tensor{MEMORY_GPU, data_type, {h_token_num, d_model_}, out_tensor});
                 ffn_layer_->forward(&ffn_output_tensors, &ffn_input_tensors, &layer_weight->ffn_weights_);
             }
 
-            if (layernorm_type_ == LayerNormType::post_layernorm) {
-                invokeGeneralAddBiasResidualT5PreLayerNorm(out_tensor,
-                                                           out_tensor,
-                                                           attn_out_buf_,
-                                                           layer_weight->ffn_layernorm_weights_.gamma,
-                                                           layer_weight->ffn_layernorm_weights_.beta,
-                                                           layer_weight->ffn_weights_.output_weight.bias,
-                                                           layernorm_eps_,
-                                                           h_token_num,
-                                                           d_model_,
-                                                           stream_);
-            }
-            else if (layernorm_type_ == LayerNormType::pre_layernorm) {
-                invokeT5AddBiasResidual(out_tensor,
-                                        attn_out_buf_,
-                                        layer_weight->ffn_weights_.output_weight.bias,
-                                        h_token_num,
-                                        d_model_,
-                                        stream_);
-            }
+            invokeT5AddBiasResidual(out_tensor,
+                                    attn_out_buf_,
+                                    layer_weight->ffn_weights_.output_weight.bias,
+                                    h_token_num,
+                                    d_model_,
+                                    stream_);
+
             sync_check_cuda_error();
 
             if (isLastLayerParallelId(i) == true && pipeline_para_.rank_ != pipeline_para_.world_size_ - 1) {
@@ -736,16 +667,15 @@ void M2MEncoder<T>::forward(TensorMap*                  output_tensors,
         }
 
         if (pipeline_para_.rank_ == pipeline_para_.world_size_ - 1) {
-            if (mbart) {  // mBART has final layernorm after Transformer block. BART doesn't
-                invokeGeneralT5LayerNorm(m2m_encoder_output_ptr,
-                                         m2m_encoder_output_ptr,
-                                         m2m_encoder_weights->post_transformer_layernorm_weights.gamma,
-                                         m2m_encoder_weights->post_transformer_layernorm_weights.beta,
-                                         layernorm_eps_,
-                                         h_token_num,
-                                         d_model_,
-                                         stream_);
-            }
+            invokeGeneralT5LayerNorm(m2m_encoder_output_ptr,
+                                        m2m_encoder_output_ptr,
+                                        m2m_encoder_weights->post_transformer_layernorm_weights.gamma,
+                                        m2m_encoder_weights->post_transformer_layernorm_weights.beta,
+                                        layernorm_eps_,
+                                        h_token_num,
+                                        d_model_,
+                                        stream_);
+
 
             // post process (rebuild padding)
             switch (attention_type_) {

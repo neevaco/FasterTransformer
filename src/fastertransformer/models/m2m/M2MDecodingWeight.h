@@ -40,34 +40,24 @@ struct M2MDecodingWeight {
                        const size_t                tensor_para_rank,
                        const size_t                pipeline_para_size,
                        const size_t                pipeline_para_rank,
-                       const bool                  m2m_with_bias_para          = true,
-                       const bool                  mbart_para                   = false,
                        const bool                  use_gated_activation_para    = false,
                        const PositionEmbeddingType position_embedding_type_para = PositionEmbeddingType::absolute);
     ~M2MDecodingWeight();
     M2MDecodingWeight(const M2MDecodingWeight& other);
     M2MDecodingWeight& operator=(const M2MDecodingWeight& other);
 
-    LayerNormWeight<T>                      pre_decoder_layernorm;
     std::vector<M2MDecoderLayerWeight<T>*> decoder_layer_weights;
     const T*                                pre_decoder_embedding_table             = nullptr;
-    const T*                                absolute_or_relative_position_embedding = nullptr;
     LayerNormWeight<T>                      post_decoder_layernorm;
     DenseWeight<T> post_decoder_embedding;  // Megatron embedding is weight + bias, so prefer to use a separate weight
                                             // class to store
-    bool m2m_with_bias       = true;
-    bool mbart                = false;
+    const T*                                sinusoidal_position_embedding = nullptr;
     bool use_gated_activation = false;
     // 0 = relative_position_embedding,  1 = absolute_position_embedding
     PositionEmbeddingType position_embedding_type = PositionEmbeddingType::absolute;
 
     void loadModel(std::string dir_path);
     void resizeLayer(const int num_layer);
-
-    void setM2MStructureDiff(bool                  m2m_with_bias_para,
-                              bool                  mbart_para,
-                              bool                  use_gated_activation_para,
-                              PositionEmbeddingType position_embedding_type_para);
 
 private:
     void setWeightPtr();
@@ -93,10 +83,9 @@ private:
 
     int real_weights_num_;
 
-    // 8: [0] absolute/relative positional embedding weight [1] word embedding weight [2] word embedding 2 weight [3]
-    // pre-LN weight [4] post-LN weight [5] pre-LN bias [6] post-LN bias [7] word embedding 2 bias. Assuming both mBART
-    // and bias
-    const static int weights_num_ = 8;
+    // 5: [0] word embedding weight [1] word embedding 2 weight
+    // [2] post-LN weight [3] post-LN bias [4] embed_positions (precalculated sinusoidal)
+    const static int weights_num_ = 5;
     T*               weights_ptr[weights_num_];
     size_t           weights_size[weights_num_];
 };

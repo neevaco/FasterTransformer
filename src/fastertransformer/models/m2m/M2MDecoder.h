@@ -47,7 +47,6 @@ private:
     const size_t         num_layer_;
     const size_t         hidden_units_;
     const ActivationType activation_type_;
-    const LayerNormType  layernorm_type_;  // still need to distinguish pre-/post- LayerNorm of
     const float          layernorm_eps_;
     float                q_scaling_;
 
@@ -96,7 +95,6 @@ public:
                 NcclParam                           tensor_para,
                 NcclParam                           pipeline_para,
                 ActivationType                      activation_type,
-                LayerNormType                       layernorm_type,
                 float                               q_scaling                = 1.0f,
                 std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm   = nullptr,
                 int                                 enable_custom_all_reduce = 0);

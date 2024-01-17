@@ -40,7 +40,6 @@ private:
     const size_t         num_bucket_;
     const size_t         max_distance_;
     const ActivationType activation_type_;
-    const LayerNormType  layernorm_type_;  // still need to distinguish pre-/post- LayerNorm
     float                q_scaling_;
     const bool           tie_word_embeddings_;
 
@@ -150,7 +149,6 @@ public:
                  NcclParam                           tensor_para,
                  NcclParam                           pipeline_para,
                  ActivationType                      activation_type          = ActivationType::Gelu,
-                 LayerNormType                       layernorm_type           = LayerNormType::post_layernorm,
                  bool                                tie_word_embeddings      = false,
                  std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm   = nullptr,
                  int                                 enable_custom_all_reduce = 0);

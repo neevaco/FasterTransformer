@@ -90,12 +90,9 @@ private:
     std::vector<std::shared_ptr<ft::M2MDecodingWeight<T>>> decoding_shared_weights_;
 
     // m2m structure difference
-    bool                      m2m_with_bias_ = true;
-    bool                      mbart_para_ = false;
     bool                      use_gated_activation_ = false;
     ft::PositionEmbeddingType position_embedding_type_ = ft::PositionEmbeddingType::absolute;
     ft::ActivationType        activation_type_;
-    ft::LayerNormType         layernorm_type_ = ft::LayerNormType::post_layernorm;
 
     bool is_fp16_;
     int  int8_mode_;
