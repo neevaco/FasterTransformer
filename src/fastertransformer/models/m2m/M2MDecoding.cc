@@ -39,7 +39,6 @@ void M2MDecoding<T>::initialize()
                                   tensor_para_,
                                   pipeline_para_,
                                   activation_type_,
-                                  layernorm_type_,
                                   q_scaling_,
                                   custom_all_reduce_comm_,
                                   enable_custom_all_reduce_);
@@ -243,7 +242,6 @@ M2MDecoding<T>::M2MDecoding(size_t                              max_batch_size,
                               NcclParam                           tensor_para,
                               NcclParam                           pipeline_para,
                               ActivationType                      activation_type,
-                              LayerNormType                       layernorm_type,
                               bool                                tie_word_embeddings,
                               std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm,
                               int                                 enable_custom_all_reduce):
@@ -269,7 +267,6 @@ M2MDecoding<T>::M2MDecoding(size_t                              max_batch_size,
     tensor_para_(tensor_para),
     pipeline_para_(pipeline_para),
     activation_type_(activation_type),
-    layernorm_type_(layernorm_type),
     tie_word_embeddings_(tie_word_embeddings),
     custom_all_reduce_comm_(custom_all_reduce_comm),
     enable_custom_all_reduce_(enable_custom_all_reduce)
@@ -307,7 +304,6 @@ M2MDecoding<T>::M2MDecoding(M2MDecoding<T> const& decoding):
     tensor_para_(decoding.tensor_para_),
     pipeline_para_(decoding.pipeline_para_),
     activation_type_(decoding.activation_type_),
-    layernorm_type_(decoding.layernorm_type_),
     tie_word_embeddings_(decoding.tie_word_embeddings_),
     custom_all_reduce_comm_(decoding.custom_all_reduce_comm_),
     enable_custom_all_reduce_(decoding.enable_custom_all_reduce_)

@@ -61,7 +61,6 @@ M2MTritonModel<T>::M2MTritonModel(INIReader reader, std::string model_dir): mode
     encoder_num_layer_     = reader.GetInteger("encoder", "num_layers");
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
     encoder_max_pos_seq_len_ = reader.GetInteger("encoder", "max_pos_seq_len");
-    layernorm_type_ = ft::LayerNormType::pre_layernorm;
 
 
     // decoding
@@ -114,7 +113,6 @@ M2MTritonModel<T>::M2MTritonModel(size_t      tensor_para_size,
     encoder_vocab_size_    = reader.GetInteger("encoder", "vocab_size");
     encoder_max_pos_seq_len_ =
         reader.GetInteger("encoder", "max_pos_seq_len");
-    layernorm_type_ = ft::LayerNormType::pre_layernorm;
     
     // decoding
     decoding_head_num_      = reader.GetInteger("decoder", "num_heads");
@@ -206,7 +204,6 @@ M2MTritonModel<T>::createModelInstance(int                                      
                                                                        attention_type,
                                                                        false,
                                                                        activation_type_,
-                                                                       layernorm_type_,
                                                                        tensor_para_,
                                                                        pipeline_para_,
                                                                        custom_all_reduce_comm,
@@ -241,7 +238,6 @@ M2MTritonModel<T>::createModelInstance(int                                      
                                                                           tensor_para_,
                                                                           pipeline_para_,
                                                                           activation_type_,
-                                                                          layernorm_type_,
                                                                           tie_word_embeddings_,
                                                                           custom_all_reduce_comm,
                                                                           enable_custom_all_reduce_));
