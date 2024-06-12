@@ -124,7 +124,11 @@ BertTritonModel<T>::createModelInstance(int                                     
     const int         max_seq_len = 384;
     ft::AttentionType attention_type =
         ft::getAttentionType<T>(size_per_head_, ft::getSMVersion(), is_remove_padding_, max_seq_len);
-
+    bool is_free_buffer_after_forward = false;
+    char * free_buffer_after_forward = std::getenv("BERT_FREE_BUFFER_AFTER_FORWARD");
+    if (free_buffer_after_forward != nullptr && std::string(free_buffer_after_forward) == "ON") {
+        is_free_buffer_after_forward = true;
+    }
     auto bert =
         std::make_unique<ft::Bert<T>>(ft::Bert<T>(0,  // max_batch_size, FT will adjust the buffer automatically.
                                                   0,  //  max_seq_len, FT will adjust the buffer automatically.
@@ -137,7 +141,7 @@ BertTritonModel<T>::createModelInstance(int                                     
                                                   stream,
                                                   cublas_wrapper.get(),
                                                   allocator.get(),
-                                                  false,
+                                                  is_free_buffer_after_forward,
                                                   attention_type,
                                                   is_sparse_,
                                                   activation_type_,
