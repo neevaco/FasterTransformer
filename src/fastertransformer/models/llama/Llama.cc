@@ -142,8 +142,6 @@ void Llama<T>::allocateBuffer(
     // prompt_learning weight batch ptrs
     prompt_learning_weight_batch_ =
         (const T**)(allocator_->reMalloc(prompt_learning_weight_batch_, sizeof(T*) * batchxbeam, false));
-    tiled_prompt_lengths_buf_ =
-        (int*)(allocator_->reMalloc(tiled_prompt_lengths_buf_, sizeof(int) * batchxbeam, true));
 
     tiled_input_ids_buf_ =
         (int*)(allocator_->reMalloc(tiled_input_ids_buf_, sizeof(int) * batchxbeam * max_input_len, true));
@@ -206,7 +204,6 @@ void Llama<T>::freeBuffer()
         }
 
         allocator_->free((void**)(&prompt_learning_weight_batch_));
-        allocator_->free((void**)(&tiled_prompt_lengths_buf_));
 
         allocator_->free((void**)(&tiled_input_ids_buf_));
         allocator_->free((void**)(&tiled_input_lengths_buf_));
@@ -646,22 +643,6 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
         sync_check_cuda_error();
     }
 
-    // Prefix prompts
-    if (has_prefix_prompt_) {
-        cudaMemcpyAsync(prompt_learning_weight_batch_,
-                        prefix_prompt_weight_batch_ptrs.data(),
-                        sizeof(T*) * batch_size * beam_width,
-                        cudaMemcpyDefault,
-                        stream_);
-        cudaMemcpyAsync(tiled_prompt_lengths_buf_,
-                        prefix_prompt_lengths.data(),
-                        sizeof(int) * batch_size * beam_width,
-                        cudaMemcpyDefault,
-                        stream_);
-    }
-
-    sync_check_cuda_error();
-
     // handle first step
     if (has_prefix_prompt_ || has_prefix_soft_prompt_ || max_input_length > 1) {
         invokeTileGptInputs(tiled_input_ids_buf_,
@@ -714,7 +695,7 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
 
         invokeBuildDecoderAttentionMask(input_attention_mask_,
                                         tiled_input_lengths_buf_,
-                                        tiled_prompt_lengths_buf_,
+                                        (const int*)nullptr, // prefix_prompt_lengths
                                         batch_size * beam_width,
                                         max_input_length,
                                         max_prefix_prompt_length,
@@ -845,7 +826,6 @@ void Llama<T>::forward(std::unordered_map<std::string, Tensor>*       output_ten
 
     invokeMaskPaddingTokens(masked_tokens_,
                             input_tensors->at("input_lengths").getPtr<const int>(),  // not_tiled
-                            tiled_prompt_lengths_buf_,
                             max_cache_seq_len,
                             max_input_length + max_prefix_prompt_length,
                             0,
